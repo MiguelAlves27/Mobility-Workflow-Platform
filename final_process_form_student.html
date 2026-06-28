@@ -1,0 +1,2279 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobility Form · Final Validation</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <script>
+    (function () {
+      var t = localStorage.getItem("mobility-form-theme");
+      if (t) document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+
+  <style>
+    /* ── Light theme (default) ── */
+    :root {
+      --bg:                   #dde2ea;
+      --text:                 #1f2937;
+      --text-muted:           #6b7280;
+      --text-label:           #374151;
+      --text-hint:            #9ca3af;
+      --text-placeholder:     #9ca3af;
+      --border:               #cdd2da;
+      --sep:                  #c8cdd6;
+      --card-bg:              #edf0f4;
+      --card-shadow:          0 2px 10px rgba(0,0,0,0.07);
+      --eq-card-bg:           #f0f3f7;
+      --eq-card-border:       #cdd2da;
+      --eq-card-shadow:       0 4px 16px rgba(0,0,0,0.12);
+      --inner-card-bg:        #e4e8ef;
+      --input-bg:             #f4f6f9;
+      --input-border:         #c4cad4;
+      --input-text:           #1f2937;
+      --input-disabled-bg:    #e4e8ef;
+      --input-disabled-text:  #7a8494;
+      --btn-primary-bg:       #2563eb;
+      --btn-primary-hover:    #1d4ed8;
+      --btn-primary-shadow:   rgba(37,99,235,0.18);
+      --btn-secondary-bg:     #edf0f4;
+      --btn-secondary-text:   #1f2937;
+      --btn-secondary-border: #c4cad4;
+      --btn-secondary-hover:  #e2e7ee;
+      --tab-active-bg:        #2563eb;
+      --tab-done-step-bg:     #dcfce7;
+      --tab-done-step-border: #86efac;
+      --tab-done-step-text:   #166534;
+      --pill-bg:              #f3f4f6;
+      --pill-border:          #d1d5db;
+      --pill-text:            #374151;
+      --msg-bg:               #fee2e2;
+      --msg-border:           #fca5a5;
+      --msg-text:             #991b1b;
+      --msg-ok-bg:            #dcfce7;
+      --msg-ok-border:        #86efac;
+      --msg-ok-text:          #166534;
+      --feedback-bg:          #fee2e2;
+      --feedback-border:      #fca5a5;
+      --feedback-ok-bg:       #dcfce7;
+      --feedback-ok-border:   #86efac;
+      --feedback-title:       #111827;
+      --feedback-meta:        #6b7280;
+      --info-bg:              #e4e8ef;
+      --info-border:          #c8cdd6;
+      --info-title:           #111827;
+      --info-text:            #4b5563;
+      --help-bg:              #e4e8ef;
+      --help-border:          #c4cad4;
+      --help-text:            #374151;
+      --help-hover:           #d4d9e2;
+      --tooltip-bg:           #edf0f4;
+      --tooltip-border:       #cdd2da;
+      --tooltip-text:         #1f2937;
+      --tooltip-shadow:       rgba(0,0,0,0.12);
+      --eq-toggle-bg:         #edf0f4;
+      --eq-toggle-border:     #c4cad4;
+      --eq-toggle-text:       #6b7280;
+      --eq-toggle-hover:      #d4d9e2;
+      --eq-summary-text:      #6b7280;
+      --theme-btn-bg:         #edf0f4;
+      --theme-btn-border:     #c4cad4;
+      --theme-btn-text:       #374151;
+      --theme-btn-hover:      #e2e7ee;
+      --accent:               #2563eb;
+      /* Upload section */
+      --upload-card-bg:       rgba(0,0,0,0.03);
+      --upload-card-border:   rgba(0,0,0,0.14);
+      --upload-drag-bg:       rgba(0,0,0,0.07);
+      --upload-drag-border:   rgba(0,0,0,0.28);
+      --upload-drop-bg:       rgba(0,0,0,0.04);
+      --upload-drop-border:   rgba(0,0,0,0.10);
+      --upload-drop-hover-bg: rgba(0,0,0,0.07);
+      --upload-drop-hover-border: rgba(0,0,0,0.20);
+      --upload-remove-color:  rgba(0,0,0,0.35);
+      --upload-remove-hover:  #1f2937;
+      --upload-dot:           rgba(0,0,0,0.18);
+    }
+
+    /* ── Dark theme ── */
+    [data-theme="dark"] {
+      --bg:                   #111827;
+      --text:                 #f1f5f9;
+      --text-muted:           #94a3b8;
+      --text-label:           #cbd5e1;
+      --text-hint:            #4b5563;
+      --text-placeholder:     #4b5563;
+      --border:               #374151;
+      --sep:                  #374151;
+      --card-bg:              #1f2937;
+      --card-shadow:          0 4px 16px rgba(0,0,0,0.30);
+      --eq-card-bg:           #273449;
+      --eq-card-border:       #3d5068;
+      --eq-card-shadow:       0 4px 16px rgba(0,0,0,0.35);
+      --inner-card-bg:        #1a2332;
+      --input-bg:             #111827;
+      --input-border:         #374151;
+      --input-text:           #f1f5f9;
+      --input-disabled-bg:    #1a2332;
+      --input-disabled-text:  #6b7280;
+      --btn-primary-bg:       #3b82f6;
+      --btn-primary-hover:    #2563eb;
+      --btn-primary-shadow:   rgba(59,130,246,0.30);
+      --btn-secondary-bg:     transparent;
+      --btn-secondary-text:   #cbd5e1;
+      --btn-secondary-border: #374151;
+      --btn-secondary-hover:  rgba(255,255,255,0.06);
+      --tab-active-bg:        #3b82f6;
+      --tab-done-step-bg:     rgba(74,222,128,0.15);
+      --tab-done-step-border: rgba(74,222,128,0.35);
+      --tab-done-step-text:   #4ade80;
+      --pill-bg:              #374151;
+      --pill-border:          #4b5563;
+      --pill-text:            #d1d5db;
+      --msg-bg:               rgba(239,68,68,0.15);
+      --msg-border:           rgba(239,68,68,0.40);
+      --msg-text:             #fca5a5;
+      --msg-ok-bg:            rgba(74,222,128,0.12);
+      --msg-ok-border:        rgba(74,222,128,0.35);
+      --msg-ok-text:          #4ade80;
+      --feedback-bg:          rgba(248,113,113,0.08);
+      --feedback-border:      rgba(248,113,113,0.25);
+      --feedback-ok-bg:       rgba(74,222,128,0.08);
+      --feedback-ok-border:   rgba(74,222,128,0.25);
+      --feedback-title:       #f1f5f9;
+      --feedback-meta:        #64748b;
+      --info-bg:              #1a2332;
+      --info-border:          #374151;
+      --info-title:           #f1f5f9;
+      --info-text:            #94a3b8;
+      --help-bg:              #374151;
+      --help-border:          #4b5563;
+      --help-text:            #cbd5e1;
+      --help-hover:           #4b5563;
+      --tooltip-bg:           #1f2937;
+      --tooltip-border:       #4b5563;
+      --tooltip-text:         #f1f5f9;
+      --tooltip-shadow:       rgba(0,0,0,0.50);
+      --eq-toggle-bg:         #374151;
+      --eq-toggle-border:     #4b5563;
+      --eq-toggle-text:       #94a3b8;
+      --eq-toggle-hover:      #4b5563;
+      --eq-summary-text:      #64748b;
+      --theme-btn-bg:         #1f2937;
+      --theme-btn-border:     #374151;
+      --theme-btn-text:       #cbd5e1;
+      --theme-btn-hover:      #273449;
+      --accent:               #3b82f6;
+      /* Upload section */
+      --upload-card-bg:       rgba(255,255,255,0.04);
+      --upload-card-border:   rgba(255,255,255,0.20);
+      --upload-drag-bg:       rgba(255,255,255,0.08);
+      --upload-drag-border:   rgba(255,255,255,0.55);
+      --upload-drop-bg:       rgba(0,0,0,0.15);
+      --upload-drop-border:   rgba(255,255,255,0.16);
+      --upload-drop-hover-bg: rgba(255,255,255,0.06);
+      --upload-drop-hover-border: rgba(255,255,255,0.30);
+      --upload-remove-color:  rgba(255,255,255,0.55);
+      --upload-remove-hover:  #fff;
+      --upload-dot:           rgba(255,255,255,0.25);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .overlay {
+      width: 100%;
+      max-width: 980px;
+      margin: 18px;
+      background: transparent;
+    }
+
+    header {
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .sub {
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    main {
+      padding: 10px 0 0 0;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--card-shadow);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .sep {
+      height: 1px;
+      background: var(--sep);
+      margin: 16px 0;
+    }
+
+    .msg {
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.45;
+      min-height: 20px;
+      width: 600px;
+      max-width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: var(--msg-bg);
+      border: 1px solid var(--msg-border);
+      color: var(--msg-text);
+    }
+
+    .msg.hidden { display: none; }
+
+    .msg.success {
+      background: var(--msg-ok-bg);
+      border-color: var(--msg-ok-border);
+      color: var(--msg-ok-text);
+    }
+
+    form { margin: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: var(--text-label);
+    }
+
+    input, select, textarea {
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--input-text);
+      outline: none;
+      font-size: 15px;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-placeholder);
+    }
+
+    input:disabled, select:disabled, textarea:disabled {
+      background: var(--input-disabled-bg);
+      color: var(--input-disabled-text);
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--text-hint);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--btn-primary-bg);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--btn-primary-bg);
+      color: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--btn-primary-hover);
+      border-color: var(--btn-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px var(--btn-primary-shadow);
+    }
+
+    .btn.secondary {
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      border: 1px solid var(--btn-secondary-border);
+    }
+
+    .btn.secondary:hover {
+      background: var(--btn-secondary-hover);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--theme-btn-border);
+      background: var(--theme-btn-bg);
+      color: var(--theme-btn-text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle:hover { background: var(--theme-btn-hover); }
+
+    .pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--pill-border);
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      white-space: nowrap;
+    }
+
+    .pill.approved {
+      background: var(--tab-done-step-bg);
+      border-color: var(--tab-done-step-border);
+      color: var(--tab-done-step-text);
+    }
+
+    .pill.changes {
+      background: var(--msg-bg);
+      border-color: var(--msg-border);
+      color: var(--msg-text);
+    }
+
+    .pill.not-reviewed {
+      background: rgba(251,191,36,0.12);
+      border-color: rgba(251,191,36,0.35);
+      color: #92400e;
+    }
+
+    [data-theme="dark"] .pill.not-reviewed { color: #fbbf24; }
+
+    .feedbackBox {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--feedback-border);
+      background: var(--feedback-bg);
+    }
+
+    .feedbackBox.approved {
+      border-color: var(--feedback-ok-border);
+      background: var(--feedback-ok-bg);
+    }
+
+    .feedbackTitle {
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--feedback-title);
+    }
+
+    .feedbackMeta {
+      color: var(--feedback-meta);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .info-box {
+      margin: 0 0 16px 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+    }
+
+    .info-box-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--info-title);
+    }
+
+    .info-box-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--info-text);
+    }
+
+    .europe-only { display: none; }
+    .outside-only { display: none; }
+
+    body.is-europe .europe-only { display: block; }
+    body.is-outside .outside-only { display: block; }
+
+    body.is-europe .europe-only.grid-item,
+    body.is-outside .outside-only.grid-item { display: flex; }
+
+    .label-with-help {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      width: fit-content;
+    }
+
+    .help-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--help-border);
+      background: var(--help-bg);
+      color: var(--help-text);
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      padding: 0;
+      line-height: 1;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .help-icon:hover, .help-icon:focus {
+      background: var(--help-hover);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .help-tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      z-index: 30;
+      min-width: 220px;
+      max-width: 320px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--tooltip-bg);
+      border: 1px solid var(--tooltip-border);
+      box-shadow: 0 10px 24px var(--tooltip-shadow);
+      color: var(--tooltip-text);
+      font-size: 12px;
+      line-height: 1.45;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .label-with-help.show-tooltip .help-tooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .eq-card {
+      background: var(--eq-card-bg) !important;
+      border: 1px solid var(--eq-card-border) !important;
+      box-shadow: var(--eq-card-shadow) !important;
+    }
+
+    .eq-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--eq-toggle-border);
+      background: var(--eq-toggle-bg);
+      cursor: pointer;
+      color: var(--eq-toggle-text);
+      font-size: 10px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease;
+      padding: 0;
+    }
+
+    .eq-toggle:hover { background: var(--eq-toggle-hover); }
+
+    .eq-toggle-chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+
+    .eq-card.collapsed .eq-toggle-chevron { transform: rotate(-90deg); }
+    .eq-card.collapsed .eq-body { display: none; }
+
+    .eq-summary {
+      display: none;
+      font-size: 13px;
+      color: var(--eq-summary-text);
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 560px;
+    }
+
+    .eq-card.collapsed .eq-summary { display: block; }
+
+    .fields-grid { display: contents; }
+
+    input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+
+    /* ── PDF Upload Section ── */
+
+    .upload-section { margin-top: 0; }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .upload-card {
+      border-radius: 14px;
+      border: 1.5px dashed var(--upload-card-border);
+      background: var(--upload-card-bg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .upload-card.drag-over {
+      border-color: var(--upload-drag-border);
+      background: var(--upload-drag-bg);
+    }
+
+    .upload-card.has-file {
+      border-style: solid;
+      border-color: rgba(46,204,113,0.50);
+      background: rgba(46,204,113,0.06);
+    }
+
+    .upload-card-title { font-size: 13px; font-weight: 700; }
+
+    .upload-card-hint { font-size: 12px; opacity: 0.60; line-height: 1.45; }
+
+    .upload-drop-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 12px;
+      border-radius: 10px;
+      border: 1px dashed var(--upload-drop-border);
+      background: var(--upload-drop-bg);
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      text-align: center;
+    }
+
+    .upload-drop-zone:hover {
+      background: var(--upload-drop-hover-bg);
+      border-color: var(--upload-drop-hover-border);
+    }
+
+    .upload-drop-zone svg { opacity: 0.55; }
+    .upload-drop-zone-label { font-size: 13px; opacity: 0.80; }
+    .upload-drop-zone-sub { font-size: 11px; opacity: 0.50; }
+    .upload-input { display: none; }
+
+    .upload-file-info {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(46,204,113,0.12);
+      border: 1px solid rgba(46,204,113,0.30);
+    }
+
+    .upload-card.has-file .upload-file-info { display: flex; }
+    .upload-card.has-file .upload-drop-zone { display: none; }
+
+    .upload-file-name {
+      font-size: 13px;
+      font-weight: 600;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .upload-file-size { font-size: 11px; opacity: 0.60; white-space: nowrap; }
+
+    .upload-view-link {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .upload-view-link:hover { text-decoration: underline; }
+
+    .upload-remove-btn {
+      background: none;
+      border: none;
+      color: var(--upload-remove-color);
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1;
+      transition: color 0.15s ease, background 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .upload-remove-btn:hover {
+      color: var(--upload-remove-hover);
+      background: rgba(231,76,60,0.18);
+    }
+
+    .upload-status-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+
+    .upload-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--upload-dot);
+      flex-shrink: 0;
+    }
+
+    .upload-card.has-file .upload-status-dot { background: #2ecc71; }
+    .upload-status-text { opacity: 0.60; }
+    .upload-card.has-file .upload-status-text { opacity: 0.85; color: #2ecc71; }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .upload-grid { grid-template-columns: 1fr; }
+      .overlay { margin: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay">
+    <header>
+      <div class="title">
+        <h1>Mobility form</h1>
+        <div class="sub" id="subtitle">Loading</div>
+      </div>
+      <button type="button" id="themeToggle" class="theme-toggle">☾ Dark</button>
+    </header>
+
+    <main>
+      <div class="card">
+        <h2 style="margin:0 0 10px 0; font-size:18px;" id="formTitle">Equivalence Validation</h2>
+        <div class="sub" id="formHint">Check if this were the courses that you took at the destination university</div>
+
+        <div class="sep"></div>
+
+        <div class="msg hidden" id="msg"></div>
+        <div id="msgsep" class="sep" style="display:none;"></div>
+
+        <form id="form">
+          <section>
+            <div id="equivalencesList" style="display:flex; flex-direction:column; gap:12px;"></div>
+
+            <template id="equivalenceTpl">
+              <div class="card eq-card">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+                  <div style="display:flex; gap:8px; align-items:center; flex:1; min-width:0;">
+                    <button type="button" class="eq-toggle" data-role="toggleBtn" title="Collapse/Expand">
+                      <span class="eq-toggle-chevron">▼</span>
+                    </button>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-weight:700;">Equivalence</div>
+                      <div class="eq-summary" data-role="eqSummary"></div>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <div class="pill not-reviewed" data-role="reviewPill" style="display:none;"></div>
+                    <button class="btn secondary" type="button" data-role="removeEquivalenceBtn">Remove equivalence</button>
+                  </div>
+                </div>
+
+                <div data-role="eqBody" class="eq-body">
+                  <div class="sep"></div>
+
+                  <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                    <div>
+                      <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <div style="font-weight:700;">Home courses</div>
+                        <button class="btn secondary" type="button" data-role="addHomeCourseBtn">Add home course</button>
+                      </div>
+
+                      <div data-role="homeList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <div style="font-weight:700;">Host courses</div>
+                        <button class="btn secondary" type="button" data-role="addHostCourseBtn">Add host course</button>
+                      </div>
+
+                      <div data-role="hostList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <template id="homeCourseTpl">
+              <div class="card" style="padding:12px; background: var(--inner-card-bg);">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                  <div style="font-weight:600; opacity:0.95;">Home course</div>
+                  <button class="btn secondary" type="button" data-role="removeCourseBtn">Remove</button>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 120px;">
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Home course</label>
+                    <select data-field="courseId" required>
+                      <option value="">Select</option>
+                    </select>
+                    <div class="hint">Loaded from Fénix</div>
+                  </div>
+
+                  <div class="field">
+                    <label>Credits</label>
+                    <input data-field="credits" inputmode="decimal" placeholder="6" required />
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Link</label>
+                    <input data-field="link" placeholder="https://..." disabled />
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <template id="hostCourseTpl">
+              <div class="card" style="padding:12px; background: var(--inner-card-bg);">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                  <div style="font-weight:600; opacity:0.95;">Host course</div>
+                  <button class="btn secondary" type="button" data-role="removeCourseBtn">Remove</button>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 120px;">
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Course name</label>
+                    <input data-field="name" placeholder="e.g. Ethics of New Technologies" required />
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Course code (if any)</label>
+                    <input data-field="code" />
+                  </div>
+
+                  <div class="fields-grid">
+                    <div class="field grid-item">
+                      <label>Credits</label>
+                      <input data-field="credits" inputmode="decimal" placeholder="5" required />
+                    </div>
+
+                    <div class="field grid-item">
+                      <label>Grade <span style="color:var(--msg-text);">*</span></label>
+                      <input data-field="grade" inputmode="decimal" placeholder="e.g. 14.5" required />
+                    </div>
+
+                    <div class="field outside-only grid-item">
+                      <label class="label-with-help">
+                        <span>Credits Equivalent</span>
+                        <button
+                          type="button"
+                          class="help-icon"
+                          aria-label="Help about Credits Equivalent"
+                          data-help="For universities outside Europe, the conversion of credits follows specific equivalency tables. These can be found on the NMPI page"
+                        >
+                          i
+                        </button>
+                      </label>
+
+                      <input data-field="credits_equivalent" inputmode="decimal" placeholder="5" />
+                    </div>
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Link</label>
+                    <input data-field="link" placeholder="https://..." />
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Semester</label>
+                    <select data-field="semester" required>
+                      <option value="">Select</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <div class="sep"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+              <button class="btn" type="button" id="addEquivalenceBtn">Add equivalence</button>
+            </div>
+          </section>
+
+          <!-- ── Transcripts of Records ───────────────────────── -->
+          <div class="sep"></div>
+
+          <section class="upload-section">
+            <h3 style="margin:0 0 4px 0; font-size:15px; font-weight:700;">Transcripts of Records</h3>
+            <p style="margin:0 0 2px 0; font-size:13px; opacity:0.80; line-height:1.55;">
+              Upload both Transcripts of Records to confirm the courses you completed during your mobility period.
+              Both documents are required before submission.
+            </p>
+
+            <div class="upload-grid">
+              <!-- IST TOR -->
+              <div class="upload-card" id="uploadCardIST">
+                <div class="upload-card-title">TOR IST (Home University)</div>
+                <div class="upload-card-hint">Official Transcript of Records issued by IST, this document should be up to date, listing the equivalences granted.</div>
+
+                <div class="upload-drop-zone" id="dropZoneIST" role="button" tabindex="0" aria-label="Upload IST Transcript of Records">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                  </svg>
+                  <span class="upload-drop-zone-label">Click or drag & drop PDF</span>
+                  <span class="upload-drop-zone-sub">PDF only · max 10 MB</span>
+                </div>
+
+                <div class="upload-file-info" id="fileInfoIST">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  <span class="upload-file-name" id="fileNameIST">-</span>
+                  <span class="upload-file-size" id="fileSizeIST"></span>
+                  <button class="upload-remove-btn" type="button" id="removeIST" aria-label="Remove IST TOR">✕</button>
+                </div>
+
+                <input type="file" class="upload-input" id="inputIST" accept="application/pdf" />
+
+                <div class="upload-status-row">
+                  <div class="upload-status-dot"></div>
+                  <span class="upload-status-text" id="statusIST">No file uploaded</span>
+                </div>
+              </div>
+
+              <!-- Host TOR -->
+              <div class="upload-card" id="uploadCardHost">
+                <div class="upload-card-title">TOR Host University</div>
+                <div class="upload-card-hint">Official Transcript of Records from your destination university, listing completed courses and grades.</div>
+
+                <div class="upload-drop-zone" id="dropZoneHost" role="button" tabindex="0" aria-label="Upload Host University Transcript of Records">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                  </svg>
+                  <span class="upload-drop-zone-label">Click or drag & drop PDF</span>
+                  <span class="upload-drop-zone-sub">PDF only · max 10 MB</span>
+                </div>
+
+                <div class="upload-file-info" id="fileInfoHost">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  <span class="upload-file-name" id="fileNameHost">-</span>
+                  <span class="upload-file-size" id="fileSizeHost"></span>
+                  <button class="upload-remove-btn" type="button" id="removeHost" aria-label="Remove Host TOR">✕</button>
+                </div>
+
+                <input type="file" class="upload-input" id="inputHost" accept="application/pdf" />
+
+                <div class="upload-status-row">
+                  <div class="upload-status-dot"></div>
+                  <span class="upload-status-text" id="statusHost">No file uploaded</span>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- ── End Transcripts of Records ───────────────────── -->
+
+          <div class="actions">
+            <button class="btn" id="saveBtn" type="button">Save</button>
+            <button class="btn secondary" id="submitBtn" type="button">Submit</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+
+    let processStatus = "";
+    let mobilityType = "";
+    let currentIstId = "";
+    let equivalencesState = [];
+    let eqDecisions = {};
+    let processPayloadSnapshot = null;
+    const collapsedEqs = new Set();
+
+    let homeCoursesCatalog = [];
+    let homeCoursesById = {};
+
+    let torFiles = { ist: null, host: null };
+
+
+    const MAX_PDF_MB = 10;
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + " B";
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    }
+
+    function applyFileToSlot(slot, file) {
+      if (!file) return;
+
+      if (file.type !== "application/pdf") {
+        setMsg("Please upload a PDF file.");
+        return;
+      }
+
+      if (file.size > MAX_PDF_MB * 1024 * 1024) {
+        setMsg(`File is too large. Maximum size is ${MAX_PDF_MB} MB.`);
+        return;
+      }
+
+      torFiles[slot] = file;
+
+      const card   = document.getElementById(slot === "ist" ? "uploadCardIST"  : "uploadCardHost");
+      const name   = document.getElementById(slot === "ist" ? "fileNameIST"    : "fileNameHost");
+      const size   = document.getElementById(slot === "ist" ? "fileSizeIST"    : "fileSizeHost");
+      const status = document.getElementById(slot === "ist" ? "statusIST"      : "statusHost");
+
+      if (card)   card.classList.add("has-file");
+      if (name)   name.textContent = file.name;
+      if (size)   size.textContent = formatBytes(file.size);
+      if (status) status.textContent = "Ready to upload";
+
+      setMsg("");
+    }
+
+    function removeFileFromSlot(slot) {
+      torFiles[slot] = null;
+
+      const card   = document.getElementById(slot === "ist" ? "uploadCardIST"  : "uploadCardHost");
+      const name   = document.getElementById(slot === "ist" ? "fileNameIST"    : "fileNameHost");
+      const size   = document.getElementById(slot === "ist" ? "fileSizeIST"    : "fileSizeHost");
+      const status = document.getElementById(slot === "ist" ? "statusIST"      : "statusHost");
+      const input  = document.getElementById(slot === "ist" ? "inputIST"       : "inputHost");
+
+      if (card)   card.classList.remove("has-file");
+      if (name)   name.textContent = "-";
+      if (size)   size.textContent = "";
+      if (status) status.textContent = "No file uploaded";
+      if (input)  input.value = "";
+    }
+
+    function initUploadZone(dropZoneId, inputId, slot) {
+      const zone  = document.getElementById(dropZoneId);
+      const input = document.getElementById(inputId);
+
+      if (!zone || !input) return;
+
+      zone.addEventListener("click", () => {
+        if (!isEditable()) return;
+        input.click();
+      });
+
+      zone.addEventListener("keydown", (e) => {
+        if ((e.key === "Enter" || e.key === " ") && isEditable()) {
+          e.preventDefault();
+          input.click();
+        }
+      });
+
+      zone.addEventListener("dragover", (e) => {
+        if (!isEditable()) return;
+        e.preventDefault();
+        zone.closest(".upload-card").classList.add("drag-over");
+      });
+
+      zone.addEventListener("dragleave", () => {
+        zone.closest(".upload-card").classList.remove("drag-over");
+      });
+
+      zone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        zone.closest(".upload-card").classList.remove("drag-over");
+        if (!isEditable()) return;
+        const file = e.dataTransfer.files[0];
+        if (file) applyFileToSlot(slot, file);
+      });
+
+      input.addEventListener("change", () => {
+        const file = input.files[0];
+        if (file) applyFileToSlot(slot, file);
+      });
+    }
+
+    function initUploadUI() {
+      initUploadZone("dropZoneIST",  "inputIST",  "ist");
+      initUploadZone("dropZoneHost", "inputHost", "host");
+
+      document.getElementById("removeIST").addEventListener("click",  () => removeFileFromSlot("ist"));
+      document.getElementById("removeHost").addEventListener("click", () => removeFileFromSlot("host"));
+    }
+
+    function setUploadDisabled(disabled) {
+      ["dropZoneIST", "dropZoneHost"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.cursor = disabled ? "not-allowed" : "pointer";
+      });
+
+      ["removeIST", "removeHost"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = disabled;
+      });
+    }
+
+    function validateTORs() {
+      if (!torFiles.ist) {
+        return { ok: false, msg: "Please upload the IST Transcript of Records (TOR)." };
+      }
+
+      if (!torFiles.host) {
+        return { ok: false, msg: "Please upload the Host University Transcript of Records (TOR)." };
+      }
+
+      return { ok: true, msg: "" };
+    }
+
+    async function uploadTORs() {
+      async function uploadOne(slot, file) {
+        const fd = new FormData();
+        fd.append("tor_file", file, file.name);
+        fd.append("tor_type", slot);
+
+        const r = await fetch(`${SERVER}/upload_tor.php`, {
+          method: "POST",
+          credentials: "include",
+          body: fd
+        });
+
+        const text = await r.text().catch(() => "");
+        return { ok: r.ok && text.trim() === "ok", status: r.status, text };
+      }
+
+      const results = await Promise.all([
+        torFiles.ist  ? uploadOne("origin",  torFiles.ist)  : Promise.resolve({ ok: true, skipped: true }),
+        torFiles.host ? uploadOne("destination", torFiles.host) : Promise.resolve({ ok: true, skipped: true }),
+      ]);
+
+      const failed = results.find(r => !r.ok);
+      return { ok: !failed, data: results };
+    }
+
+    function newEquivalenceId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+
+      const rand = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).slice(1);
+      return `eq_${Date.now()}_${rand()}${rand()}${rand()}`;
+    }
+
+    function normalizeCredits(v) {
+      return safeText(v).replace(",", ".");
+    }
+
+    function parseCreditsNumber(v) {
+      const s = safeText(v).replace(",", ".").trim();
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function computeTotalHostEcts(eqs) {
+      let total = 0;
+
+      for (const eq of Array.isArray(eqs) ? eqs : []) {
+        const dest = Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [];
+        for (const c of dest) {
+          const n = parseCreditsNumber(c.credits);
+          if (Number.isFinite(n)) total += n;
+        }
+      }
+
+      return total;
+    }
+
+    function setMsg(text, type = "error") {
+      const el = document.getElementById("msg");
+      const sep = document.getElementById("msgsep");
+
+      if (!el || !sep) return;
+
+      if (!text) {
+        el.textContent = "";
+        el.classList.add("hidden");
+        el.classList.remove("success");
+        sep.style.display = "none";
+        return;
+      }
+
+      el.textContent = text;
+      el.classList.remove("hidden");
+      el.classList.toggle("success", type === "success");
+      sep.style.display = "block";
+    }
+
+    function isEditable() {
+      return processStatus === "DRAFT" || processStatus === "CHANGES_REQUESTED";
+    }
+
+    function setButtonsForStatus() {
+      const editable = isEditable();
+      const saveBtn = document.getElementById("saveBtn");
+      const submitBtn = document.getElementById("submitBtn");
+      const addBtn = document.getElementById("addEquivalenceBtn");
+
+      if (saveBtn) saveBtn.disabled = !editable;
+      if (submitBtn) submitBtn.disabled = !editable;
+      if (addBtn) addBtn.disabled = !editable;
+
+      setUploadDisabled(!editable);
+
+      if (!editable && processStatus) {
+        setMsg("This process is submitted and can no longer be edited.");
+      }
+    }
+
+    function applyType(mt) {
+      const title = document.getElementById("formTitle");
+      const hint = document.getElementById("formHint");
+
+      document.body.classList.remove("is-europe", "is-outside");
+
+      if (mt === "EUROPE") {
+        document.body.classList.add("is-europe");
+        title.textContent = "Equivalence Validation - Europe mobility";
+        hint.textContent = "Check if this were the courses that you took at the destination university.";
+      } else {
+        document.body.classList.add("is-outside");
+        title.textContent = "Equivalence Validation - Outside Europe mobility";
+        hint.textContent = "Check if this were the courses that you took at the destination university.";
+      }
+    }
+
+    async function getProcess() {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get" })
+      });
+
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function savePayload(payload) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save",
+          payload
+        })
+      });
+
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function submitProcess() {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "submit"
+        })
+      });
+
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function listReviews(pid) {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_reviews_for_student_process", pid })
+      });
+
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function fetchHomeCoursesCatalog() {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_home_courses" })
+      });
+
+      const data = await r.json();
+      if (!r.ok || !data.ok) return { ok: false, items: [] };
+
+      const items = Array.isArray(data.items) ? data.items : [];
+      homeCoursesCatalog = items;
+      homeCoursesById = {};
+
+      items.forEach((it) => {
+        const key = safeText(it.name);
+        if (key) homeCoursesById[key] = it;
+      });
+
+      return { ok: true, items };
+    }
+
+    function defaultEquivalence() {
+      return {
+        id: newEquivalenceId(),
+        status: "A",
+        comment: "",
+        homeCourses: [
+          { courseId: "", name: "", credits: "", link: "", semester: "" }
+        ],
+        destinationCourses: [
+          { name: "", credits: "", credits_equivalent: "", grade: "", link: "", semester: "", code: "" }
+        ]
+      };
+    }
+
+    function readSection3Payload() {
+      const cleanHome = (arr) =>
+        (Array.isArray(arr) ? arr : []).map((x) => ({
+          courseId: safeText(x.courseId),
+          name: safeText(x.name),
+          link: safeText(x.link),
+          credits: normalizeCredits(x.credits),
+          semester: safeText(x.semester)
+        }));
+
+      const cleanHost = (arr) =>
+        (Array.isArray(arr) ? arr : []).map((x) => ({
+          name: safeText(x.name),
+          link: safeText(x.link),
+          credits: normalizeCredits(x.credits),
+          credits_equivalent: normalizeCredits(x.credits_equivalent),
+          grade: safeText(x.grade),
+          semester: safeText(x.semester),
+          code: safeText(x.code)
+        }));
+
+      return (Array.isArray(equivalencesState) ? equivalencesState : []).map((eq) => ({
+        id: safeText(eq.id) || newEquivalenceId(),
+        status: safeText(eq.status) || "A",
+        comment: safeText(eq.comment),
+        homeCourses: cleanHome(eq.homeCourses),
+        destinationCourses: cleanHost(eq.destinationCourses)
+      }));
+    }
+
+    function validateSection3() {
+      const eqs = readSection3Payload();
+
+      if (!eqs.length) {
+        return { ok: false, msg: "Please add at least one equivalence." };
+      }
+
+      for (let i = 0; i < eqs.length; i += 1) {
+        const eq = eqs[i];
+
+        if (!eq.homeCourses.length) {
+          return { ok: false, msg: `Equivalence ${i + 1}: add at least one home course.` };
+        }
+
+        if (!eq.destinationCourses.length) {
+          return { ok: false, msg: `Equivalence ${i + 1}: add at least one host course.` };
+        }
+
+        for (let j = 0; j < eq.homeCourses.length; j += 1) {
+          const c = eq.homeCourses[j];
+
+          if (!c.courseId) {
+            return { ok: false, msg: `Equivalence ${i + 1}: home course ${j + 1} needs a selection.` };
+          }
+
+          if (!c.credits) {
+            return { ok: false, msg: `Equivalence ${i + 1}: home course ${j + 1} needs credits.` };
+          }
+
+          if (!Number.isFinite(parseCreditsNumber(c.credits))) {
+            return { ok: false, msg: `Equivalence ${i + 1}: home course ${j + 1} credits must be a number.` };
+          }
+        }
+
+        for (let j = 0; j < eq.destinationCourses.length; j += 1) {
+          const c = eq.destinationCourses[j];
+
+          if (!c.name) {
+            return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs a name.` };
+          }
+
+          if (!c.grade) {
+            return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs a grade.` };
+          }
+
+          if (!c.credits) {
+            return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs credits.` };
+          }
+
+          if (!Number.isFinite(parseCreditsNumber(c.credits))) {
+            return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} credits must be a number.` };
+          }
+
+          if (mobilityType === "OUTSIDE_EUROPE") {
+            if (!c.credits_equivalent) {
+              return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs credits equivalence.` };
+            }
+
+            if (!Number.isFinite(parseCreditsNumber(c.credits_equivalent))) {
+              return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} credits equivalence must be a number.` };
+            }
+          }
+
+          if (!c.semester) {
+            return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs a semester.` };
+          }
+        }
+      }
+
+      return { ok: true, msg: "" };
+    }
+
+    function normalizeCourseForKey(c, isHost) {
+      const o = c && typeof c === "object" ? c : {};
+      const name = safeText(o.name).toLowerCase();
+      const credits = safeText(o.credits).replace(",", ".");
+      const link = safeText(o.link);
+
+      if (isHost) {
+        const semester = safeText(o.semester).toLowerCase();
+        return `${name}|${credits}|${link}|${semester}`;
+      }
+
+      return `${name}|${credits}|${link}`;
+    }
+
+    function equivalenceKeyExact(eq) {
+      const o = eq && typeof eq === "object" ? eq : {};
+      const home = Array.isArray(o.homeCourses) ? o.homeCourses : [];
+      const dest = Array.isArray(o.destinationCourses) ? o.destinationCourses : [];
+
+      const homeKey = home
+        .map((c) => normalizeCourseForKey(c, false))
+        .sort()
+        .join("||");
+
+      const destKey = dest
+        .map((c) => normalizeCourseForKey(c, true))
+        .sort()
+        .join("||");
+
+      return `H:${homeKey}::D:${destKey}`;
+    }
+
+    function getLatestEquivalencesVersionArray(payload) {
+      const pl = payload && typeof payload === "object" ? payload : processPayloadSnapshot;
+      if (!pl || typeof pl !== "object") return [];
+
+      let latestArr = null;
+      let latestV = -1;
+
+      for (const k of Object.keys(pl)) {
+        if (!k.startsWith("equivalences_")) continue;
+
+        const v = parseInt(k.slice("equivalences_".length), 10);
+        if (!Number.isFinite(v)) continue;
+
+        const arr = pl[k];
+        if (!Array.isArray(arr)) continue;
+
+        if (v > latestV) {
+          latestV = v;
+          latestArr = arr;
+        }
+      }
+
+      return Array.isArray(latestArr) ? latestArr : [];
+    }
+
+    function computeAddedUpdatedRemoved(previousArr, currentArr) {
+      const prevRaw = Array.isArray(previousArr) ? previousArr : [];
+      const cur = Array.isArray(currentArr) ? currentArr : [];
+
+      const prev = prevRaw.filter((eq) => safeText(eq && eq.status) !== "R");
+
+      const prevMap = new Map();
+      for (const eq of prev) {
+        prevMap.set(equivalenceKeyExact(eq), eq);
+      }
+
+      const curMap = new Map();
+      for (const eq of cur) {
+        curMap.set(equivalenceKeyExact(eq), eq);
+      }
+
+      const out = [];
+
+      for (const eq of cur) {
+        const key = equivalenceKeyExact(eq);
+        const existedExactly = prevMap.has(key);
+        const status = existedExactly ? "U" : "A";
+
+        out.push({
+          id: status === "A" ? newEquivalenceId() : safeText(eq.id) || newEquivalenceId(),
+          status,
+          comment: safeText(eq.comment),
+          homeCourses: Array.isArray(eq.homeCourses) ? eq.homeCourses : [],
+          destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []
+        });
+      }
+
+      for (const eq of prev) {
+        const key = equivalenceKeyExact(eq);
+        if (!curMap.has(key)) {
+          out.push({
+            id: safeText(eq.id) || newEquivalenceId(),
+            status: "R",
+            comment: safeText(eq.comment),
+            homeCourses: Array.isArray(eq.homeCourses) ? eq.homeCourses : [],
+            destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []
+          });
+        }
+      }
+
+      return out;
+    }
+
+    function buildPayloadForSave() {
+      const base = processPayloadSnapshot && typeof processPayloadSnapshot === "object"
+        ? { ...processPayloadSnapshot }
+        : {};
+
+      base.equivalences = readSection3Payload();
+      base.mobility_type = mobilityType;
+
+      return base;
+    }
+
+    function buildPayloadForSubmit() {
+      const base = processPayloadSnapshot && typeof processPayloadSnapshot === "object"
+        ? { ...processPayloadSnapshot }
+        : {};
+
+      const previous = getLatestEquivalencesVersionArray(base);
+      const current = readSection3Payload();
+      const computed = computeAddedUpdatedRemoved(previous, current);
+
+      base.equivalences = computed;
+      base.mobility_type = mobilityType;
+
+      return base;
+    }
+
+    async function saveFlow(showSuccess = true) {
+      if (!isEditable()) {
+        setMsg("This process is submitted and can no longer be edited.");
+        return false;
+      }
+
+      setMsg("Saving…");
+
+      const latest = await getProcess();
+      if (latest.ok && latest.data && latest.data.ok && latest.data.process) {
+        processPayloadSnapshot = latest.data.process.payload || {};
+      }
+
+      // Upload any TORs already picked before saving
+      if (torFiles.ist || torFiles.host) {
+        const resUpload = await uploadTORs();
+        if (!resUpload.ok) {
+          setMsg("Failed to upload the Transcripts of Records. Please try again.");
+          return false;
+        }
+      }
+
+      const payload = buildPayloadForSave();
+      if (torFiles.ist)  payload.tor_ist_filename  = torFiles.ist.name;
+      if (torFiles.host) payload.tor_host_filename = torFiles.host.name;
+
+      const res = await savePayload(payload);
+
+      if (!res.ok) {
+        if (res.data && res.data.error === "process_not_editable") {
+          setMsg("This process is submitted and can no longer be edited.");
+          return false;
+        }
+
+        setMsg("Save failed.");
+        return false;
+      }
+
+      processPayloadSnapshot = payload;
+      if (showSuccess) setMsg("Saved successfully.", "success");
+      return true;
+    }
+
+    async function submitFlow() {
+      if (!isEditable()) {
+        setMsg("This process cannot be submitted.");
+        return;
+      }
+
+      // 1. Validate equivalences
+      const v = validateSection3();
+      if (!v.ok) {
+        setMsg(v.msg);
+        return;
+      }
+
+      // 2. Validate TORs
+      const vTOR = validateTORs();
+      if (!vTOR.ok) {
+        setMsg(vTOR.msg);
+        return;
+      }
+
+      setMsg("Preparing submission…");
+
+      const latest = await getProcess();
+      if (latest.ok && latest.data && latest.data.ok && latest.data.process) {
+        processPayloadSnapshot = latest.data.process.payload || {};
+      }
+
+      const payload = buildPayloadForSubmit();
+      equivalencesState = Array.isArray(payload.equivalences)
+        ? payload.equivalences.filter((x) => safeText(x.status) !== "R")
+        : [];
+      renderEquivalences();
+
+      const resSave = await savePayload(payload);
+      if (!resSave.ok) {
+        if (resSave.data && resSave.data.error === "process_not_editable") {
+          setMsg("This process is submitted and can no longer be edited.");
+          return;
+        }
+
+        setMsg("Save before submit failed.");
+        return;
+      }
+
+      processPayloadSnapshot = payload;
+
+      // 3. Upload TORs
+      setMsg("Uploading Transcripts of Records…");
+      const resUpload = await uploadTORs();
+      if (!resUpload.ok) {
+        setMsg("Failed to upload the Transcripts of Records. Please try again.");
+        return;
+      }
+
+      // 4. Persist TOR filenames in payload so they show on reload
+      const torPayload = { ...(processPayloadSnapshot || {}) };
+      if (torFiles.ist)  torPayload.tor_ist_filename  = torFiles.ist.name;
+      if (torFiles.host) torPayload.tor_host_filename = torFiles.host.name;
+      await savePayload(torPayload);
+      processPayloadSnapshot = torPayload;
+
+      const sure = window.confirm(
+        "Are you sure you want to submit this process? You will no longer be able to edit it."
+      );
+
+      if (!sure) {
+        setMsg("");
+        return;
+      }
+
+      setMsg("Submitting…");
+      const res = await submitProcess();
+
+      if (!res.ok) {
+        setMsg("Submission failed.");
+        return;
+      }
+
+      setMsg("Process submitted successfully.", "success");
+
+      window.setTimeout(() => {
+        window.parent.postMessage({ type: "CLOSE_IFRAME", source: "submitFlow" }, "*");
+      }, 900);
+    }
+
+    function fillFromProcessPayload(payload) {
+      if (!payload || typeof payload !== "object") return;
+
+      const eq = Array.isArray(payload.equivalences) && payload.equivalences.length > 0
+        ? payload.equivalences
+        : getLatestEquivalencesVersionArray(payload);
+
+      equivalencesState = Array.isArray(eq)
+        ? eq
+            .filter((x) => safeText(x && x.status) !== "R")
+            .map((x) => ({
+              id: safeText(x && x.id) || newEquivalenceId(),
+              status: safeText(x && x.status) || "A",
+              comment: safeText(x && x.comment),
+              homeCourses: Array.isArray(x && x.homeCourses) ? x.homeCourses : [],
+              destinationCourses: Array.isArray(x && x.destinationCourses) ? x.destinationCourses : []
+            }))
+        : [];
+
+      // Restore previously uploaded TOR info
+      function showSavedTOR(slot, filename) {
+        const isIST  = slot === "ist";
+        const card   = document.getElementById(isIST ? "uploadCardIST" : "uploadCardHost");
+        const name   = document.getElementById(isIST ? "fileNameIST"   : "fileNameHost");
+        const size   = document.getElementById(isIST ? "fileSizeIST"   : "fileSizeHost");
+        const status = document.getElementById(isIST ? "statusIST"     : "statusHost");
+        const rmBtn  = document.getElementById(isIST ? "removeIST"     : "removeHost");
+        const fileInfo = document.getElementById(isIST ? "fileInfoIST" : "fileInfoHost");
+        const torType  = isIST ? "origin" : "destination";
+
+        if (card)   card.classList.add("has-file");
+        if (name)   name.textContent = filename;
+        if (size)   size.textContent = "";
+        if (status) status.textContent = "Previously uploaded";
+        if (rmBtn)  rmBtn.style.display = "none";
+
+        if (fileInfo) {
+          const existing = fileInfo.querySelector(".upload-view-link");
+          if (!existing) {
+            const istId = currentIstId || safeText(processPayloadSnapshot?.personal?.ist_id || "");
+            if (istId) {
+              const link = document.createElement("a");
+              link.className = "upload-view-link";
+              link.href = `${SERVER}/serve_tor.php?tor_type=${torType}&ist_id=${encodeURIComponent(istId)}`;
+              link.textContent = "View";
+              link.target = "_blank";
+              link.rel = "noopener";
+              fileInfo.appendChild(link);
+            }
+          }
+        }
+      }
+
+      if (payload.tor_ist_filename)  showSavedTOR("ist",  safeText(payload.tor_ist_filename));
+      if (payload.tor_host_filename) showSavedTOR("host", safeText(payload.tor_host_filename));
+
+      renderEquivalences();
+    }
+
+    function initHelpTooltips(root = document) {
+      root.querySelectorAll(".help-icon").forEach((btn) => {
+        if (btn.dataset.tooltipReady === "1") return;
+
+        const wrapper = btn.closest(".label-with-help");
+        const text = btn.dataset.help || "";
+        if (!wrapper) return;
+
+        let tooltip = wrapper.querySelector(".help-tooltip");
+        if (!tooltip) {
+          tooltip = document.createElement("div");
+          tooltip.className = "help-tooltip";
+          tooltip.textContent = text;
+          wrapper.appendChild(tooltip);
+        }
+
+        btn.addEventListener("mouseenter", () => {
+          wrapper.classList.add("show-tooltip");
+        });
+
+        btn.addEventListener("mouseleave", () => {
+          wrapper.classList.remove("show-tooltip");
+        });
+
+        btn.addEventListener("focus", () => {
+          wrapper.classList.add("show-tooltip");
+        });
+
+        btn.addEventListener("blur", () => {
+          wrapper.classList.remove("show-tooltip");
+        });
+
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          wrapper.classList.toggle("show-tooltip");
+        });
+
+        btn.dataset.tooltipReady = "1";
+      });
+    }
+
+    function renderEquivalences() {
+      const list = document.getElementById("equivalencesList");
+      if (!list) return;
+
+      list.innerHTML = "";
+
+      if (!Array.isArray(equivalencesState) || equivalencesState.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "sub";
+        empty.style.opacity = "0.85";
+        empty.textContent = "No equivalences added yet.";
+        list.appendChild(empty);
+        return;
+      }
+
+      const eqTpl = document.getElementById("equivalenceTpl");
+      const homeTpl = document.getElementById("homeCourseTpl");
+      const hostTpl = document.getElementById("hostCourseTpl");
+
+      equivalencesState.forEach((eq, eqIndex) => {
+        const node = eqTpl.content.firstElementChild.cloneNode(true);
+        const editable = isEditable();
+
+        const reviewPill = node.querySelector('[data-role="reviewPill"]');
+        const d = eqDecisions[safeText(eq && eq.id)];
+
+        if (reviewPill) {
+          if (d && d.decision) {
+            let label = "NOT REVIEWED";
+            let cls = "not-reviewed";
+
+            if (d.decision === "APPROVED") {
+              label = "APPROVED";
+              cls = "approved";
+            }
+
+            if (d.decision === "CHANGES_REQUESTED") {
+              label = "CHANGES REQUESTED";
+              cls = "changes";
+            }
+
+            reviewPill.textContent = label;
+            reviewPill.style.display = "inline-flex";
+            reviewPill.classList.remove("approved", "changes", "not-reviewed");
+            reviewPill.classList.add(cls);
+          } else {
+            reviewPill.style.display = "none";
+          }
+        }
+
+        const removeEqBtn = node.querySelector('[data-role="removeEquivalenceBtn"]');
+        if (removeEqBtn) {
+          removeEqBtn.style.display = editable ? "inline-flex" : "none";
+
+          if (editable) {
+            removeEqBtn.addEventListener("click", () => {
+              equivalencesState.splice(eqIndex, 1);
+              collapsedEqs.delete(safeText(eq.id));
+              renderEquivalences();
+            });
+          }
+        }
+
+        const toggleBtn = node.querySelector('[data-role="toggleBtn"]');
+        const eqSummary = node.querySelector('[data-role="eqSummary"]');
+
+        function getEqSummaryText() {
+          const homeNames = (eq.homeCourses || [])
+            .map(c => safeText(c.name) || safeText(c.courseId) || "")
+            .filter(Boolean);
+          const hostNames = (eq.destinationCourses || [])
+            .map(c => safeText(c.name) || "")
+            .filter(Boolean);
+          const parts = [];
+          if (homeNames.length) parts.push(homeNames.join(", "));
+          if (hostNames.length) parts.push(hostNames.join(", "));
+          return parts.join(" → ") || "No courses added yet";
+        }
+
+        if (collapsedEqs.has(safeText(eq.id))) {
+          node.classList.add("collapsed");
+          if (eqSummary) eqSummary.textContent = getEqSummaryText();
+        }
+
+        if (toggleBtn) {
+          toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const nowCollapsed = node.classList.toggle("collapsed");
+            if (nowCollapsed) {
+              collapsedEqs.add(safeText(eq.id));
+              if (eqSummary) eqSummary.textContent = getEqSummaryText();
+            } else {
+              collapsedEqs.delete(safeText(eq.id));
+            }
+          });
+        }
+
+        const homeList = node.querySelector('[data-role="homeList"]');
+        const hostList = node.querySelector('[data-role="hostList"]');
+
+        function renderHome() {
+          if (!homeList) return;
+
+          homeList.innerHTML = "";
+
+          const arr = Array.isArray(eq.homeCourses) ? eq.homeCourses : [];
+          arr.forEach((c, cIndex) => {
+            const row = homeTpl.content.firstElementChild.cloneNode(true);
+
+            const courseSel = row.querySelector('[data-field="courseId"]');
+            const credits = row.querySelector('[data-field="credits"]');
+            const link = row.querySelector('[data-field="link"]');
+            const rm = row.querySelector('[data-role="removeCourseBtn"]');
+
+            const editableLocal = editable === true;
+
+            const applyPicked = (nameKey, opts = {}) => {
+              const picked = homeCoursesById[safeText(nameKey)];
+
+              if (!picked) {
+                eq.homeCourses[cIndex].courseId = "";
+                eq.homeCourses[cIndex].name = "";
+                eq.homeCourses[cIndex].credits = "";
+                eq.homeCourses[cIndex].link = "";
+                eq.homeCourses[cIndex].semester = "";
+
+                if (courseSel) courseSel.value = "";
+                if (credits) credits.value = "";
+                if (link) link.value = "";
+                return;
+              }
+
+              const pickedCredits =
+                picked && picked.credits != null && String(picked.credits).trim() !== ""
+                  ? String(picked.credits)
+                  : String(picked?.ects ?? "");
+
+              const existingCredits = safeText(eq.homeCourses?.[cIndex]?.credits);
+              const useExisting =
+                opts.preserveExistingCredits === true &&
+                existingCredits &&
+                String(existingCredits).trim() !== "";
+
+              const finalCredits = useExisting ? String(existingCredits) : pickedCredits;
+
+              eq.homeCourses[cIndex].courseId = safeText(picked.name);
+              eq.homeCourses[cIndex].name = safeText(picked.name);
+              eq.homeCourses[cIndex].credits = finalCredits;
+              eq.homeCourses[cIndex].link = safeText(picked.link);
+              eq.homeCourses[cIndex].semester = safeText(picked.semester);
+
+              if (courseSel) courseSel.value = safeText(picked.name);
+              if (link) link.value = safeText(picked.link);
+
+              if (credits) {
+                credits.value = finalCredits;
+
+                const courseName = safeText(picked.name).toLowerCase();
+                const creditsEditable =
+                  courseName.startsWith("free option") ||
+                  courseName.startsWith("extracurricular activities");
+
+                credits.disabled = !creditsEditable || !editableLocal;
+              }
+            };
+
+            if (courseSel) {
+              courseSel.disabled = !editableLocal;
+              courseSel.innerHTML = "";
+
+              const opt0 = document.createElement("option");
+              opt0.value = "";
+              opt0.textContent = "Select";
+              courseSel.appendChild(opt0);
+
+              homeCoursesCatalog.forEach((it) => {
+                const opt = document.createElement("option");
+                opt.value = safeText(it.name);
+                opt.textContent = safeText(it.name);
+                courseSel.appendChild(opt);
+              });
+
+              courseSel.value = safeText(c.courseId);
+
+              if (editableLocal) {
+                courseSel.addEventListener("change", (e) => {
+                  eq.homeCourses[cIndex].courseId = e.target.value;
+                  eq.homeCourses[cIndex].credits = "";
+                  applyPicked(e.target.value, { preserveExistingCredits: false });
+                });
+              }
+
+              if (courseSel.value) {
+                applyPicked(courseSel.value, { preserveExistingCredits: true });
+              }
+            }
+
+            if (credits && editableLocal) {
+              credits.addEventListener("input", (e) => {
+                eq.homeCourses[cIndex].credits = e.target.value;
+              });
+            }
+
+            if (link) {
+              link.value = safeText(c.link);
+            }
+
+            if (rm) {
+              rm.style.display = editableLocal ? "inline-flex" : "none";
+
+              if (editableLocal) {
+                rm.addEventListener("click", () => {
+                  eq.homeCourses.splice(cIndex, 1);
+
+                  if (eq.homeCourses.length === 0) {
+                    eq.homeCourses.push({
+                      courseId: "",
+                      name: "",
+                      credits: "",
+                      link: "",
+                      semester: ""
+                    });
+                  }
+
+                  renderEquivalences();
+                });
+              }
+            }
+
+            homeList.appendChild(row);
+          });
+        }
+
+        function renderHost() {
+          hostList.innerHTML = "";
+
+          const arr = Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [];
+          arr.forEach((c, cIndex) => {
+            const row = hostTpl.content.firstElementChild.cloneNode(true);
+
+            const name = row.querySelector('[data-field="name"]');
+            const credits = row.querySelector('[data-field="credits"]');
+            const creditsEq = row.querySelector('[data-field="credits_equivalent"]');
+            const gradeEl = row.querySelector('[data-field="grade"]');
+            const link = row.querySelector('[data-field="link"]');
+            const semester = row.querySelector('[data-field="semester"]');
+            const code = row.querySelector('[data-field="code"]');
+            const rm = row.querySelector('[data-role="removeCourseBtn"]');
+
+            if (name) {
+              name.value = safeText(c.name);
+              name.disabled = !editable;
+              if (editable) {
+                name.addEventListener("input", (e) => {
+                  eq.destinationCourses[cIndex].name = e.target.value;
+                });
+              }
+            }
+
+            if (credits) {
+              credits.value = safeText(c.credits);
+              credits.disabled = !editable;
+              if (editable) {
+                credits.addEventListener("input", (e) => {
+                  eq.destinationCourses[cIndex].credits = e.target.value;
+                });
+              }
+            }
+
+            if (creditsEq) {
+              creditsEq.value = safeText(c.credits_equivalent);
+              creditsEq.disabled = !editable;
+              if (editable) {
+                creditsEq.addEventListener("input", (e) => {
+                  eq.destinationCourses[cIndex].credits_equivalent = e.target.value;
+                });
+              }
+            }
+
+            if (gradeEl) {
+              gradeEl.value = safeText(c.grade);
+              gradeEl.disabled = !editable;
+              if (editable) {
+                gradeEl.addEventListener("input", (e) => {
+                  eq.destinationCourses[cIndex].grade = e.target.value;
+                });
+              }
+            }
+
+            if (link) {
+              link.value = safeText(c.link);
+              link.disabled = !editable;
+              if (editable) {
+                link.addEventListener("input", (e) => {
+                  eq.destinationCourses[cIndex].link = e.target.value;
+                });
+              }
+            }
+
+            if (semester) {
+              semester.value = safeText(c.semester);
+              semester.disabled = !editable;
+              if (editable) {
+                semester.addEventListener("change", (e) => {
+                  eq.destinationCourses[cIndex].semester = e.target.value;
+                });
+              }
+            }
+
+            if (code) {
+              code.value = safeText(c.code);
+              code.disabled = !editable;
+              if (editable) {
+                code.addEventListener("input", (e) => {
+                  eq.destinationCourses[cIndex].code = e.target.value;
+                });
+              }
+            }
+
+            if (rm) {
+              rm.style.display = editable ? "inline-flex" : "none";
+
+              if (editable) {
+                rm.addEventListener("click", () => {
+                  eq.destinationCourses.splice(cIndex, 1);
+
+                  if (eq.destinationCourses.length === 0) {
+                    eq.destinationCourses.push({
+                      name: "",
+                      credits: "",
+                      credits_equivalent: "",
+                      grade: "",
+                      link: "",
+                      semester: "",
+                      code: ""
+                    });
+                  }
+
+                  renderEquivalences();
+                });
+              }
+            }
+
+            hostList.appendChild(row);
+          });
+        }
+
+        const addHomeBtn = node.querySelector('[data-role="addHomeCourseBtn"]');
+        if (addHomeBtn) {
+          addHomeBtn.style.display = editable ? "inline-flex" : "none";
+
+          if (editable) {
+            addHomeBtn.addEventListener("click", () => {
+              if (!Array.isArray(eq.homeCourses)) eq.homeCourses = [];
+              eq.homeCourses.push({
+                courseId: "",
+                name: "",
+                credits: "",
+                link: "",
+                semester: ""
+              });
+              renderEquivalences();
+            });
+          }
+        }
+
+        const addHostBtn = node.querySelector('[data-role="addHostCourseBtn"]');
+        if (addHostBtn) {
+          addHostBtn.style.display = editable ? "inline-flex" : "none";
+
+          if (editable) {
+            addHostBtn.addEventListener("click", () => {
+              if (!Array.isArray(eq.destinationCourses)) eq.destinationCourses = [];
+              eq.destinationCourses.push({
+                name: "",
+                credits: "",
+                credits_equivalent: "",
+                link: "",
+                semester: "",
+                code: ""
+              });
+              renderEquivalences();
+            });
+          }
+        }
+
+        renderHome();
+        renderHost();
+        list.appendChild(node);
+      });
+
+      initHelpTooltips(list);
+    }
+
+    function initEquivalencesUI() {
+      const btn = document.getElementById("addEquivalenceBtn");
+      if (!btn) return;
+
+      const editable = isEditable();
+      btn.style.display = editable ? "inline-flex" : "none";
+
+      if (editable && !btn.dataset.bound) {
+        btn.addEventListener("click", () => {
+          equivalencesState.push(defaultEquivalence());
+          renderEquivalences();
+        });
+
+        btn.dataset.bound = "1";
+      }
+
+      renderEquivalences();
+    }
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      currentIstId = safeText(me.person?.username || "");
+
+      const res = await getProcess();
+      if (!res.ok || !res.data || !res.data.ok) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      const proc = res.data.process;
+      if (!proc) {
+        window.location.href = `${BASE_PATH}/dashboard.html`;
+        return;
+      }
+
+      processStatus = proc.status || "";
+      mobilityType = proc.mobilityType || "";
+
+      applyType(mobilityType);
+
+      document.getElementById("subtitle").textContent =
+        proc.id && proc.status
+          ? `Process ${proc.id} · ${proc.status}`
+          : "Process";
+
+      processPayloadSnapshot = proc.payload || {};
+
+      await fetchHomeCoursesCatalog();
+
+      eqDecisions = {};
+
+      fillFromProcessPayload(processPayloadSnapshot);
+      setButtonsForStatus();
+      initEquivalencesUI();
+      initUploadUI();
+      setMsg("");
+    }
+        
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      await saveFlow(true);
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      await submitFlow();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initHelpTooltips();
+
+      document.addEventListener("click", (e) => {
+        document.querySelectorAll(".label-with-help").forEach((wrapper) => {
+          if (!wrapper.contains(e.target)) {
+            wrapper.classList.remove("show-tooltip");
+          }
+        });
+      });
+    });
+
+    load();
+
+    (function () {
+      const KEY = "mobility-form-theme";
+      function applyTheme(t) {
+        document.documentElement.setAttribute("data-theme", t);
+        const btn = document.getElementById("themeToggle");
+        if (btn) btn.textContent = t === "dark" ? "☀ Light" : "☾ Dark";
+      }
+      applyTheme(localStorage.getItem(KEY) || "light");
+      document.getElementById("themeToggle")?.addEventListener("click", () => {
+        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        localStorage.setItem(KEY, next);
+        applyTheme(next);
+      });
+    })();
+  </script>
+</body>
+</html>

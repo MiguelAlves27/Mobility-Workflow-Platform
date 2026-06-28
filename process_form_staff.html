@@ -1,0 +1,2064 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobility Form Staff</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .overlay { max-width: 1400px; margin: 18px; }
+    .msg { width: 600px; }
+    .tabs { flex-wrap: wrap; margin-bottom: 12px; display: flex; gap: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+    main { padding: 10px 0 0; }
+    .three-col { display: grid; grid-template-columns: 1.6fr 0.9fr 1.6fr; gap: 16px; align-items: flex-start; }
+    .tor-col { position: sticky; top: 0; }
+    .tor-embed { width: 100%; height: 85vh; border: none; border-radius: 12px; background: rgba(0,0,0,0.35); }
+    .tor-placeholder {
+      display: flex; align-items: center; justify-content: center; height: 85vh;
+      border-radius: 12px; background: rgba(0,0,0,0.25); border: 1px dashed rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.45); font-size: 13px; text-align: center; padding: 20px;
+    }
+    @media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } .tor-embed, .tor-placeholder { height: 60vh; } }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } .overlay { margin: 12px; } .row { grid-template-columns: 1fr; } .msg { width: 100%; } }
+  </style>
+
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+
+<body>
+  <div class="overlay">
+    <main>
+      <div class="tabs">
+        <button class="tabBtn" id="tabPersonal" type="button">Personal Information</button>
+        <button class="tabBtn" id="tabHost" type="button">Host University</button>
+        <button class="tabBtn active" id="tabEquivalences" type="button">Equivalences</button>
+      </div>
+
+      <div id="panelPersonal" style="display:none;">
+        <div class="card">
+          <div style="font-weight:800; font-size:16px;">Personal Information</div>
+          <div class="sub" id="personalHint" style="opacity:0.9;"></div>
+          <div class="sep"></div>
+          <div id="personalRows"></div>
+          <div id="personalSignatureWrap" style="margin-top:12px; display:none;">
+            <div style="font-size:13px; opacity:0.85; margin-bottom:6px;">Signature</div>
+            <div class="card" style="padding:12px; background: rgba(255,255,255,0.05); max-width: 420px;">
+              <img id="personalSignatureImg" alt="Student signature"
+                  style="max-width:100%; height:auto; display:block; border-radius:10px;" />
+            </div>
+          </div> 
+        </div>
+      </div>
+
+      <div id="panelHost" style="display:none;">
+        <div class="card">
+          <div style="font-weight:800; font-size:16px;">Host  University</div>
+          <div class="sub" style="opacity:0.9;">Host university information</div>
+          <div class="sep"></div>
+          <div id="hostRows"></div>
+        </div>
+      </div>
+
+      <div id="panelEquivalences" style="display:block;">
+        <div style="font-weight:800; font-size:16px;">Equivalences</div>
+        <div class="sep"></div>
+
+        <div class="three-col" style="margin-top:10px;">
+
+          <!-- Coluna esquerda: TOR Origin -->
+          <div class="tor-col">
+            <div style="font-weight:700; font-size:13px; opacity:0.75; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">TOR · Origin</div>
+            <div id="torOriginWrap">
+              <div class="tor-placeholder" id="torOriginPlaceholder">No TOR (origin) uploaded</div>
+            </div>
+          </div>
+
+          <!-- Coluna central: equivalências -->
+          <div>
+            <div id="coordEqBar">
+              <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+                <div class="sub" id="coordEqInfo" style="opacity:0.9;"></div>
+                <div id="staffEditActions" style="display:none; gap:10px; flex-wrap:wrap; align-items:center; display:none;">
+                  <button class="btn secondary" id="addEquivalenceBtn" type="button">+ Add Equivalence</button>
+                  <button class="btn" id="saveChangesBtn" type="button">Save Changes</button>
+                </div>
+              </div>
+              <div class="sep"></div>
+              <div id="equivalencesList" style="display:flex; flex-direction:column; gap:12px;"></div>
+              <div class="msg" id="msg"></div>
+
+              <!-- ── Staff Decision ──────────────────────────────────────── -->
+              <div id="staffDecisionSection" style="display:none; margin-top:20px;">
+                <div class="sep"></div>
+                <div style="font-weight:800; font-size:15px; margin-bottom:12px;">Staff Decision</div>
+
+                <div id="staffDecisionForm">
+                  <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+                    <label style="font-size:13px; opacity:0.85;">Comment for the student (optional)</label>
+                    <textarea id="staffComment" placeholder="Add a comment…" rows="3"
+                      style="padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.14);
+                             background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:14px;
+                             resize:vertical; font-family:inherit;"></textarea>
+                  </div>
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button class="btn" id="staffApproveBtn" type="button">Approve</button>
+                    <button class="btn secondary" id="staffRejectBtn" type="button"
+                      style="background:rgba(231,76,60,0.18); border-color:rgba(231,76,60,0.45); color:#e74c3c;">
+                      Reject
+                    </button>
+                  </div>
+                </div>
+
+                <div id="staffDecisionDone" style="display:none; margin-top:12px;">
+                  <div class="pill" id="staffDecisionPill" style="font-size:14px; padding:8px 14px;"></div>
+                </div>
+              </div>
+              <!-- ── End Staff Decision ─────────────────────────────────── -->
+            </div>
+          </div>
+
+          <!-- Coluna direita: TOR Destination -->
+          <div class="tor-col">
+            <div style="font-weight:700; font-size:13px; opacity:0.75; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">TOR · Destination</div>
+            <div id="torDestinationWrap">
+              <div class="tor-placeholder" id="torDestinationPlaceholder">No TOR (destination) uploaded</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/pdf-utils.js"></script>
+  <script>
+
+    const params = new URLSearchParams(window.location.search);
+    const PID = params.get("pid") || "";
+    const FROM_QUEUE = params.get("fromQueue") === "1";
+
+    let equivalencesState = [];
+    let eqDecisions = {};
+    let processPayload = null;
+    let processId = null;
+
+    function getValue(obj, path) {
+      return path
+        .replace(/\[(\d+)\]/g, '.$1')
+        .split('.')
+        .reduce((acc, key) => acc?.[key], obj);
+    }
+
+    function getAvailableDocumentOptions(process) {
+      const options = [
+        { key: "pei", label: "PEI" },
+        { key: "english_doc", label: "English Document" },
+        { key: "nomination_letter", label: "Nomination Letter" },
+        { key: "declaration", label: "Declaration" }
+      ];
+
+      if (safeText(process?.mobilityType).toUpperCase() === "EUROPE") {
+        options.splice(1, 0, { key: "learning_agreement", label: "Learning Agreement" });
+      }
+
+      return options;
+    }
+
+    function renderDocumentCheckboxes(process) {
+      const container = document.getElementById("documentOptions");
+      if (!container) return;
+
+      const options = getAvailableDocumentOptions(process);
+
+      container.innerHTML = `
+        <div style="margin: 12px 0;">
+          <div style="font-weight: 600; margin-bottom: 8px;">Select documents to generate:</div>
+          ${options.map((doc) => `
+            <label style="display: flex; align-items: center; gap: 8px; margin: 6px 0;">
+              <input
+                type="checkbox"
+                class="doc-checkbox"
+                value="${doc.key}"
+                checked
+              />
+              <span>${doc.label}</span>
+            </label>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function clearDocumentCheckboxes() {
+      const container = document.getElementById("documentOptions");
+      if (container) {
+        container.innerHTML = "";
+      }
+    }
+
+    function getSelectedDocuments() {
+      return Array.from(document.querySelectorAll(".doc-checkbox:checked")).map((el) => el.value);
+    }
+
+    function eqStatusMeta(code) {
+      const s = safeText(code).toUpperCase();
+      if (s === "R") return { label: "REMOVED", cls: "changes" };
+      if (s === "U") return { label: "UNCHANGED", cls: "not-reviewed" };
+      return { label: "ADDED", cls: "approved" };
+    }    
+
+    function getStudentSignatureDataUrl(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      return safeText(personal.signature_png_base64);
+    }
+
+    async function getCoordinatorSignatureBytes() {
+      const r = await fetch(`${SERVER}/coordinator_signature.php`, { credentials: "include" });
+      const j = await r.json();
+      if (!j || !j.ok) return null;
+
+      let bytes = null;
+      if (j.exists && j.signature_url) {
+        const imgRes = await fetch(j.signature_url, { credentials: "include" });
+        if (imgRes.ok) {
+          const buf = await imgRes.arrayBuffer();
+          bytes = new Uint8Array(buf);
+        }
+      }
+
+      return {
+        bytes,
+        dn: j.display_name,
+        sendingInstitution: j.sending_institution || "",
+        sendingDepartment:  j.sending_department  || "",
+        coordinatorContact: j.coordinator_contact || "",
+        coordinatorEmail:   j.coordinator_email   || "",
+        coordinatorPosition:j.coordinator_position|| ""
+      };
+    }
+
+    function getSignatureDataUrlFromProcess(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const sig = safeText(personal.signature_png_base64);
+      return sig || "";
+    }
+
+    function setActiveTab(name) {
+      const tabPersonal = document.getElementById("tabPersonal");
+      const tabHost = document.getElementById("tabHost");
+      const tabEquivalences = document.getElementById("tabEquivalences");
+
+      const panelPersonal = document.getElementById("panelPersonal");
+      const panelHost = document.getElementById("panelHost");
+      const panelEquivalences = document.getElementById("panelEquivalences");
+
+      tabPersonal.classList.remove("active");
+      tabHost.classList.remove("active");
+      tabEquivalences.classList.remove("active");
+
+      panelPersonal.style.display = "none";
+      panelHost.style.display = "none";
+      panelEquivalences.style.display = "none";
+
+      if (name === "personal") {
+        tabPersonal.classList.add("active");
+        panelPersonal.style.display = "block";
+        renderPersonal();
+        return;
+      }
+
+      if (name === "host") {
+        tabHost.classList.add("active");
+        panelHost.style.display = "block";
+        renderHost();
+        return;
+      }
+
+      tabEquivalences.classList.add("active");
+      panelEquivalences.style.display = "block";
+      if (isStaffEditable()) {
+        renderEquivalencesEditable();
+      } else {
+        renderEquivalenceCoordinatorAll();
+      }
+    }
+
+    async function getProcessById(pid) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get_by_id", id: pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function saveEquivalenceDecision(pid, equivalenceId, decision, note, equivalenceData) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_equivalence_decision",
+          pid,
+          equivalence_id: equivalenceId,
+          decision,
+          note,
+          equivalence: equivalenceData
+        })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    function fillFromProcessPayload(payload) {
+      processPayload = payload && typeof payload === "object" ? payload : {};
+
+      let eq = processPayload.equivalences;
+
+      if (FROM_QUEUE) {
+        let bestKey = "";
+        let bestNum = -1;
+
+        for (const k of Object.keys(processPayload)) {
+          const m = /^equivalences_(\d+)$/.exec(k);
+          if (!m) continue;
+
+          const n = Number(m[1]);
+          if (n > bestNum) {
+            bestNum = n;
+            bestKey = k;
+          }
+        }
+
+        if (bestNum >= 0 && Array.isArray(processPayload[bestKey])) {
+          eq = processPayload[bestKey];
+        }
+      }
+
+      if (Array.isArray(eq)) {
+        equivalencesState = eq.map(x => ({
+          id: safeText(x && x.id),
+          status: safeText(x && x.status) || "A",
+          comment: safeText(x && x.comment),
+          homeCourses: Array.isArray(x && x.homeCourses) ? x.homeCourses : [],
+          destinationCourses: Array.isArray(x && x.destinationCourses) ? x.destinationCourses : []
+        }));
+      } else {
+        equivalencesState = [];
+      }
+    }
+
+    function ensurePngDataUrl(v) {
+      const s = safeText(v);
+      if (!s) return "";
+      if (s.startsWith("data:image")) return s;
+      return `data:image/png;base64,${s}`;
+    }
+
+    function renderPersonal() {
+      const p = processPayload && processPayload.personal ? processPayload.personal : {};
+      const hint = document.getElementById("personalHint");
+
+      if (hint) {
+        const name = safeText(p.full_name);
+        const ist = safeText(p.ist_id);
+        const mob = safeText(processPayload && processPayload.mobility_type);
+        hint.textContent = [name, ist, mob].filter(Boolean).join(" ");
+      }
+
+      const labels = {
+        full_name: "Full name",
+        ist_id: "IST ID",
+        institutional_email: "Institutional email",
+        sex: "Sex",
+        home_degree: "Home degree",
+        phone_e164: "Phone",
+        mobility_type: "Mobility type",
+        mobility_academic_year: "Academic year",
+        first_names: "First names",
+        last_names: "Last names",
+        birth_date: "Birth date",
+        nationality: "Nationality",
+        study_cycle: "Study cycle",
+        semester: "Semester",
+        from_month: "From month",
+        to_month: "To month"
+      };
+
+      const rows = objectToRows(p, labels);
+
+      const mtRoot = safeText(processPayload && processPayload.mobility_type);
+      if (mtRoot) rows.unshift({ label: "Mobility type", value: mtRoot });
+
+      renderRows("personalRows", rows);
+
+      const sigWrap = document.getElementById("personalSignatureWrap");
+      const sigImg = document.getElementById("personalSignatureImg");
+      if (sigWrap && sigImg) {
+        const sig = ensurePngDataUrl(p.signature_png_base64);
+        if (sig) {
+          sigImg.src = sig;
+          sigWrap.style.display = "block";
+        } else {
+          sigImg.removeAttribute("src");
+          sigWrap.style.display = "none";
+        }
+      }
+    }
+        
+    function renderHost() {
+      const h = processPayload && processPayload.host ? processPayload.host : {};
+
+      const labels = {
+        host_university: "Host university",
+        host_country: "Host country",
+        faculty_department: "Faculty department",
+        host_address: "Host address",
+        host_contact: "Host contact",
+        erasmus_code: "Erasmus code",
+        main_language: "Main language",
+        language_level: "Language level"
+      };
+
+      const rows = objectToRows(h, labels);
+      renderRows("hostRows", rows);
+    }
+
+    async function listReviews(pid) {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_reviews_for_process", pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    function computeReviewSummary() {
+      const list = Array.isArray(equivalencesState) ? equivalencesState : [];
+
+      let total = 0;
+      let decided = 0;
+      let changes = 0;
+
+      for (let i = 0; i < list.length; i += 1) {
+        const eq = list[i];
+        const status = safeText(eq && eq.status).toUpperCase();
+
+        if (status === "R") continue;
+
+        const eqId = safeText(eq && eq.id);
+        if (!eqId) continue;
+
+        total += 1;
+
+        const d = eqDecisions[eqId];
+
+        if (d && (d.decision === "APPROVED" || d.decision === "CHANGES_REQUESTED")) {
+          decided += 1;
+          if (d.decision === "CHANGES_REQUESTED") {
+            changes += 1;
+          }
+        }
+      }
+
+      return {
+        total,
+        decided,
+        changes,
+        allDecided: total > 0 && decided === total
+      };
+    }
+
+    async function updateFinalBox() {
+      const box = document.getElementById("coordFinalBox");
+      const title = document.getElementById("coordFinalTitle");
+      const text = document.getElementById("coordFinalText");
+      const yesBtn = document.getElementById("coordFinalYesBtn");
+
+      if (!box || !title || !text || !yesBtn) return;
+
+      const s = computeReviewSummary();
+
+      if (!s.allDecided) {
+        box.style.display = "none";
+        return;
+      }
+
+      box.style.display = "block";
+
+      if (s.changes === 0) {
+        title.textContent = "Conclusion";
+        text.textContent = "All equivalences were approved. Select the documents to generate:";
+        yesBtn.textContent = "Yes";
+        yesBtn.dataset.action = "generate_docs";
+
+        const processRes = await getProcessById(PID);
+        if (processRes.ok && processRes.data && processRes.data.ok && processRes.data.process) {
+          renderDocumentCheckboxes(processRes.data.process);
+        } else {
+          clearDocumentCheckboxes();
+        }
+      } else {
+        title.textContent = "Conclusion";
+        text.textContent = `${s.changes}/${s.total} equivalences were rejected, request changes from student?`;
+        yesBtn.textContent = "Yes";
+        yesBtn.dataset.action = "request_changes";
+      }
+    }
+
+    function renderEquivalenceCoordinatorAll() {
+      const list = document.getElementById("equivalencesList");
+      const info = document.getElementById("coordEqInfo");
+
+      if (!list || !info) return;
+
+      list.innerHTML = "";
+
+      const total = Array.isArray(equivalencesState) ? equivalencesState.length : 0;
+
+      if (!total) {
+        info.textContent = "No equivalences.";
+        updateFinalBox();
+        return;
+      }
+
+      info.textContent = `Total: ${total}`;
+
+      function sumCredits(courses) {
+        return (Array.isArray(courses) ? courses : []).reduce((acc, c) => {
+          const raw = safeText(c && c.credits);
+          const n = Number(String(raw).replace(",", "."));
+          return acc + (Number.isFinite(n) ? n : 0);
+        }, 0);
+      }
+
+      function makeCourseCard(c, isHost) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.padding = "12px";
+        card.style.background = "rgba(255,255,255,0.05)";
+
+        const name = document.createElement("a");
+        name.style.fontWeight = "700";
+        name.textContent = safeText(c.name) || "Untitled course";
+        name.href = safeText(c.link) || "#";
+        name.target = "_blank";
+        name.rel = "noopener noreferrer";
+        name.style.color = "inherit";
+        name.style.textDecoration = "none";
+        name.style.cursor = safeText(c.link) ? "pointer" : "default";
+        if (!safeText(c.link)) name.addEventListener("click", (e) => e.preventDefault());
+
+        const meta = document.createElement("div");
+        meta.className = "sub";
+        meta.style.opacity = "0.9";
+        meta.style.fontSize = "13px";
+
+        if (isHost) {
+          const grade = safeText(c.grade);
+          const gradeStr = grade ? ` | Grade: ${grade}` : "";
+          meta.textContent = `Credits ${safeText(c.credits)} | Semester ${safeText(c.semester)} | Code ${safeText(c.code)}${gradeStr}`;
+        } else {
+          meta.textContent = `Credits ${safeText(c.credits)}`;
+        }
+
+        card.appendChild(name);
+        card.appendChild(meta);
+        return card;
+      }
+
+      equivalencesState.forEach((eq, idx) => {
+        const d = eqDecisions[eq.id];
+
+        const wrap = document.createElement("div");
+        wrap.className = "card";
+        wrap.style.background = "rgba(0,0,0,0.18)";
+
+        const head = document.createElement("div");
+        head.style.display = "flex";
+        head.style.justifyContent = "space-between";
+        head.style.gap = "10px";
+        head.style.flexWrap = "wrap";
+        head.style.alignItems = "baseline";
+
+        const left = document.createElement("div");
+        left.style.display = "flex";
+        left.style.gap = "10px";
+        left.style.flexWrap = "wrap";
+        left.style.alignItems = "center";
+
+        const title = document.createElement("div");
+        title.style.fontWeight = "800";
+        title.textContent = `Equivalence ${idx + 1}`;
+
+        const st = eqStatusMeta(eq.status);
+
+        left.appendChild(title);
+
+        head.appendChild(left);
+
+        const sep = document.createElement("div");
+        sep.className = "sep";
+
+        const grid = document.createElement("div");
+        grid.className = "grid";
+
+        const homeCol = document.createElement("div");
+        const hostCol = document.createElement("div");
+
+        const homeTitle = document.createElement("div");
+        homeTitle.style.fontWeight = "700";
+        homeTitle.textContent = "Home courses";
+
+        const hostTitle = document.createElement("div");
+        hostTitle.style.fontWeight = "700";
+        hostTitle.textContent = "Host courses";
+
+        const homeTotal = sumCredits(eq.homeCourses);
+        const hostTotal = sumCredits(eq.destinationCourses);
+
+        const homeTotalEl = document.createElement("div");
+        homeTotalEl.className = "sub";
+        homeTotalEl.style.opacity = "0.9";
+        homeTotalEl.style.fontSize = "13px";
+        homeTotalEl.style.marginTop = "6px";
+        homeTotalEl.textContent = `Total home credits ${homeTotal}`;
+
+        const hostTotalEl = document.createElement("div");
+        hostTotalEl.className = "sub";
+        hostTotalEl.style.opacity = "0.9";
+        hostTotalEl.style.fontSize = "13px";
+        hostTotalEl.style.marginTop = "6px";
+        hostTotalEl.textContent = `Total host credits ${hostTotal}`;
+
+        homeCol.appendChild(homeTitle);
+        homeCol.appendChild(homeTotalEl);
+
+        hostCol.appendChild(hostTitle);
+        hostCol.appendChild(hostTotalEl);
+
+        const homeList = document.createElement("div");
+        homeList.style.display = "flex";
+        homeList.style.flexDirection = "column";
+        homeList.style.gap = "10px";
+        homeList.style.marginTop = "10px";
+
+        const hostList = document.createElement("div");
+        hostList.style.display = "flex";
+        hostList.style.flexDirection = "column";
+        hostList.style.gap = "10px";
+        hostList.style.marginTop = "10px";
+
+        (Array.isArray(eq.homeCourses) ? eq.homeCourses : []).forEach(c => homeList.appendChild(makeCourseCard(c, false)));
+        (Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []).forEach(c => hostList.appendChild(makeCourseCard(c, true)));
+
+        homeCol.appendChild(homeList);
+        hostCol.appendChild(hostList);
+
+        grid.appendChild(homeCol);
+        grid.appendChild(hostCol);
+
+        const isRemoved = safeText(eq.status).toUpperCase() === "R";
+        
+        const body = document.createElement("div");
+        body.style.marginTop = "10px";
+        
+        const hasDecision = d && (d.decision === "APPROVED" || d.decision === "CHANGES_REQUESTED");
+        
+
+        if (!isRemoved && hasDecision && safeText(d.note)) {
+          const noteWrap = document.createElement("div");
+          noteWrap.style.marginTop = "10px";
+          noteWrap.style.maxWidth = "720px";
+
+          const noteTitle = document.createElement("div");
+          noteTitle.style.fontSize = "13px";
+          noteTitle.style.opacity = "0.85";
+          noteTitle.style.marginBottom = "6px";
+          noteTitle.textContent = "Note to student";
+
+          const noteText = document.createElement("div");
+          noteText.className = "card";
+          noteText.style.padding = "12px";
+          noteText.style.background = "rgba(255,255,255,0.05)";
+          noteText.style.whiteSpace = "pre-wrap";
+          noteText.textContent = safeText(d.note);
+
+          noteWrap.appendChild(noteTitle);
+          noteWrap.appendChild(noteText);
+          body.appendChild(noteWrap);
+        }
+
+        if (!isRemoved) {
+          const actions = document.createElement("div");
+          actions.style.marginTop = "12px";
+          actions.style.display = "flex";
+          actions.style.gap = "10px";
+          actions.style.flexWrap = "wrap";
+          actions.style.alignItems = "center";
+
+          if (hasDecision) {
+            const decidedPill = document.createElement("div");
+            decidedPill.className = "pill";
+            if (d.decision === "APPROVED") {
+              decidedPill.textContent = "APPROVED";
+              decidedPill.classList.add("approved");
+            } else {
+              decidedPill.textContent = "CHANGES REQUESTED";
+              decidedPill.classList.add("changes");
+            }
+            actions.appendChild(decidedPill);
+          }
+
+          const commentText = safeText(eq && eq.comment);
+
+          if (commentText) {
+            const commentWrap = document.createElement("div");
+            commentWrap.style.marginTop = "12px";
+            commentWrap.style.maxWidth = "720px";
+
+            const commentTitle = document.createElement("div");
+            commentTitle.style.fontSize = "13px";
+            commentTitle.style.opacity = "0.85";
+            commentTitle.style.marginBottom = "6px";
+            commentTitle.textContent = "Student comment";
+
+            const commentBox = document.createElement("div");
+            commentBox.className = "card";
+            commentBox.style.padding = "12px";
+            commentBox.style.background = "rgba(255,255,255,0.05)";
+            commentBox.style.whiteSpace = "pre-wrap";
+            commentBox.textContent = commentText;
+
+            commentWrap.appendChild(commentTitle);
+            commentWrap.appendChild(commentBox);
+
+            body.appendChild(commentWrap);
+          }
+
+          body.appendChild(actions);
+        }
+                
+        wrap.appendChild(head);
+        wrap.appendChild(sep);
+        wrap.appendChild(grid);
+        wrap.appendChild(body);
+
+        list.appendChild(wrap);
+      });
+
+      updateFinalBox();
+    }
+
+    async function finalizeRequestChangesWithEmail(pid) {
+      setMsg("Requesting changes");
+
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize_request_changes", pid })
+      });
+
+      const data = await r.json();
+
+      if (!r.ok || !data || !data.ok) {
+        setMsg("Failed to finalize request changes");
+        return { ok: false, data };
+      }
+
+      setMsg("Sending email notification");
+
+      const procRes = await getProcessById(pid);
+      if (!procRes.ok || !procRes.data || !procRes.data.ok || !procRes.data.process) {
+        setMsg("Changes requested, but failed to load process for email");
+        return { ok: true, data, email: { ok: false } };
+      }
+
+      const proc = procRes.data.process;
+      const studentEmail = safeText(proc?.payload?.personal?.institutional_email);
+      const studentName = safeText(proc?.payload?.personal?.full_name);
+
+      const emailResp = await fetch(`${SERVER}/send_process_changes_requested_email.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pid: Number(pid),
+          student_email: studentEmail,
+          student_name: studentName
+        })
+      });
+
+      const rawText = await emailResp.text();
+
+      let emailData = null;
+      try { emailData = JSON.parse(rawText); } catch { emailData = null; }
+
+      if (!emailResp.ok || !emailData || !emailData.ok) {
+        setMsg("Changes requested, but email notification failed");
+        return { ok: true, data, email: { ok: false, data: emailData || { raw: rawText } } };
+      }
+
+      setMsg("Changes requested and email sent");
+      return { ok: true, data, email: { ok: true } };
+    }
+
+    async function finalizeRequestChanges(pid) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize_request_changes", pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function finalizeGenerateDocs(pid, selectedDocuments = []) {
+      const process = await getProcessById(pid);
+      if (!process.ok || !process.data || !process.data.ok || !process.data.process) {
+        return { ok: false, data: null };
+      }
+
+      const proc = process.data.process;
+
+      setMsg("Generating PDFs and ZIP");
+
+      const zipRes = await generateDocumentsZip(proc, selectedDocuments);
+      if (!zipRes.ok) {
+        setMsg(zipRes.error || "Failed to generate ZIP");
+        return { ok: false, data: null };
+      }
+
+      setMsg("Uploading ZIP");
+      const uploadRes = await uploadZipToServer(pid, zipRes.fileName, zipRes.blob);
+
+      if (!uploadRes || uploadRes.ok === false) {
+        setMsg("ZIP upload failed");
+        return { ok: false, data: uploadRes || null };
+      }
+
+      setMsg("Sending email notification");
+
+      const studentEmail = safeText(proc?.payload?.personal?.institutional_email);
+      const studentName = safeText(proc?.payload?.personal?.full_name);
+
+      const emailResp = await fetch(`${SERVER}/send_process_completed_email.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pid: Number(pid),
+          student_email: studentEmail,
+          student_name: studentName
+        })
+      });
+
+      const rawText = await emailResp.text();
+
+      let emailData = null;
+      try {
+        emailData = JSON.parse(rawText);
+      } catch {
+        emailData = null;
+      }
+
+      if (!emailResp.ok || !emailData || !emailData.ok) {
+        setMsg("Email notification failed");
+        return { ok: false, data: emailData || { raw: rawText } };
+      }
+
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize_generate_docs", pid })
+      });
+
+      const data = await r.json();
+
+      if (!r.ok || !data || !data.ok) {
+        setMsg("Server finalize failed");
+        return { ok: false, data };
+      }
+
+      setMsg("Documents generated and email sent");
+      return { ok: true, data };
+    }   
+        
+    async function generateDocumentsZip(process, selectedDocuments = []) {
+      try {
+        const zip = new JSZip();
+        const files = [];
+
+        const studentSig = getStudentSignatureDataUrl(process);
+        const coordSig = await getCoordinatorSignatureBytes();
+        const coordSigBytes = coordSig ? coordSig.bytes : null;
+        const coordName = coordSig ? coordSig.dn : "";
+
+        if (selectedDocuments.includes("pei")) {
+          if (process.mobilityType && process.mobilityType.toUpperCase() === "EUROPE") {
+            const peiSigs = [
+              { dataUrl: studentSig, pageIndex: 0, x: 300, y: 120, width: 75, height: 30 },
+              { bytes: coordSigBytes, pageIndex: 0, x: 300, y: 90, width: 75, height: 30 }
+            ];
+  
+            const pei = await generatePEI(process, peiSigs);
+            if (pei.ok) {
+              zip.file(pei.fileName, pei.bytes);
+              files.push(pei.fileName);
+            }
+          } else {
+            const peiSigs = [
+              { dataUrl: studentSig, pageIndex: 0, x: 120, y: 60, width: 75, height: 30 },
+              { bytes: coordSigBytes, pageIndex: 0, x: 400, y: 60, width: 75, height: 30 }
+            ];
+  
+            const pei = await generatePEIOutside(process, peiSigs);
+            if (pei.ok) {
+              zip.file(pei.fileName, pei.bytes);
+              files.push(pei.fileName);
+            }
+          }
+
+        }
+
+        if (
+          selectedDocuments.includes("learning_agreement") &&
+          safeText(process.mobilityType).toUpperCase() === "EUROPE"
+        ) {
+          const laSigs = [
+            { dataUrl: studentSig, pageIndex: 0, x: 485, y: 90, width: 60, height: 18 },
+            { bytes: coordSigBytes, pageIndex: 0, x: 485, y: 69, width: 60, height: 18 }
+          ];
+
+          const la = await generateLA(process, laSigs, coordSig);
+          if (la.ok) {
+            zip.file(la.fileName, la.bytes);
+            files.push(la.fileName);
+          }
+        }
+
+        if (selectedDocuments.includes("english_doc")) {
+          const engSig = { bytes: coordSigBytes, pageIndex: 0, x: 450, y: 280, width: 75, height: 30 };
+          const eng = await generateEnglishDoc(process, engSig);
+          if (eng.ok) {
+            zip.file(eng.fileName, eng.bytes);
+            files.push(eng.fileName);
+          }
+        }
+
+        if (selectedDocuments.includes("nomination_letter")) {
+          const nomSig = { bytes: coordSigBytes, pageIndex: 0, x: 450, y: 200, width: 75, height: 30 };
+          const nom = await generateNominationLetter(process, nomSig);
+          if (nom.ok) {
+            zip.file(nom.fileName, nom.bytes);
+            files.push(nom.fileName);
+          }
+        }
+
+        if (selectedDocuments.includes("declaration")) {
+          const decSig = { bytes: studentSig, pageIndex: 0, x: 450, y: 400, width: 75, height: 30 };
+          const decl = await generateDeclaration(process, decSig);
+          if (decl.ok) {
+            zip.file(decl.fileName, decl.bytes);
+            files.push(decl.fileName);
+          }
+        }
+
+        if (files.length === 0) {
+          return { ok: false, error: "No documents were selected" };
+        }
+
+        const zipBytes = await zip.generateAsync({ type: "uint8array" });
+        const blob = new Blob([zipBytes], { type: "application/zip" });
+
+        const pid = safeText(process.id || process.pid || "");
+        const personalName = safeText(process.payload && process.payload.personal && process.payload.personal.full_name);
+
+        const fileName = personalName ? `${personalName}.zip` : "documents.zip";
+
+        return { ok: true, blob, fileName, files };
+      } catch (e) {
+        console.error(e);
+        return { ok: false, error: "ZIP generation error" };
+      }
+    }
+
+    async function uploadZipToServer(pid, filename, zipBlob) {
+      try {
+        const form = new FormData();
+        form.append("action", "upload_generated_docs_zip");
+        form.append("pid", String(pid));
+        form.append("file", zipBlob, filename);
+
+        const r = await fetch(`${SERVER}/final_process.php`, {
+          method: "POST",
+          credentials: "include",
+          body: form
+        });
+
+        try {
+          return await r.json();
+        } catch {
+          return { ok: r.ok };
+        }
+      } catch (e) {
+        console.warn("Upload ZIP failed", e);
+        return { ok: false };
+      }
+    }
+
+    async function generatePEI(process, sigs) {
+      const templateUrl = `${BASE_PATH}/templates/PEI.pdf`;
+      const fileName = buildFileName(process, "PEI");
+      const fieldMap = mapFieldsPEI(process);
+
+      return fillPdfTemplate({
+        templateUrl,
+        fileName,
+        fieldMap,
+        signatures: sigs
+      });
+    }
+
+    async function generatePEIOutside(process, sigs) {
+      const templateUrl = `${BASE_PATH}/templates/PEI_Outside.pdf`;
+      const fileName = buildFileName(process, "PEI");
+      const fieldMap = mapFieldsPEI_Outside(process);
+
+      return fillPdfTemplate({
+        templateUrl,
+        fileName,
+        fieldMap,
+        signatures: sigs
+      });
+    }
+
+    async function generateLA(process, sigs, coordSig) {
+      const templateUrl = `${BASE_PATH}/templates/LA.pdf`;
+      const fileName = buildFileName(process, "LA");
+      const fieldMap = mapFieldsLA(process, coordSig);
+
+      const signatureDataUrl = getSignatureDataUrlFromProcess(process);
+
+      return fillPdfTemplate({
+        templateUrl,
+        fileName,
+        fieldMap,
+        signatures: sigs
+      });
+    }
+
+    async function generateDeclaration(process, sig) {
+      const templateUrl = `${BASE_PATH}/templates/Declaration.pdf`;
+      const fileName = buildFileName(process, "Declaration");
+
+      const fieldMap = {};
+
+      return fillPdfTemplate({ templateUrl, fileName, fieldMap, signatures: [sig] });
+    }
+
+    async function generateEnglishDoc(process, sig) {
+      const templateUrl = `${BASE_PATH}/templates/english.pdf`;
+      const fileName = buildFileName(process, "EnglishDoc");
+      const fieldMap = mapFieldsEnglishDoc(process);
+      return fillPdfTemplate({ templateUrl, fileName, fieldMap, signatures: [sig] });
+    }
+
+    async function generateNominationLetter(process, sig) {
+      const templateUrl = `${BASE_PATH}/templates/nomination.pdf`;
+      const fileName = buildFileName(process, "NominationLetter");
+      const fieldMap = mapFieldsNominationLetter(process);
+      return fillPdfTemplate({ templateUrl, fileName, fieldMap, signatures: [sig] });
+    }
+
+    function mapFieldsPEI(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const mappings = Array.isArray(p.equivalences)
+        ? p.equivalences.filter(eq => eq && eq.status !== 'R')
+        : [];
+
+      const today = new Date();
+      const data =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      const baseFields = {
+        studentName: personal.full_name,
+        studentId: personal.ist_id,
+        studentEmail: personal.institutional_email,
+        studentPhone: personal.phone_e164,
+        mobilityType: personal.mobility_type,
+        destinationUniversity: host.host_university,
+        hostCountry: host.host_country,
+        academicYear: personal.mobility_academic_year,
+        data: data,
+        homeDegree: personal.home_degree
+      };
+
+      let firstSemesterIndex = 0;
+      let secondSemesterIndex = 0;
+      let numberOfLinesNeeded = -1;
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        numberOfLinesNeeded += Math.max(homeCourses.length, destinationCourses.length) + 1;
+      });
+
+      const courseFields = {};
+
+      const isFirstSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "1st semester" || s === "1" || s === "first" || s === "1º" || s === "1o";
+      };
+
+      const isSecondSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "2nd semester" || s === "2" || s === "second" || s === "2º" || s === "2o";
+      };
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        const maxLength = Math.max(homeCourses.length, destinationCourses.length);
+
+        const anyFirst = destinationCourses.some(isFirstSemester);
+        const anySecond = destinationCourses.some(isSecondSemester);
+
+        for (let i = 0; i < maxLength; i++) {
+          const homeCourse = homeCourses[i] ?? null;
+          const destinationCourse = destinationCourses[i] ?? null;
+
+          if (homeCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h1${firstSemesterIndex}`] = String(homeCourse.credits ?? "");
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h2${secondSemesterIndex}`] = String(homeCourse.credits ?? "");
+            }
+          }
+
+          if (destinationCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`d1${firstSemesterIndex}`] = String(destinationCourse.credits ?? "");
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`d2${secondSemesterIndex}`] = String(destinationCourse.credits ?? "");
+            }
+          }
+
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+
+        if (numberOfLinesNeeded <= 11) {
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+      });
+
+      return {
+        ...baseFields,
+        ...courseFields
+      };
+    }
+
+    function mapFieldsPEI_Outside(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const mappings = Array.isArray(p.equivalences)
+        ? p.equivalences.filter(eq => eq && eq.status !== 'R')
+        : [];
+
+      const today = new Date();
+      const data =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      const baseFields = {
+        studentName: personal.full_name,
+        studentId: personal.ist_id,
+        studentEmail: personal.institutional_email,
+        studentPhone: personal.phone_e164,
+        mobilityType: personal.mobility_type,
+        destinationUniversity: host.host_university,
+        hostCountry: host.host_country,
+        academicYear: personal.mobility_academic_year,
+        data: data,
+        homeDegree: personal.home_degree
+      };
+
+      let firstSemesterIndex = 0;
+      let secondSemesterIndex = 0;
+      let numberOfLinesNeeded = -1;
+      let sumECTSDestinationSemester1 = 0;
+      let sumECTSDestinationSemester2 = 0;
+      let sumECTSHomeSemester1 = 0;
+      let sumECTSHomeSemester2 = 0;
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        numberOfLinesNeeded += Math.max(homeCourses.length, destinationCourses.length) + 1;
+      });
+
+      const courseFields = {};
+
+      const isFirstSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "1st semester" || s === "1" || s === "first" || s === "1º" || s === "1o";
+      };
+
+      const isSecondSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "2nd semester" || s === "2" || s === "second" || s === "2º" || s === "2o";
+      };
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        const maxLength = Math.max(homeCourses.length, destinationCourses.length);
+
+        const anyFirst = destinationCourses.some(isFirstSemester);
+        const anySecond = destinationCourses.some(isSecondSemester);
+
+        for (let i = 0; i < maxLength; i++) {
+          const homeCourse = homeCourses[i] ?? null;
+          const destinationCourse = destinationCourses[i] ?? null;
+
+          if (homeCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h1${firstSemesterIndex}`] = String(homeCourse.credits ?? "");
+              sumECTSHomeSemester1 += Number(homeCourse.credits ?? 0);
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h2${secondSemesterIndex}`] = String(homeCourse.credits ?? "");
+              sumECTSHomeSemester2 += Number(homeCourse.credits ?? 0);
+            }
+          }
+
+          if (destinationCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`d1${firstSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              sumECTSDestinationSemester1 += Number(destinationCourse.credits ?? 0);
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`d2${secondSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              sumECTSDestinationSemester2 += Number(destinationCourse.credits ?? 0);
+            }
+          }
+
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+
+        if (numberOfLinesNeeded <= 11) {
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+      });
+
+      if (sumECTSDestinationSemester1) baseFields["credits_destination_1"] = String(sumECTSDestinationSemester1);
+      if (sumECTSDestinationSemester2) baseFields["credits_destination_2"] = String(sumECTSDestinationSemester2);
+      if (sumECTSHomeSemester1) baseFields["credits_home_1"] = String(sumECTSHomeSemester1);
+      if (sumECTSHomeSemester2) baseFields["credits_home_2"] = String(sumECTSHomeSemester2);
+
+      return {
+        ...baseFields,
+        ...courseFields
+      };
+    }
+
+
+    function mapFieldsLA(process, coordSig) {
+      const coordName = coordSig ? (coordSig.dn || "") : "";
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const mappings = Array.isArray(p.equivalences)
+        ? p.equivalences.filter(eq => eq && eq.status !== 'R')
+        : [];
+      const today = new Date();
+      const formattedDate =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'native'];
+      const levelFields = {};
+      levels.forEach(level => {
+        levelFields[level] = level === host.language_level ? "X" : "";
+      });
+
+      const normalizeSemesterLabel = semesterValue => {
+        const s = String(semesterValue ?? "").trim().toLowerCase();
+        if (s === "1st semester" || s === "1" || s === "first" || s === "1º" || s === "1o" || s ==='"1"') return "autumn";
+        if (s === "2nd semester" || s === "2" || s === "second" || s === "2º" || s === "2o" || s ==='"2"') return "spring";
+        return "";
+      };
+
+      let totalDestinationCredits = 0;
+      let totalHomeCredits = 0;
+
+      let laIndexDestination = 0;
+      let laIndexHome = 0;
+
+      const courseFields = {};
+
+      mappings.forEach(mapping => {
+        const destCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+
+        destCourses.forEach(destCourse => {
+          const semesterLabel = normalizeSemesterLabel(destCourse.semester);
+
+          courseFields[`destinationCourse_${laIndexDestination}`] = String(destCourse.name ?? "");
+          courseFields[`semester${laIndexDestination}`] = semesterLabel;
+          courseFields[`destinationCredits_${laIndexDestination}`] = String(destCourse.credits ?? "");
+          courseFields[`code${laIndexDestination}`] = String(destCourse.code ?? "");
+
+          const c = Number(destCourse.credits);
+          totalDestinationCredits += Number.isFinite(c) ? c : 0;
+
+          laIndexDestination += 1;
+        });
+
+        homeCourses.forEach(homeCourse => {
+          courseFields[`homeCourse_${laIndexHome}`] = String(homeCourse.name ?? "");
+          courseFields[`homeCredits_${laIndexHome}`] = String(homeCourse.credits ?? "");
+          const semesterLabel = normalizeSemesterLabel(homeCourse.semester);
+          courseFields[`homeSemester${laIndexHome}`] = semesterLabel;
+
+          const c = Number(homeCourse.credits);
+          totalHomeCredits += Number.isFinite(c) ? c : 0;
+
+          laIndexHome += 1;
+        });
+      });
+
+      return {
+        studentName: personal.full_name,
+        first_names: personal.first_names,
+        last_names: personal.last_names,
+        studentEmail: personal.institutional_email,
+        nationality: personal.nationality,
+        studyCycle: personal.study_cycle,
+        academicYear: personal.mobility_academic_year,
+        homeDegree: personal.home_degree,
+        sex: (personal.sex && personal.sex[0]) ? personal.sex[0] : "",
+        birthDate: formatDate(personal.birth_date),
+        mobilityType: process && process.mobility_type,
+        destinationUniversity_la: host.host_university,
+        hostCountry: host.host_country,
+        hostAddress: host.host_address,
+        hostContactEmail: host.host_contact,
+        erasmusCode: host.erasmus_code || "",
+        facultyDepartment: host.faculty_department,
+        language: host.main_language,
+        ...levelFields,
+        studentDate: formattedDate,
+        sendingInstitution: (coordSig && coordSig.sendingInstitution) || "",
+        sendingDepartment:  (coordSig && coordSig.sendingDepartment)  || "",
+        coordinatorContact: (coordSig && coordSig.coordinatorContact) || "",
+        coordinatorEmail:   (coordSig && coordSig.coordinatorEmail)   || "",
+        coordinatorPosition:(coordSig && coordSig.coordinatorPosition)|| "",
+        coordinatorName: coordName || "",
+        coordinatorDate: formattedDate,
+        fromDate: formatDate(personal.from_month).slice(3),
+        toDate: formatDate(personal.to_month).slice(3),
+
+        ...courseFields,
+        credits_destination: String(totalDestinationCredits),
+        credits_home: String(totalHomeCredits)
+      };
+    }
+        
+    function mapFieldsEnglishDoc(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const studentGender = { MALE: "His", FEMALE: "Her" }[personal.sex] || "His/her"
+      const today = new Date();
+      const formattedDate =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      return {
+        studentName: personal.full_name,
+        gender: studentGender,
+        data: formattedDate
+      };
+    }
+
+    function mapFieldsNominationLetter(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const studentGender = { MALE: "His", FEMALE: "Her" }[personal.sex] || "His/her"
+      const today = new Date();
+      const formattedDate =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      return {
+        studentName: personal.full_name,
+        gender: studentGender,
+        data: formattedDate
+      };
+    }
+
+
+    let processStatus = "";
+    let homeCoursesCatalog = [];
+    let homeCoursesById    = {};
+
+    function isStaffEditable() {
+      return processStatus === "SUBMITTED";
+    }
+
+    function newEquivalenceId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      const rand = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).slice(1);
+      return `eq_${Date.now()}_${rand()}${rand()}${rand()}`;
+    }
+
+    async function fetchHomeCoursesCatalog() {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_home_courses" })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.ok) return;
+      const items = Array.isArray(data.items) ? data.items : [];
+      homeCoursesCatalog = items;
+      homeCoursesById    = {};
+      items.forEach(it => {
+        const key = safeText(it.name);
+        if (key) homeCoursesById[key] = it;
+      });
+    }
+
+    async function staffSave(pid, payload) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "staff_save", id: pid, payload })
+      });
+      const data = await r.json();
+      return { ok: r.ok && data && data.ok, data };
+    }
+
+
+    function buildStaffPayload() {
+      const base = processPayload && typeof processPayload === "object"
+        ? { ...processPayload }
+        : {};
+      base.equivalences = equivalencesState.map(eq => ({
+        id:                 safeText(eq.id)     || newEquivalenceId(),
+        status:             safeText(eq.status) || "A",
+        comment:            safeText(eq.comment),
+        homeCourses:        Array.isArray(eq.homeCourses)        ? eq.homeCourses        : [],
+        destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []
+      }));
+      return base;
+    }
+
+    function input(value, placeholder, style = "") {
+      const el = document.createElement("input");
+      el.value       = safeText(value);
+      el.placeholder = placeholder;
+      el.style.cssText =
+        "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
+        "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;" +
+        "box-sizing:border-box;" + style;
+      return el;
+    }
+
+    function smallLabel(text) {
+      const el = document.createElement("div");
+      el.style.cssText = "font-size:11px; opacity:0.65; margin-bottom:3px;";
+      el.textContent   = text;
+      return el;
+    }
+
+    function fieldWrap(label, inputEl, extraStyle = "") {
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "display:flex; flex-direction:column; gap:3px;" + extraStyle;
+      wrap.appendChild(smallLabel(label));
+      wrap.appendChild(inputEl);
+      return wrap;
+    }
+
+    function removeBtn(label = "Remove") {
+      const btn = document.createElement("button");
+      btn.type        = "button";
+      btn.textContent = label;
+      btn.className   = "btn secondary";
+      btn.style.cssText =
+        "background:rgba(231,76,60,0.18); border-color:rgba(231,76,60,0.45); " +
+        "color:#e74c3c; font-size:12px; padding:6px 10px;";
+      return btn;
+    }
+
+    function renderEquivalencesEditable() {
+      const list = document.getElementById("equivalencesList");
+      const info = document.getElementById("coordEqInfo");
+      if (!list) return;
+
+      list.innerHTML = "";
+      if (info) info.textContent = `Total: ${equivalencesState.length}`;
+
+      if (!equivalencesState.length) {
+        const el = document.createElement("div");
+        el.className   = "sub";
+        el.style.opacity = "0.85";
+        el.textContent = 'No equivalences. Click "+ Add Equivalence" to add one.';
+        list.appendChild(el);
+        return;
+      }
+
+      equivalencesState.forEach((eq, eqIdx) => {
+        const wrap = document.createElement("div");
+        wrap.className   = "card";
+        wrap.style.background = "rgba(0,0,0,0.18)";
+
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;";
+
+        const title = document.createElement("div");
+        title.style.fontWeight = "800";
+        title.textContent      = `Equivalence ${eqIdx + 1}`;
+        head.appendChild(title);
+
+        const rmEqBtn = removeBtn("Remove equivalence");
+        rmEqBtn.addEventListener("click", () => {
+          equivalencesState.splice(eqIdx, 1);
+          renderEquivalencesEditable();
+        });
+        head.appendChild(rmEqBtn);
+        wrap.appendChild(head);
+
+        const sep = document.createElement("div"); sep.className = "sep";
+        wrap.appendChild(sep);
+
+        const grid = document.createElement("div"); grid.className = "grid";
+
+        const homeCol = document.createElement("div");
+
+        const homeTitleRow = document.createElement("div");
+        homeTitleRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;";
+        const homeTitle = document.createElement("div");
+        homeTitle.style.fontWeight = "700"; homeTitle.textContent = "Home courses";
+        const addHomeBtn = document.createElement("button");
+        addHomeBtn.type = "button"; addHomeBtn.textContent = "+ Add"; addHomeBtn.className = "btn secondary";
+        addHomeBtn.style.cssText = "font-size:12px; padding:5px 10px;";
+        addHomeBtn.addEventListener("click", () => {
+          if (!Array.isArray(eq.homeCourses)) eq.homeCourses = [];
+          eq.homeCourses.push({ courseId:"", name:"", credits:"", link:"", semester:"" });
+          renderEquivalencesEditable();
+        });
+        homeTitleRow.appendChild(homeTitle);
+        homeTitleRow.appendChild(addHomeBtn);
+        homeCol.appendChild(homeTitleRow);
+
+        const homeList = document.createElement("div");
+        homeList.style.cssText = "display:flex; flex-direction:column; gap:10px;";
+
+        (Array.isArray(eq.homeCourses) ? eq.homeCourses : []).forEach((c, cIdx) => {
+          const card = document.createElement("div");
+          card.className   = "card";
+          card.style.cssText = "padding:10px; background:rgba(255,255,255,0.05);";
+
+          const cardHead = document.createElement("div");
+          cardHead.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;";
+          const cardTitle = document.createElement("div");
+          cardTitle.style.cssText = "font-size:12px; font-weight:700; opacity:0.85;";
+          cardTitle.textContent   = `Home course ${cIdx + 1}`;
+          const rmBtn = removeBtn("✕");
+          rmBtn.style.cssText = "padding:3px 8px; font-size:12px; background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.35); color:#e74c3c;";
+          rmBtn.addEventListener("click", () => {
+            eq.homeCourses.splice(cIdx, 1);
+            renderEquivalencesEditable();
+          });
+          cardHead.appendChild(cardTitle);
+          cardHead.appendChild(rmBtn);
+          card.appendChild(cardHead);
+
+          const selectWrap = document.createElement("div");
+          selectWrap.style.cssText = "display:flex; flex-direction:column; gap:3px; margin-bottom:6px;";
+          selectWrap.appendChild(smallLabel("Course"));
+
+          const sel = document.createElement("select");
+          sel.style.cssText =
+            "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
+            "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;";
+          const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "Select from catalog";
+          sel.appendChild(opt0);
+          homeCoursesCatalog.forEach(it => {
+            const opt = document.createElement("option");
+            opt.value       = safeText(it.name);
+            opt.textContent = safeText(it.name);
+            sel.appendChild(opt);
+          });
+          sel.value = safeText(c.courseId || c.name);
+
+          const creditsInput = input(c.credits, "ECTS");
+          const applyPick = (nameKey) => {
+            const picked = homeCoursesById[safeText(nameKey)];
+            if (!picked) return;
+            eq.homeCourses[cIdx].courseId = safeText(picked.name);
+            eq.homeCourses[cIdx].name     = safeText(picked.name);
+            eq.homeCourses[cIdx].link     = safeText(picked.link);
+            eq.homeCourses[cIdx].semester = safeText(picked.semester);
+            const pc = picked.credits != null ? String(picked.credits) : String(picked.ects ?? "");
+            const isSpecial = /free option|extracurricular activities/i.test(safeText(picked.name));
+            if (!isSpecial) { eq.homeCourses[cIdx].credits = pc; creditsInput.value = pc; }
+            creditsInput.disabled = !isSpecial;
+          };
+          sel.addEventListener("change", e => {
+            eq.homeCourses[cIdx].courseId = e.target.value;
+            eq.homeCourses[cIdx].credits  = "";
+            creditsInput.value = "";
+            applyPick(e.target.value);
+          });
+          if (sel.value) applyPick(sel.value);
+          selectWrap.appendChild(sel);
+          card.appendChild(selectWrap);
+          card.appendChild(fieldWrap("Credits (ECTS)", creditsInput));
+          creditsInput.addEventListener("input", e => { eq.homeCourses[cIdx].credits = e.target.value; });
+          homeList.appendChild(card);
+        });
+
+        homeCol.appendChild(homeList);
+
+        const hostCol = document.createElement("div");
+
+        const hostTitleRow = document.createElement("div");
+        hostTitleRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;";
+        const hostTitle = document.createElement("div");
+        hostTitle.style.fontWeight = "700"; hostTitle.textContent = "Host courses";
+        const addHostBtn = document.createElement("button");
+        addHostBtn.type = "button"; addHostBtn.textContent = "+ Add"; addHostBtn.className = "btn secondary";
+        addHostBtn.style.cssText = "font-size:12px; padding:5px 10px;";
+        addHostBtn.addEventListener("click", () => {
+          if (!Array.isArray(eq.destinationCourses)) eq.destinationCourses = [];
+          eq.destinationCourses.push({ name:"", credits:"", grade:"", credits_equivalent:"", link:"", semester:"", code:"" });
+          renderEquivalencesEditable();
+        });
+        hostTitleRow.appendChild(hostTitle);
+        hostTitleRow.appendChild(addHostBtn);
+        hostCol.appendChild(hostTitleRow);
+
+        const hostList = document.createElement("div");
+        hostList.style.cssText = "display:flex; flex-direction:column; gap:10px;";
+
+        (Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []).forEach((c, cIdx) => {
+          const card = document.createElement("div");
+          card.className   = "card";
+          card.style.cssText = "padding:10px; background:rgba(255,255,255,0.05);";
+
+          const cardHead = document.createElement("div");
+          cardHead.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;";
+          const cardTitle = document.createElement("div");
+          cardTitle.style.cssText = "font-size:12px; font-weight:700; opacity:0.85;";
+          cardTitle.textContent   = `Host course ${cIdx + 1}`;
+          const rmBtn = removeBtn("✕");
+          rmBtn.style.cssText = "padding:3px 8px; font-size:12px; background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.35); color:#e74c3c;";
+          rmBtn.addEventListener("click", () => {
+            eq.destinationCourses.splice(cIdx, 1);
+            renderEquivalencesEditable();
+          });
+          cardHead.appendChild(cardTitle);
+          cardHead.appendChild(rmBtn);
+          card.appendChild(cardHead);
+
+          const nameInp = input(c.name, "Course name");
+          nameInp.addEventListener("input", e => { eq.destinationCourses[cIdx].name = e.target.value; });
+          card.appendChild(fieldWrap("Course name", nameInp, "margin-bottom:6px;"));
+
+          const codeInp = input(c.code, "Code (optional)");
+          codeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].code = e.target.value; });
+          card.appendChild(fieldWrap("Code", codeInp, "margin-bottom:6px;"));
+
+          const credInp = input(c.credits, "Credits");
+          credInp.addEventListener("input", e => { eq.destinationCourses[cIdx].credits = e.target.value; });
+          card.appendChild(fieldWrap("Credits (ECTS)", credInp, "margin-bottom:6px;"));
+
+          // Grades row: student grade (locked) + staff equivalent grade (editable)
+          const gradesRow = document.createElement("div");
+          gradesRow.style.cssText = "display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;";
+
+          const studentGradeInp = input(c.grade, "-");
+          studentGradeInp.disabled = true;
+          studentGradeInp.title    = "Grade submitted by the student - read only";
+          studentGradeInp.style.cssText +=
+            "opacity:0.6; cursor:not-allowed;";
+          gradesRow.appendChild(fieldWrap("Host grade (student)", studentGradeInp));
+
+          const staffGradeInp = input(c.grade_equivalent, "e.g. 14");
+          staffGradeInp.style.cssText +=
+            "background:rgba(52,152,219,0.12); border-color:rgba(52,152,219,0.40);";
+          staffGradeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].grade_equivalent = e.target.value; });
+          gradesRow.appendChild(fieldWrap("Equivalent grade (IST scale) ★", staffGradeInp));
+
+          card.appendChild(gradesRow);
+
+          const semSel = document.createElement("select");
+          semSel.style.cssText =
+            "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
+            "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;";
+          [["","Select semester"],["1","Semester 1"],["2","Semester 2"]].forEach(([v,t]) => {
+            const opt = document.createElement("option"); opt.value = v; opt.textContent = t;
+            semSel.appendChild(opt);
+          });
+          semSel.value = safeText(c.semester);
+          semSel.addEventListener("change", e => { eq.destinationCourses[cIdx].semester = e.target.value; });
+          card.appendChild(fieldWrap("Semester", semSel, "margin-bottom:6px;"));
+
+          const linkInp = input(c.link, "https://...");
+          linkInp.addEventListener("input", e => { eq.destinationCourses[cIdx].link = e.target.value; });
+          card.appendChild(fieldWrap("Link (optional)", linkInp));
+
+          hostList.appendChild(card);
+        });
+
+        hostCol.appendChild(hostList);
+
+        grid.appendChild(homeCol);
+        grid.appendChild(hostCol);
+        wrap.appendChild(grid);
+        list.appendChild(wrap);
+      });
+    }
+
+
+    async function staffDecide(pid, decision, comment) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "staff_decide", id: pid, decision, comment })
+      });
+      const data = await r.json();
+      return { ok: r.ok && data && data.ok, data };
+    }
+
+    async function sendFinalChangesEmail(pid, proc, comment) {
+      const studentEmail = safeText(proc?.payload?.personal?.institutional_email);
+      const studentName  = safeText(proc?.payload?.personal?.full_name);
+      if (!studentEmail) return { ok: false, error: "no_email" };
+
+      const r = await fetch(`${SERVER}/send_final_changes_email.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pid: Number(pid),
+          student_email: studentEmail,
+          student_name: studentName,
+          comment,
+          rejected_by: "staff"
+        })
+      });
+      const data = await r.json().catch(() => null);
+      return { ok: r.ok && data && data.ok, data };
+    }
+
+    function showStaffDecisionSection(proc) {
+      const section = document.getElementById("staffDecisionSection");
+      if (!section) return;
+
+      const status = safeText(proc && proc.status);
+
+      if (status === "SUBMITTED") {
+        section.style.display = "block";
+        document.getElementById("staffDecisionForm").style.display = "block";
+        document.getElementById("staffDecisionDone").style.display = "none";
+        return;
+      }
+
+      // Already decided - show pill only
+      if (status === "STAFF_APPROVED" || status === "CHANGES_REQUESTED") {
+        section.style.display = "block";
+        document.getElementById("staffDecisionForm").style.display = "none";
+        const doneDiv = document.getElementById("staffDecisionDone");
+        const pill    = document.getElementById("staffDecisionPill");
+        doneDiv.style.display = "block";
+
+        if (status === "STAFF_APPROVED") {
+          pill.textContent = "APPROVED by staff";
+          pill.style.background    = "rgba(46,204,113,0.18)";
+          pill.style.borderColor   = "rgba(46,204,113,0.45)";
+          pill.style.color         = "#2ecc71";
+          pill.style.border        = "1px solid rgba(46,204,113,0.45)";
+        } else {
+          pill.textContent = "REJECTED by staff - changes requested";
+          pill.style.background    = "rgba(231,76,60,0.18)";
+          pill.style.borderColor   = "rgba(231,76,60,0.45)";
+          pill.style.color         = "#e74c3c";
+          pill.style.border        = "1px solid rgba(231,76,60,0.45)";
+        }
+        return;
+      }
+
+      section.style.display = "none";
+    }
+
+    function initStaffDecisionButtons(pid, proc) {
+      const approveBtn = document.getElementById("staffApproveBtn");
+      const rejectBtn  = document.getElementById("staffRejectBtn");
+      if (!approveBtn || !rejectBtn) return;
+
+      approveBtn.addEventListener("click", async () => {
+        const comment = (document.getElementById("staffComment")?.value || "").trim();
+        if (!window.confirm("Approve this final process? This will forward it to the coordinator.")) return;
+
+        approveBtn.disabled = true;
+        rejectBtn.disabled  = true;
+
+        // Auto-save edits before approving
+        if (isStaffEditable()) {
+          setMsg("Saving changes…");
+          const saveRes = await staffSave(pid, buildStaffPayload());
+          if (!saveRes.ok) {
+            setMsg("Save failed before approve: " + (saveRes.data?.error || "unknown"));
+            approveBtn.disabled = false;
+            rejectBtn.disabled  = false;
+            return;
+          }
+        }
+
+        setMsg("Approving…");
+
+        const res = await staffDecide(pid, "APPROVE", comment);
+        if (!res.ok) {
+          setMsg("Failed to approve: " + (res.data?.error || "unknown error"));
+          approveBtn.disabled = false;
+          rejectBtn.disabled  = false;
+          return;
+        }
+
+        setMsg("Process approved and forwarded to coordinator.");
+        document.getElementById("staffDecisionForm").style.display = "none";
+        const doneDiv = document.getElementById("staffDecisionDone");
+        const pill    = document.getElementById("staffDecisionPill");
+        doneDiv.style.display = "block";
+        pill.textContent = "APPROVED by staff";
+        pill.style.background  = "rgba(46,204,113,0.18)";
+        pill.style.border      = "1px solid rgba(46,204,113,0.45)";
+        pill.style.color       = "#2ecc71";
+
+        // Notify parent dashboard to refresh
+        window.opener?.postMessage({ type: "PROCESS_UPDATED" }, "*");
+      });
+
+      rejectBtn.addEventListener("click", async () => {
+        const comment = (document.getElementById("staffComment")?.value || "").trim();
+        if (!window.confirm("Reject this final process? The student will be notified by email.")) return;
+
+        approveBtn.disabled = true;
+        rejectBtn.disabled  = true;
+
+        // Auto-save edits before rejecting
+        if (isStaffEditable()) {
+          setMsg("Saving changes…");
+          const saveRes = await staffSave(pid, buildStaffPayload());
+          if (!saveRes.ok) {
+            setMsg("Save failed before reject: " + (saveRes.data?.error || "unknown"));
+            approveBtn.disabled = false;
+            rejectBtn.disabled  = false;
+            return;
+          }
+        }
+
+        setMsg("Rejecting…");
+
+        const res = await staffDecide(pid, "REJECT", comment);
+        if (!res.ok) {
+          setMsg("Failed to reject: " + (res.data?.error || "unknown error"));
+          approveBtn.disabled = false;
+          rejectBtn.disabled  = false;
+          return;
+        }
+
+        setMsg("Sending email notification…");
+        await sendFinalChangesEmail(pid, proc, comment);
+
+        setMsg("Process rejected. Student notified by email.");
+        document.getElementById("staffDecisionForm").style.display = "none";
+        const doneDiv = document.getElementById("staffDecisionDone");
+        const pill    = document.getElementById("staffDecisionPill");
+        doneDiv.style.display = "block";
+        pill.textContent = "REJECTED - changes requested";
+        pill.style.background  = "rgba(231,76,60,0.18)";
+        pill.style.border      = "1px solid rgba(231,76,60,0.45)";
+        pill.style.color       = "#e74c3c";
+
+        // Notify parent dashboard to refresh
+        window.opener?.postMessage({ type: "PROCESS_UPDATED" }, "*");
+      });
+    }
+
+    async function loadTor(torType, istId) {
+      const url = `${SERVER}/serve_tor.php?tor_type=${encodeURIComponent(torType)}&ist_id=${encodeURIComponent(istId)}`;
+
+      try {
+        const check = await fetch(url, { method: "HEAD", credentials: "include" });
+        const wrapId = torType === "origin" ? "torOriginWrap" : "torDestinationWrap";
+        const wrap = document.getElementById(wrapId);
+        if (!wrap) return;
+
+        if (check.ok) {
+          wrap.innerHTML = `<iframe class="tor-embed" src="${url}" title="TOR ${torType}"></iframe>`;
+        }
+      } catch {
+      }
+    }
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      if (!PID) {
+        setMsg("Missing pid in URL");
+        return;
+      }
+
+      const res = await getProcessById(PID);
+      if (!res.ok || !res.data || !res.data.ok || !res.data.process) {
+        window.location.href = `${BASE_PATH}/dashboard_staff.html`;
+        return;
+      }
+
+      const proc = res.data.process;
+      processId = proc.id;
+
+      fillFromProcessPayload(proc.payload || null);
+
+      const istId = safeText(proc?.payload?.personal?.ist_id || proc?.payload?.personal?.username || "");
+      if (istId) {
+        loadTor("origin",      istId);
+        loadTor("destination", istId);
+      }
+
+      const resRev = await listReviews(proc.id);
+      eqDecisions = {};
+
+      if (resRev.ok && resRev.data && resRev.data.ok && Array.isArray(resRev.data.items)) {
+        resRev.data.items.forEach(it => {
+          const id = safeText(it && it.equivalence_id);
+          if (!id) return;
+
+          eqDecisions[id] = {
+            decision: safeText(it.decision),
+            note: safeText(it.note),
+            reviewed_at: safeText(it.updated_at || it.created_at || ""),
+            reviewed_by: safeText(it.reviewed_by || "")
+          };
+        });
+      }
+
+      processStatus = safeText(proc.status);
+
+      if (isStaffEditable()) {
+        await fetchHomeCoursesCatalog();
+
+        const editActions = document.getElementById("staffEditActions");
+        if (editActions) editActions.style.display = "flex";
+
+        const addBtn = document.getElementById("addEquivalenceBtn");
+        if (addBtn) {
+          addBtn.addEventListener("click", () => {
+            equivalencesState.push({
+              id: newEquivalenceId(),
+              status: "A",
+              comment: "",
+              homeCourses: [{ courseId:"", name:"", credits:"", link:"", semester:"" }],
+              destinationCourses: [{ name:"", credits:"", grade:"", credits_equivalent:"", link:"", semester:"", code:"" }]
+            });
+            renderEquivalencesEditable();
+          });
+        }
+
+        const saveBtn = document.getElementById("saveChangesBtn");
+        if (saveBtn) {
+          saveBtn.addEventListener("click", async () => {
+            saveBtn.disabled = true;
+            setMsg("Saving…");
+            const payload = buildStaffPayload();
+            const res = await staffSave(proc.id, payload);
+            saveBtn.disabled = false;
+            if (!res.ok) {
+              setMsg("Save failed: " + (res.data?.error || "unknown"));
+            } else {
+              processPayload = payload;
+              setMsg("Saved.");
+            }
+          });
+        }
+      }
+
+      document.getElementById("tabPersonal").addEventListener("click", () => setActiveTab("personal"));
+      document.getElementById("tabHost").addEventListener("click", () => setActiveTab("host"));
+      document.getElementById("tabEquivalences").addEventListener("click", () => setActiveTab("equivalences"));
+
+      setActiveTab("equivalences");
+
+      showStaffDecisionSection(proc);
+      initStaffDecisionButtons(proc.id, proc);
+    }
+
+    load();
+  </script>
+</body>
+</html>

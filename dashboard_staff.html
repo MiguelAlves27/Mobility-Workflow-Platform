@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administrative Workspace</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body { zoom: 1.0; overflow: hidden; }
+  </style>
+</head>
+
+<body class="page-bg">
+  <div class="topbar">
+    <div>
+      <div style="font-weight:800;">Administrative workspace</div>
+      <div class="sub" id="subtitle">Loading</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="adminBtn" type="button" style="display:none;">Admin Panel</button>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div style="font-size:16px; font-weight:800;">Processes</div>
+
+    <div class="tabs">
+      <button class="tabBtn active" id="tabPending" type="button" data-view="pending">Pending</button>
+      <button class="tabBtn" id="tabApproved" type="button" data-view="approved">Approved</button>
+      <button class="tabBtn" id="tabChanges" type="button" data-view="changes">Changes Requested</button>
+    </div>
+
+    <div class="queueInfo" id="queueInfo">Loading</div>
+    <div class="list" id="queueList"></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="centerArea">
+    <div class="frameContainer">
+      <div class="frameBar">
+        <div class="frameTitle" id="frameTitle">Select a process</div>
+      </div>
+
+      <div class="frameWrap">
+        <iframe id="procFrame" title="process"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+    let view = "pending";
+
+    let pendingQueue = [];
+    let approvedQueue = [];
+    let changesQueue = [];
+    let archivedQueue = [];
+
+    const stateByView = {
+      pending: { queueRef: () => pendingQueue, selectedIndex: -1 },
+      approved: { queueRef: () => approvedQueue, selectedIndex: -1 },
+      changes: { queueRef: () => changesQueue, selectedIndex: -1 },
+      archived: { queueRef: () => archivedQueue, selectedIndex: -1 }
+    };
+
+    const emptyTextByView = {
+      pending: "No pending processes.",
+      approved: "No approved processes.",
+      changes: "No processes with changes.",
+      archived: "No archived processes."
+    };
+
+    const defaultStatusByView = {
+      pending: "SUBMITTED",
+      approved: "STAFF_APPROVED",
+      changes: "CHANGES_REQUESTED",
+      archived: "ARCHIVED"
+    };
+
+    function getViewState() {
+      return stateByView[view] || stateByView.pending;
+    }
+
+    function getActiveQueue() {
+      return getViewState().queueRef();
+    }
+
+    function getSelectedIndex() {
+      return getViewState().selectedIndex;
+    }
+
+    function setSelectedIndex(i) {
+      getViewState().selectedIndex = i;
+    }
+
+    function setTabs() {
+      document.querySelectorAll(".tabBtn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
+    }
+
+    async function listPendingProcesses() {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_submitted" })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function listApprovedProcesses() {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_approved_staff" })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function listChangesProcesses() {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_changes_requested" })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    function renderQueue() {
+      setTabs();
+
+      const list = document.getElementById("queueList");
+      const info = document.getElementById("queueInfo");
+      if (!list || !info) return;
+
+      const queue = getActiveQueue();
+      const selectedIndex = getSelectedIndex();
+
+      list.innerHTML = "";
+
+      if (!queue.length) {
+        info.textContent = emptyTextByView[view] || "No processes.";
+        return;
+      }
+
+      info.textContent = `Total ${queue.length}`;
+
+      queue.forEach((p, i) => {
+        const el = document.createElement("div");
+        el.className = "item" + (i === selectedIndex ? " active" : "");
+
+        const top = document.createElement("div");
+        top.className = "itemTop";
+
+        const left = document.createElement("div");
+        left.style.fontWeight = "800";
+
+        const full = safeText(p.payload.personal.full_name).split(" ");
+        const name = full.length > 1 ? `${full[0]} ${full[full.length - 1]}` : full[0];
+        const ist = safeText(p.payload.personal.ist_id);
+
+        left.textContent = `${name} ${ist}`;
+
+        const pill = document.createElement("div");
+        pill.className = "pill";
+        pill.textContent = safeText(p.status) || defaultStatusByView[view] || "SUBMITTED";
+
+        top.appendChild(left);
+        top.appendChild(pill);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const parts = [];
+        if (p.submittedAt) parts.push(`Submitted at ${p.submittedAt}`);
+        if (p.mobilityType) parts.push(p.mobilityType);
+        meta.textContent = parts.join("  ");
+
+        el.appendChild(top);
+        el.appendChild(meta);
+
+        el.addEventListener("click", () => openProcessAtIndex(i));
+        list.appendChild(el);
+      });
+    }
+
+    function openProcessAtIndex(i) {
+      setSelectedIndex(i);
+      renderQueue();
+
+      const queue = getActiveQueue();
+      const p = queue[i];
+      if (!p || !p.id) return;
+
+      const params = new URLSearchParams({ pid: String(p.id) });
+
+      if (view === "changes") {
+        params.set("fromQueue", "1");
+      }
+
+      const url = `${BASE_PATH}/process_form_staff.html?${params.toString()}`;
+      window.open(url, "_blank");
+    }
+
+    function syncSelectionToBounds() {
+      Object.keys(stateByView).forEach(k => {
+        const st = stateByView[k];
+        const q = st.queueRef();
+        if (st.selectedIndex >= q.length) st.selectedIndex = q.length - 1;
+        if (!q.length) st.selectedIndex = -1;
+      });
+    }
+
+    async function refreshQueues() {
+      setMsg("Loading");
+
+      const pendingRes = await listPendingProcesses();
+      const approvedRes = await listApprovedProcesses();
+
+      const changesRes = await listChangesProcesses();
+
+      if (!pendingRes.ok || !pendingRes.data || !pendingRes.data.ok) pendingQueue = [];
+      else pendingQueue = sortOldestFirst(Array.isArray(pendingRes.data.processes) ? pendingRes.data.processes : []);
+
+      if (!approvedRes.ok || !approvedRes.data || !approvedRes.data.ok) approvedQueue = [];
+      else approvedQueue = sortOldestFirst(Array.isArray(approvedRes.data.processes) ? approvedRes.data.processes : []);
+
+      if (!changesRes.ok || !changesRes.data || !changesRes.data.ok) changesQueue = [];
+      else changesQueue = sortOldestFirst(Array.isArray(changesRes.data.processes) ? changesRes.data.processes : []);
+
+      syncSelectionToBounds();
+      renderQueue();
+      setMsg("");
+    }
+
+    function showFrame() {
+      const container = document.querySelector(".frameContainer");
+      if (container) container.style.display = "flex";
+    }
+
+    function hideFrame() {
+      const container = document.querySelector(".frameContainer");
+      if (container) container.style.display = "none";
+    }
+
+    function clearSelectionUI() {
+      Object.keys(stateByView).forEach(k => {
+        stateByView[k].selectedIndex = -1;
+      });
+
+      const frame = document.getElementById("procFrame");
+      const title = document.getElementById("frameTitle");
+
+      if (frame) frame.src = "";
+      if (title) title.textContent = "Select a process";
+      hideFrame();
+
+      renderQueue();
+      setMsg("");
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = `${SERVER}/logout.php`;
+    });
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/confirmation_page.html`;
+    });
+
+    document.getElementById("adminBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/admin_panel.html`;
+    });
+
+    document.getElementById("refreshBtn").addEventListener("click", async () => {
+      await refreshQueues();
+    });
+
+
+    document.querySelectorAll(".tabBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        view = btn.dataset.view || "pending";
+        renderQueue();
+        clearSelectionUI();
+      });
+    });
+
+    window.addEventListener("message", async (e) => {
+      if (e.origin !== window.location.origin) return;
+      const data = e.data;
+      if (!data || data.type !== "PROCESS_UPDATED") return;
+
+      clearSelectionUI();
+      await refreshQueues();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" || e.key === "Esc") {
+        clearSelectionUI();
+      }
+    });
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      const role = await getRole();
+      if (role !== "COORDINATOR" && role !== "ADMIN" && role !== "STAFF") {
+        window.location.href = `${BASE_PATH}/dashboard.html`;
+        return;
+      }
+
+      if (role === "ADMIN" || role === "STAFF") {
+        const adminBtn = document.getElementById("adminBtn");
+        if (adminBtn) adminBtn.style.display = "inline-flex";
+      }
+
+      const name =
+        me.person && (me.person.displayName || me.person.name)
+          ? (me.person.displayName || me.person.name)
+          : "Staff Member";
+
+      document.getElementById("subtitle").textContent = `Welcome ${name}`;
+
+      await refreshQueues();
+      hideFrame();
+    }
+
+    load();
+  </script>
+</body>
+</html>

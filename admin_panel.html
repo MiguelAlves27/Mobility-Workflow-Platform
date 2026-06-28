@@ -1,0 +1,371 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      zoom: 1.0;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: url("assets/images/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .sub {
+      margin-top: 6px;
+      opacity: 0.85;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.9);
+      color: #000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(255,255,255,0.20);
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 10;
+      gap: 14px;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      bottom: 0;
+      width: 340px;
+      background: rgba(0,0,0,0.70);
+      backdrop-filter: blur(6px);
+      border-right: 1px solid rgba(255,255,255,0.14);
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 12px;
+      z-index: 9;
+      overflow: hidden;
+    }
+
+    .menuTitle {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .navBtn {
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      color: #fff;
+      transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .navBtn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    .navBtn.active {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.26);
+    }
+
+    .hint {
+      opacity: 0.85;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .centerArea {
+      position: fixed;
+      top: 64px;
+      left: 340px;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .frameContainer {
+      width: min(1500px, 96%);
+      height: min(860px, 96%);
+      background: rgb(41, 41, 41);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.45);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .frameBar {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .frameTitle {
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .frameWrap {
+      flex: 1;
+      min-height: 0;
+      background: rgba(0,0,0,0.12);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .topbar { position: sticky; }
+      .sidebar {
+        position: relative;
+        width: auto;
+        top: 0;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.14);
+        height: auto;
+      }
+      .centerArea {
+        position: relative;
+        left: 0;
+        top: 0;
+        height: auto;
+        padding: 14px;
+        align-items: stretch;
+      }
+      .frameContainer {
+        width: 100%;
+        height: 70vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div>
+      <div style="font-weight:800;">Admin panel</div>
+      <div class="sub" id="subtitle">Loading</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="menuTitle">Menu</div>
+
+    <div class="nav">
+      <button class="navBtn" id="navEq" type="button">Manage equivalences</button>
+      <button class="navBtn active" id="navCoords" type="button">Manage coordinators</button>
+      <button class="navBtn" id="navDocs" type="button">Manage generated documents</button>
+      <button class="navBtn" id="navDegrees" type="button">Manage home degrees</button>
+      <button class="navBtn" id="navProcesses" type="button">Manage processes</button>
+    </div>
+
+    <div class="hint" id="hint">
+      Select an option from the menu to open the management area.
+    </div>
+  </div>
+
+  <div class="centerArea">
+    <div class="frameContainer">
+      <div class="frameBar">
+        <div class="frameTitle" id="frameTitle">Manage coordinators</div>
+      </div>
+
+      <div class="frameWrap">
+        <iframe id="adminFrame" title="admin"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+
+    function setActive(navId) {
+      const a = document.getElementById("navCoords");
+      const b = document.getElementById("navEq");
+      const c = document.getElementById("navDocs");
+      const d = document.getElementById("navDegrees");
+      const e = document.getElementById("navProcesses");
+
+      if (a) a.classList.remove("active");
+      if (b) b.classList.remove("active");
+      if (c) c.classList.remove("active");
+      if (d) d.classList.remove("active");
+      if (e) e.classList.remove("active");
+
+      const btn = document.getElementById(navId);
+      if (btn) btn.classList.add("active");
+    }
+
+    function openProcesses() {
+      setActive("navProcesses");
+      document.getElementById("frameTitle").textContent = "Manage processes";
+      document.getElementById("hint").textContent = "View all processes and edit status, mobility type and payload.";
+      document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_processes.html`;
+    }
+
+    function openCoordinators() {
+      setActive("navCoords");
+      document.getElementById("frameTitle").textContent = "Manage coordinators";
+      document.getElementById("hint").textContent = "Manage coordinator accounts, roles and assignments.";
+      document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_coordinators.html`;
+    }
+
+    function openEquivalences() {
+      setActive("navEq");
+      document.getElementById("frameTitle").textContent = "Manage equivalences";
+      document.getElementById("hint").textContent = "Manage equivalence rules and mapping tables.";
+      document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_equivalences.html`;
+    }
+
+    document.getElementById("navCoords").addEventListener("click", openCoordinators);
+    document.getElementById("navEq").addEventListener("click", openEquivalences);
+    document.getElementById("navProcesses").addEventListener("click", openProcesses);
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = `${SERVER}/logout.php`;
+    });
+
+    let currentRole = null;
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      const dest = currentRole === "STAFF"
+        ? `${BASE_PATH}/dashboard_staff.html`
+        : `${BASE_PATH}/dashboard_coordinator.html`;
+      window.location.href = dest;
+    });
+
+    document.getElementById("refreshBtn").addEventListener("click", () => {
+      const frame = document.getElementById("adminFrame");
+      const src = frame.src;
+      frame.src = src;
+    });
+
+    function openGeneratedDocs() {
+      setActive("navDocs");
+      document.getElementById("frameTitle").textContent = "Manage generated documents";
+      document.getElementById("hint").textContent = "List processes with generated ZIP files and download them.";
+      document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_docs.html`;
+    }
+
+    document.getElementById("navDocs").addEventListener("click", openGeneratedDocs);
+
+    document.getElementById("navDegrees").addEventListener("click", () => {
+      setActive("navDegrees");
+      document.getElementById("frameTitle").textContent = "Manage home degrees";
+      document.getElementById("hint").textContent = "Manage the catalog of home degrees and their courses.";
+      document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_degrees.html`;
+    });
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      currentRole = await getRole();
+      const role = currentRole;
+      if (role !== "ADMIN" && role !== "STAFF" && role !== "COORDINATOR") {
+        window.location.href = `${BASE_PATH}/dashboard.html`;
+        return;
+      }
+
+      const name =
+        me.person && (me.person.displayName || me.person.name)
+          ? (me.person.displayName || me.person.name)
+          : "Admin";
+
+      document.getElementById("subtitle").textContent = `Welcome ${name}`;
+
+      if (role !== "ADMIN") {
+        document.getElementById("navCoords").style.display = "none";
+        document.getElementById("navProcesses").style.display = "none";
+      }
+
+      openEquivalences();
+    }
+
+    load();
+  </script>
+</body>
+</html>

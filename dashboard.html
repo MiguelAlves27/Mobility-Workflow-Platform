@@ -1,0 +1,41 @@
+﻿<script src="scripts/utils.js"></script>
+<script>
+
+  async function load() {
+    const me = await whoami();
+    if (!me) {
+      window.location.href = `${BASE_PATH}/index.html`;
+      return;
+    }
+
+    const role = await getRole();
+    if (!role) {
+      window.location.href = `${BASE_PATH}/index.html`;
+      return;
+    }
+
+    if (role === "STUDENT") {
+      window.location.href = `${BASE_PATH}/dashboard_student.html`;
+      return;
+    }
+
+    if (role === "COORDINATOR") {
+      window.location.href = `${BASE_PATH}/dashboard_coordinator.html`;
+      return;
+    }
+
+    if (role === "STAFF") {
+      window.location.href = `${BASE_PATH}/dashboard_staff.html`;
+      return;
+    }    
+
+    if (role === "ADMIN") {
+      window.location.href = `${BASE_PATH}/dashboard_admin_selector.html`;
+      return;
+    }
+
+    window.location.href = `${BASE_PATH}/index.html`;
+  }
+
+  load();
+</script>

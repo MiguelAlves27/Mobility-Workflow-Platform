@@ -1,0 +1,386 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinator Signature</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: url("assets/images/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .overlay {
+      width: 100%;
+      max-width: 980px;
+      margin: 18px;
+      background: rgb(50, 48, 48);
+      border-radius: 18px;
+      box-shadow: 0 18px 55px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+    }
+
+    .title h1 { margin: 0; font-size: 18px; font-weight: 800; }
+
+    main { padding: 18px; }
+
+    .card { background: rgba(0,0,0,0.35); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13px; opacity: 0.85; }
+
+    input {
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.28);
+      color: #fff;
+      outline: none;
+      font-size: 14px;
+    }
+    input[type="file"] { padding: 10px; }
+
+    .hint { margin-top: 6px; font-size: 12px; opacity: 0.65; }
+
+    .previewWrap { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    .preview {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 140px;
+    }
+
+    .preview img {
+      max-width: 100%;
+      max-height: 260px;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    .metaRow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .overlay { margin: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay">
+    <header>
+      <div class="title">
+        <h1>Coordinator signature</h1>
+        <div class="sub" id="subtitle">Loading</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="backBtn" type="button">Back</button>
+        <button class="btn" id="saveBtn" type="button">Save</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="card">
+        <div style="font-weight:800; font-size:15px;">Signature details</div>
+        <div class="sub" style="opacity:0.9;">
+          Upload a PNG with transparent or white background. This will be used to sign PDFs generated from approved processes.
+        </div>
+
+        <div class="grid">
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Name used in documents</label>
+            <input id="displayName" placeholder="e.g. Ana Silva" />
+            <div class="hint">Optional. If empty, your profile name will be used.</div>
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Signature PNG</label>
+            <input id="sigFile" type="file" accept="image/png" />
+            <div class="hint">PNG only. Recommended max 2MB. Leave empty to keep existing signature.</div>
+          </div>
+        </div>
+
+        <div class="previewWrap">
+          <div class="metaRow">
+            <div class="sub" id="currentInfo" style="margin:0; opacity:0.9;"></div>
+          </div>
+
+          <div class="preview">
+            <img id="sigPreview" alt="Signature preview" style="display:none;" />
+            <div id="noPreview" class="sub" style="opacity:0.85;">No signature saved yet.</div>
+          </div>
+        </div>
+
+        <div class="msg" id="msg"></div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div style="font-weight:800; font-size:15px;">Institution details</div>
+        <div class="sub" style="opacity:0.9; margin-bottom:4px;">
+          These values appear in the documents generated for your students (Learning Agreement, etc.).
+        </div>
+
+        <div class="grid">
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Sending institution</label>
+            <input id="sendingInstitution" placeholder="e.g. Instituto Superior Técnico" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Sending department</label>
+            <input id="sendingDepartment" placeholder="e.g. Department of Computer Science and Engineering" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Coordinator contact (Europe)</label>
+            <input id="coordinatorContactEurope" placeholder="e.g. erasmus@tecnico.ulisboa.pt" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Coordinator contact (Outside Europe)</label>
+            <input id="coordinatorContactOutside" placeholder="e.g. mobilidade@dei.tecnico.ulisboa.pt" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Coordinator contact (Double Degree)</label>
+            <input id="coordinatorContactDoubleDegree" placeholder="e.g. doubledegree@tecnico.ulisboa.pt" />
+          </div>
+
+          <div class="field">
+            <label>Coordinator email</label>
+            <input id="coordinatorEmail" placeholder="e.g. mobilidade@dei.tecnico.ulisboa.pt" />
+          </div>
+
+          <div class="field">
+            <label>Coordinator position</label>
+            <input id="coordinatorPosition" placeholder="e.g. Mobility Coordinator" />
+          </div>
+        </div>
+
+        <div class="msg" id="msgInstitution"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+
+    function setMsg(t) {
+      const el = document.getElementById("msg");
+      if (el) el.textContent = t || "";
+    }
+
+    function setMsgInstitution(t) {
+      const el = document.getElementById("msgInstitution");
+      if (el) el.textContent = t || "";
+    }
+
+    async function loadExisting() {
+      const r = await fetch(`${SERVER}/coordinator_signature.php`, { credentials: "include" });
+      let j = null;
+      try { j = await r.json(); } catch {}
+
+      if (!r.ok || !j || !j.ok) {
+        setMsg("Failed to load signature");
+        return;
+      }
+
+      const subtitle = document.getElementById("subtitle");
+      const currentInfo = document.getElementById("currentInfo");
+      const displayName = document.getElementById("displayName");
+
+      if (subtitle) subtitle.textContent = j.exists ? "Signature already configured." : "No signature configured yet.";
+      if (displayName && j.display_name) displayName.value = safeText(j.display_name);
+
+      if (currentInfo) {
+        const parts = [];
+        if (j.ist_id) parts.push(`User ${safeText(j.ist_id)}`);
+        if (j.updated_at) parts.push(`Updated ${safeText(j.updated_at)}`);
+        currentInfo.textContent = parts.join("  ");
+      }
+
+      if (j.exists && j.signature_url) {
+        showPreview(j.signature_url);
+      } else {
+        hidePreview();
+      }
+
+      const fields = ["sendingInstitution", "sendingDepartment", "coordinatorContactEurope", "coordinatorContactOutside", "coordinatorContactDoubleDegree", "coordinatorEmail", "coordinatorPosition"];
+      const keys   = ["sending_institution", "sending_department", "coordinator_contact_europe", "coordinator_contact_outside", "coordinator_contact_double_degree", "coordinator_email", "coordinator_position"];
+      fields.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el && j[keys[i]]) el.value = safeText(j[keys[i]]);
+      });
+    }
+
+    function showPreview(url) {
+      const img = document.getElementById("sigPreview");
+      const no = document.getElementById("noPreview");
+
+      if (img) {
+        img.src = url;
+        img.style.display = "block";
+      }
+      if (no) no.style.display = "none";
+    }
+
+    function hidePreview() {
+      const img = document.getElementById("sigPreview");
+      const no = document.getElementById("noPreview");
+
+      if (img) {
+        img.src = "";
+        img.style.display = "none";
+      }
+      if (no) no.style.display = "block";
+    }
+
+    function validateFile(file) {
+      if (!file) return "";
+      if (file.type !== "image/png") return "Signature must be a PNG file.";
+      const maxBytes = 2 * 1024 * 1024;
+      if (file.size > maxBytes) return "File too large. Max 2MB.";
+      return "";
+    }
+
+    async function saveSignature() {
+      const fileInput = document.getElementById("sigFile");
+      const nameInput = document.getElementById("displayName");
+
+      const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+      const displayName = safeText(nameInput ? nameInput.value : "");
+
+      const fileErr = validateFile(file);
+      if (fileErr) {
+        setMsg(fileErr);
+        return;
+      }
+
+      setMsg(file ? "Uploading…" : "Saving…");
+      setMsgInstitution("");
+
+      const form = new FormData();
+      if (file) form.append("signature", file);
+      if (displayName) form.append("display_name", displayName);
+
+      const institutionFields = [
+        ["sending_institution",              "sendingInstitution"],
+        ["sending_department",               "sendingDepartment"],
+        ["coordinator_contact_europe",       "coordinatorContactEurope"],
+        ["coordinator_contact_outside",      "coordinatorContactOutside"],
+        ["coordinator_contact_double_degree","coordinatorContactDoubleDegree"],
+        ["coordinator_email",                "coordinatorEmail"],
+        ["coordinator_position",             "coordinatorPosition"]
+      ];
+      institutionFields.forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (el) form.append(key, el.value.trim());
+      });
+
+      const r = await fetch(`${SERVER}/coordinator_signature.php`, {
+        method: "POST",
+        credentials: "include",
+        body: form
+      });
+
+      let j = null;
+      try { j = await r.json(); } catch {}
+
+      if (!r.ok || !j || !j.ok) {
+        const e = j && j.error ? String(j.error) : "upload_failed";
+        if (e === "must_be_png") setMsg("Signature must be a PNG file.");
+        else if (e === "too_large") setMsg("File too large. Max 2MB.");
+        else setMsg("Failed to save");
+        return;
+      }
+
+      setMsg("Saved");
+      setMsgInstitution("Saved");
+
+      if (j.signature_url) {
+        showPreview(j.signature_url);
+      } else {
+        await loadExisting();
+      }
+
+      if (fileInput) fileInput.value = "";
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      await saveSignature();
+    });
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/dashboard_coordinator.html`;
+    });
+
+    document.getElementById("sigFile").addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+      const err = validateFile(f);
+      if (err) {
+        setMsg(err);
+        hidePreview();
+        return;
+      }
+      setMsg("");
+      const url = URL.createObjectURL(f);
+      showPreview(url);
+    });
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      const role = await getRole();
+      if (role !== "COORDINATOR" && role !== "ADMIN") {
+        window.location.href = `${BASE_PATH}/dashboard.html`;
+        return;
+      }
+
+      const name =
+        me.person && (me.person.displayName || me.person.name)
+          ? (me.person.displayName || me.person.name)
+          : "Coordinator";
+
+      const subtitle = document.getElementById("subtitle");
+      if (subtitle) subtitle.textContent = `Hello ${name}`;
+
+      await loadExisting();
+    }
+
+    load();
+  </script>
+</body>
+</html>

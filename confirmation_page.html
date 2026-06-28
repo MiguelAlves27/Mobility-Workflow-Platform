@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobility</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      transform-origin: top center;
+      transform: scale(0.75);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: url("assets/images/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .overlay {
+      width: min(920px, 92vw);
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 18px;
+      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 20px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .title {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 240px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.16);
+      font-size: 13px;
+      color: #f2f2f2;
+      width: fit-content;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.55);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.9);
+      color: #000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(255,255,255,0.20);
+    }
+
+    main {
+      padding: 22px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 18px 18px;
+    }
+
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 14px 0;
+      opacity: 0.9;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .avatar {
+      width: 140px;
+      height: 140px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.35);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 14px;
+    }
+
+    .label {
+      opacity: 0.75;
+    }
+
+    .value {
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .note {
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: 0.65;
+    }
+
+    .confirmRow {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .checkWrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #ffffff;
+    }
+
+    .msg {
+      margin-top: 12px;
+      font-size: 13px;
+      opacity: 0.85;
+      min-height: 18px;
+    }
+
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      .avatar { width: 120px; height: 120px; }
+      .row { grid-template-columns: 1fr; gap: 6px; }
+      .confirmRow { justify-content: flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay">
+    <header>
+      <div class="title">
+        <h1>Mobility</h1>
+        <div class="pill" id="status">
+          <span class="dot"></span>
+          Checking login status
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="card">
+        <h2>Confirm your data</h2>
+        <p id="subtitle">Loading data from Fénix</p>
+
+        <div class="grid">
+          <div class="avatar" id="avatar">
+            <span style="opacity:0.7; font-size:12px;">No photo</span>
+          </div>
+
+          <div class="meta">
+            <div class="row">
+              <div class="label">Name</div>
+              <div class="value" id="nameValue">-</div>
+            </div>
+
+            <div class="row">
+              <div class="label">istId</div>
+              <div class="value" id="istIdValue">-</div>
+            </div>
+
+            <div class="row">
+              <div class="label">Institutional email</div>
+              <div class="value" id="instEmailValue">-</div>
+            </div>
+
+            <div class="row">
+              <div class="label">Current registration</div>
+              <div class="value" id="currentRegValue">-</div>
+            </div>
+
+            <div class="row">
+              <div class="label">Birthday</div>
+              <div class="value" id="birthdayValue">-</div>
+            </div>
+
+            <div class="row">
+              <div class="label">Gender</div>
+              <div class="value" id="genderValue">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirmRow">
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" id="continueBtn">Continue</button>
+          </div>
+        </div>
+
+        <div class="msg" id="msg"></div>
+
+        <div class="note">
+          Instituto Superior Técnico · Universidade de Lisboa
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+    function setStatus(text, isAuthed) {
+      const status = document.getElementById("status");
+      if (!status) return;
+      const dot = '<span class="dot" style="background:' + (isAuthed ? "rgba(140,255,170,0.85)" : "rgba(255,160,160,0.85)") + ';"></span>';
+      status.innerHTML = dot + text;
+    }
+
+    function pickStudentRegistration(person) {
+      const roles = Array.isArray(person.roles) ? person.roles : [];
+      const student = roles.find(r => r && r.type === "STUDENT");
+      const regs = student && Array.isArray(student.registrations) ? student.registrations : [];
+      return regs.length ? regs[0] : null;
+    }
+
+    function renderPhoto(person) {
+      const avatar = document.getElementById("avatar");
+      if (!avatar) return;
+      const photo = person.photo;
+      if (!photo || !photo.type || !photo.data) return;
+
+      const img = document.createElement("img");
+      img.alt = "User photo";
+      img.src = `data:${photo.type};base64,${photo.data}`;
+      avatar.innerHTML = "";
+      avatar.appendChild(img);
+    }
+
+
+    function render(data) {
+      const person = data.person || {};
+
+      document.getElementById("subtitle").textContent = "Please review and confirm before continuing";
+      document.getElementById("nameValue").textContent = safeText(person.name);
+      document.getElementById("istIdValue").textContent = safeText(person.username);
+      document.getElementById("birthdayValue").textContent = safeText(person.birthday);
+      document.getElementById("genderValue").textContent = safeText(person.gender);
+      document.getElementById("instEmailValue").textContent = safeText(person.institutionalEmail || person.email);
+
+      const reg = pickStudentRegistration(person);
+      if (reg) {
+        const regText = `${safeText(reg.name)} (${safeText(reg.acronym)})`;
+        document.getElementById("currentRegValue").textContent = regText;
+      } else {
+        document.getElementById("currentRegValue").textContent = "No active student registration found";
+      }
+
+      renderPhoto(person);
+    }
+
+    async function confirmAndContinue() {
+      const msg = document.getElementById("msg");
+      msg.textContent = "Saving confirmation";
+
+      const r = await fetch(`${SERVER}/confirm.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmed: true })
+      });
+
+      if (!r.ok) {
+        msg.textContent = "Failed to save confirmation";
+        return;
+      }
+
+      msg.textContent = "Done";
+      window.location.href = `${BASE_PATH}/dashboard.html`;
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = `${SERVER}/logout.php`;
+    });
+
+    const continueBtn = document.getElementById("continueBtn");
+
+
+    continueBtn.addEventListener("click", confirmAndContinue);
+
+    whoami().then(data => {
+      if (!data) return;
+      render(data);
+    });
+  </script>
+</body>
+</html>

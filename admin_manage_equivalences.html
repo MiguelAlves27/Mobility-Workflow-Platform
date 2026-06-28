@@ -1,0 +1,550 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage equivalences</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 14px;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: rgba(0,0,0,0.12);
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: calc(100vh - 28px);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+      background: rgba(255,255,255,0.9);
+      color: #000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(255,255,255,0.20);
+    }
+
+    .btn.danger {
+      background: rgba(255,80,80,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,80,80,0.35);
+    }
+
+    .btn.danger:hover {
+      background: rgba(255,80,80,0.26);
+    }
+
+    .status {
+      opacity: 0.9;
+      font-size: 13px;
+      min-height: 18px;
+      padding-left: 2px;
+    }
+
+    .card {
+      flex: 1;
+      min-height: 0;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tableWrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1100px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 2;
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      font-size: 12px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      white-space: nowrap;
+    }
+
+    .cellActions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .empty {
+      padding: 16px;
+      opacity: 0.85;
+      font-size: 13px;
+    }
+
+    .filterBar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      flex-shrink: 0;
+    }
+
+    .filterInput, .filterSelect {
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(30,30,30,0.85);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .filterInput { min-width: 200px; }
+    .filterInput::placeholder { color: rgba(255,255,255,0.35); }
+
+    .filterCount {
+      font-size: 12px;
+      opacity: 0.55;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .clearBtn {
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .clearBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    .courseList {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 520px;
+    }
+
+    .courseItem {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.35;
+    }
+
+    .courseLink {
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(255,255,255,0.30);
+      padding: 1px 0;
+    }
+
+    .courseLink:hover {
+      border-bottom-color: rgba(255,255,255,0.65);
+    }
+
+    .coursePlain {
+      opacity: 0.95;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="status" id="status"></div>
+
+    <div class="card">
+      <div class="filterBar">
+        <input id="fSearch" class="filterInput" type="text" placeholder="Search university, country, courses…" />
+        <select id="fCountry" class="filterSelect"><option value="">All countries</option></select>
+        <select id="fUniversity" class="filterSelect"><option value="">All universities</option></select>
+        <select id="fApprovedBy" class="filterSelect"><option value="">All approvers</option></select>
+        <button class="clearBtn" id="clearBtn">Clear filters</button>
+        <span class="filterCount" id="filterCount"></span>
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Host country</th>
+              <th>Host university</th>
+              <th>Host courses</th>
+              <th>Home courses</th>
+              <th>Total host ECTS</th>
+              <th>Total home ECTS</th>
+              <th>Approved at</th>
+              <th>Approved by</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="empty" style="display:none;">No rows found.</div>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+
+    let allRows = [];
+
+    function setStatus(t) {
+      const el = document.getElementById("status");
+      if (el) el.textContent = t || "";
+    }
+
+    function asOneLine(t) {
+      const s = safeText(t);
+      return s.replace(/\s+/g, " ").trim();
+    }
+
+    function shortText(t, maxLen) {
+      const s = asOneLine(t);
+      if (!s) return "";
+      if (s.length <= maxLen) return s;
+      return s.slice(0, maxLen - 1) + "…";
+    }
+
+    function parseCourseArray(raw) {
+      if (raw === null || raw === undefined) return [];
+      if (Array.isArray(raw)) return raw;
+
+      const s = safeText(raw).trim();
+      if (!s) return [];
+
+      try {
+        const parsed = JSON.parse(s);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (_) {}
+
+      return [];
+    }
+
+    function normalizeUrl(url) {
+      let u = safeText(url).trim();
+      if (!u) return "";
+      if (u.toLowerCase().startsWith("www.")) u = "https://" + u;
+      return u;
+    }
+
+    function renderCoursesCell(td, raw) {
+      const items = parseCourseArray(raw);
+
+      if (!items.length) {
+        td.textContent = "";
+        return;
+      }
+
+      const list = document.createElement("div");
+      list.className = "courseList";
+      td.appendChild(list);
+
+      items.forEach(it => {
+        const name = safeText(it && it.name).trim();
+        const link = normalizeUrl(it && it.link);
+
+        const item = document.createElement("div");
+        item.className = "courseItem";
+
+        if (link) {
+          const a = document.createElement("a");
+          a.className = "courseLink";
+          a.href = link;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = name || link;
+          item.appendChild(a);
+        } else {
+          const span = document.createElement("span");
+          span.className = "coursePlain";
+          span.textContent = name;
+          item.appendChild(span);
+        }
+
+        list.appendChild(item);
+      });
+
+      td.title = shortText(items.map(x => safeText(x && x.name)).filter(Boolean).join(", "), 800);
+    }
+
+    async function apiList() {
+      const r = await fetch(`${SERVER}/admin_equivalences.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list" })
+      });
+      const data = await r.json().catch(() => null);
+      return { ok: r.ok, data };
+    }
+
+    async function apiDelete(id) {
+      const r = await fetch(`${SERVER}/admin_equivalences.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", id })
+      });
+      const data = await r.json().catch(() => null);
+      return { ok: r.ok, data };
+    }
+
+    function distinct(rows, key) {
+      return [...new Set(rows.map(r => safeText(r[key])).filter(Boolean))].sort();
+    }
+
+    function populateDropdown(id, values, placeholder) {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = `<option value="">${placeholder}</option>`;
+      values.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v; opt.textContent = v;
+        sel.appendChild(opt);
+      });
+      if (prev) sel.value = prev;
+    }
+
+    function courseText(raw) {
+      return parseCourseArray(raw).map(x => safeText(x && x.name)).filter(Boolean).join(" ").toLowerCase();
+    }
+
+    function applyFilters() {
+      const q    = safeText(document.getElementById("fSearch").value).toLowerCase();
+      const cty  = safeText(document.getElementById("fCountry").value);
+      const uni  = safeText(document.getElementById("fUniversity").value);
+      const by   = safeText(document.getElementById("fApprovedBy").value);
+
+      const filtered = allRows.filter(row => {
+        if (cty && safeText(row.host_country) !== cty) return false;
+        if (uni && safeText(row.host_university) !== uni) return false;
+        if (by  && safeText(row.approved_by)    !== by)  return false;
+        if (q) {
+          const hay = [
+            safeText(row.host_country),
+            safeText(row.host_university),
+            courseText(row.host_courses),
+            courseText(row.home_courses),
+            safeText(row.approved_by)
+          ].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById("filterCount").textContent =
+        filtered.length === allRows.length
+          ? `${allRows.length} rows`
+          : `${filtered.length} of ${allRows.length}`;
+
+      render(filtered);
+    }
+
+    function render(rows) {
+      const tbody = document.getElementById("tbody");
+      const empty = document.getElementById("empty");
+      if (!tbody || !empty) return;
+
+      tbody.innerHTML = "";
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+
+        function tdPlain(text) {
+          const td = document.createElement("td");
+          td.textContent = safeText(text);
+          tr.appendChild(td);
+        }
+
+        tdPlain(row.host_country);
+        tdPlain(row.host_university);
+
+        const tdHost = document.createElement("td");
+        renderCoursesCell(tdHost, row.host_courses);
+        tr.appendChild(tdHost);
+
+        const tdHome = document.createElement("td");
+        renderCoursesCell(tdHome, row.home_courses);
+        tr.appendChild(tdHome);
+
+        const tdTH = document.createElement("td");
+        tdTH.className = "mono";
+        tdTH.textContent = safeText(row.total_host_ects);
+        tr.appendChild(tdTH);
+
+        const tdTHe = document.createElement("td");
+        tdTHe.className = "mono";
+        tdTHe.textContent = safeText(row.total_home_ects);
+        tr.appendChild(tdTHe);
+
+        const tdAt = document.createElement("td");
+        tdAt.className = "mono";
+        tdAt.textContent = safeText(row.approved_at);
+        tr.appendChild(tdAt);
+
+        const tdBy = document.createElement("td");
+        const by = safeText(row.approved_by);
+        const pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = by || "";
+        tdBy.appendChild(pill);
+        tr.appendChild(tdBy);
+
+        const tdActions = document.createElement("td");
+        const wrap = document.createElement("div");
+        wrap.className = "cellActions";
+
+        const del = document.createElement("button");
+        del.className = "btn danger";
+        del.type = "button";
+        del.textContent = "❌";
+
+        del.addEventListener("click", async () => {
+          const id = row.id;
+          if (!id) return;
+
+          const ok = window.confirm("Delete this equivalence row?");
+          if (!ok) return;
+
+          setStatus("Deleting...");
+          del.disabled = true;
+
+          const res = await apiDelete(id);
+          if (!res.ok || !res.data || !res.data.ok) {
+            const msg = res.data && res.data.error ? res.data.error : "Delete failed";
+            setStatus(msg);
+            del.disabled = false;
+            return;
+          }
+
+          await loadRows();
+        });
+
+        wrap.appendChild(del);
+        tdActions.appendChild(wrap);
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadRows() {
+      setStatus("Loading...");
+      const res = await apiList();
+
+      if (!res.ok || !res.data || !res.data.ok) {
+        const msg = res.data && res.data.error ? res.data.error : "Failed to load";
+        setStatus(msg);
+        render([]);
+        return;
+      }
+
+      allRows = Array.isArray(res.data.rows) ? res.data.rows : [];
+      populateDropdown("fCountry",    distinct(allRows, "host_country"),    "All countries");
+      populateDropdown("fUniversity", distinct(allRows, "host_university"), "All universities");
+      populateDropdown("fApprovedBy", distinct(allRows, "approved_by"),     "All approvers");
+      setStatus(`Loaded ${allRows.length} rows`);
+      applyFilters();
+    }
+
+    ["fSearch", "fCountry", "fUniversity", "fApprovedBy"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", applyFilters);
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      document.getElementById("fSearch").value = "";
+      document.getElementById("fCountry").value = "";
+      document.getElementById("fUniversity").value = "";
+      document.getElementById("fApprovedBy").value = "";
+      applyFilters();
+    });
+
+    loadRows();
+  </script>
+</body>
+</html>

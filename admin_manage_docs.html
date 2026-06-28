@@ -1,0 +1,463 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage generated documents</title>
+
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: transparent;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    input {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      outline: none;
+      min-width: 260px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.20);
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.20); }
+
+    .btn-dl-all {
+      background: rgba(80,180,120,0.25);
+      border-color: rgba(80,180,120,0.45);
+    }
+    .btn-dl-all:hover { background: rgba(80,180,120,0.38); }
+    .btn-dl-all[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+    .card {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      vertical-align: middle;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+    }
+
+    .pill {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      display: inline-block;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .muted { opacity: 0.85; }
+    .small { font-size: 12px; opacity: 0.85; }
+
+    .actionsCell {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btnTiny {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.20);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .btnTiny:hover { background: rgba(255,255,255,0.18); }
+    .btnTiny[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+    .scroll {
+      max-height: calc(100vh - 130px);
+      overflow: auto;
+    }
+
+    #dlAllProgress {
+      font-size: 12px;
+      opacity: 0.8;
+      display: none;
+    }
+
+    .filterBar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .filterInput, .filterSelect {
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .filterSelect option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .filterInput { min-width: 260px; }
+    .filterInput::placeholder { color: rgba(255,255,255,0.35); }
+
+    .filterCount {
+      font-size: 12px;
+      opacity: 0.55;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .clearBtn {
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .clearBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  </style>
+</head>
+
+<body>
+  <div class="filterBar">
+    <input id="q" class="filterInput" placeholder="Search by IST ID, name, university…" />
+    <select id="fStatus"   class="filterSelect"><option value="">All statuses</option></select>
+    <select id="fMobility" class="filterSelect"><option value="">All mobility types</option></select>
+    <select id="fCountry"  class="filterSelect"><option value="">All countries</option></select>
+    <select id="fPef"      class="filterSelect">
+      <option value="">PEF: all</option>
+      <option value="yes">PEF: Yes</option>
+      <option value="no">PEF: No</option>
+    </select>
+    <button class="btn" id="reloadBtn" type="button">Reload</button>
+    <button class="btn btn-dl-all" id="dlAllBtn" type="button" disabled>⬇ Download All</button>
+    <span id="dlAllProgress"></span>
+    <button class="clearBtn" id="clearBtn">Clear filters</button>
+    <span class="filterCount" id="meta">Loading…</span>
+  </div>
+
+  <div class="card">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>IST</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Mobility</th>
+            <th>Country</th>
+            <th>University</th>
+            <th>PEF</th>
+            <th>Updated</th>
+            <th>Size</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+
+    function formatBytes(n) {
+      const x = Number(n || 0);
+      if (!isFinite(x) || x <= 0) return "";
+      const units = ["B", "KB", "MB", "GB"];
+      let v = x, i = 0;
+      while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+      return `${i === 0 ? Math.round(v) : v.toFixed(2)} ${units[i]}`;
+    }
+
+    async function listAll() {
+      const r = await fetch(`${SERVER}/generated_docs.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list" })
+      });
+      const data = await r.json().catch(() => null);
+      if (!r.ok || !data || !data.ok) throw new Error(data?.error || "error");
+      return data.items || [];
+    }
+
+    function distinct(items, key) {
+      return [...new Set(items.map(it => safeText(it[key])).filter(Boolean))].sort();
+    }
+
+    function populateDropdown(id, values, placeholder) {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = `<option value="">${placeholder}</option>`;
+      values.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v; opt.textContent = v;
+        sel.appendChild(opt);
+      });
+      if (prev) sel.value = prev;
+    }
+
+    function applyFilters() {
+      const q    = safeText(document.getElementById("q").value).toLowerCase();
+      const st   = safeText(document.getElementById("fStatus").value);
+      const mob  = safeText(document.getElementById("fMobility").value);
+      const cty  = safeText(document.getElementById("fCountry").value);
+      const pef  = safeText(document.getElementById("fPef").value);
+
+      const filtered = cache.filter(it => {
+        if (!it.hasGeneratedZip) return false;
+        if (st  && safeText(it.status)      !== st)  return false;
+        if (mob && safeText(it.mobilityType) !== mob) return false;
+        if (cty && safeText(it.country)      !== cty) return false;
+        if (pef === "yes" && !it.hasPef)  return false;
+        if (pef === "no"  &&  it.hasPef)  return false;
+        if (q) {
+          const hay = [
+            String(it.pid || ""),
+            safeText(it.istId), safeText(it.studentName),
+            safeText(it.university), safeText(it.zipFilename)
+          ].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const total = cache.filter(it => it.hasGeneratedZip).length;
+      document.getElementById("meta").textContent =
+        filtered.length === total ? `${total} documents` : `${filtered.length} of ${total}`;
+
+      render(filtered);
+      return filtered;
+    }
+
+    function matches(item, query) {
+      // kept for downloadAll compatibility
+      const q = query.toLowerCase();
+      if (!q) return true;
+      const hay = [
+        String(item.pid || ""),
+        safeText(item.istId), safeText(item.studentName),
+        safeText(item.status), safeText(item.mobilityType),
+        safeText(item.country), safeText(item.university),
+        safeText(item.zipFilename)
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    }
+
+    function downloadUrl(pid) {
+      return `${SERVER}/generated_docs.php?action=download&pid=${encodeURIComponent(String(pid))}`;
+    }
+
+    function render(items) {
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
+
+      for (const it of items) {
+        const tr = document.createElement("tr");
+
+        [safeText(it.istId), safeText(it.studentName)].forEach(txt => {
+          const td = document.createElement("td");
+          td.textContent = txt;
+          tr.appendChild(td);
+        });
+
+        const tdStatus = document.createElement("td");
+        const sp = document.createElement("span");
+        sp.className = "pill";
+        sp.textContent = safeText(it.status);
+        tdStatus.appendChild(sp);
+        tr.appendChild(tdStatus);
+
+        [safeText(it.mobilityType), safeText(it.country), safeText(it.university)].forEach(txt => {
+          const td = document.createElement("td");
+          td.textContent = txt;
+          tr.appendChild(td);
+        });
+
+        const tdPef = document.createElement("td");
+        const pefPill = document.createElement("span");
+        pefPill.className = "pill";
+        pefPill.textContent = it.hasPef ? "Yes" : "No";
+        if (it.hasPef) {
+          pefPill.style.background = "rgba(80,180,120,0.25)";
+          pefPill.style.borderColor = "rgba(80,180,120,0.50)";
+        } else {
+          pefPill.style.opacity = "0.45";
+        }
+        tdPef.appendChild(pefPill);
+        tr.appendChild(tdPef);
+
+        const tdUp = document.createElement("td");
+        tdUp.className = "muted";
+        tdUp.textContent = safeText(it.updatedAt);
+        tr.appendChild(tdUp);
+
+        const tdSize = document.createElement("td");
+        tdSize.className = "muted";
+        tdSize.textContent = it.hasGeneratedZip ? formatBytes(it.zipSizeBytes) : "";
+        tr.appendChild(tdSize);
+
+        const tdAct = document.createElement("td");
+        const box = document.createElement("div");
+        box.className = "actionsCell";
+
+        const btn = document.createElement("button");
+        btn.className = "btnTiny";
+        btn.type = "button";
+        btn.textContent = "Download";
+        btn.disabled = !it.hasGeneratedZip;
+        btn.addEventListener("click", () => {
+          if (!it.hasGeneratedZip) return;
+          window.open(downloadUrl(it.pid), "_blank");
+        });
+
+        box.appendChild(btn);
+        tdAct.appendChild(box);
+        tr.appendChild(tdAct);
+        tbody.appendChild(tr);
+      }
+
+      document.getElementById("dlAllBtn").disabled = items.length === 0;
+    }
+
+    let cache = [];
+
+    async function load() {
+      document.getElementById("meta").textContent = "Loading…";
+      try {
+        cache = await listAll();
+        const withZip = cache.filter(it => it.hasGeneratedZip);
+        populateDropdown("fStatus",   distinct(withZip, "status"),      "All statuses");
+        populateDropdown("fMobility", distinct(withZip, "mobilityType"), "All mobility types");
+        populateDropdown("fCountry",  distinct(withZip, "country"),      "All countries");
+        applyFilters();
+      } catch (e) {
+        document.getElementById("meta").textContent = `Error: ${e.message || "unknown"}`;
+      }
+    }
+
+    async function downloadAll() {
+      const q = safeText(document.getElementById("q").value);
+
+      const toDownload = cache.filter(it => it.hasGeneratedZip && matches(it, q));
+
+      if (toDownload.length === 0) return;
+
+      const btn = document.getElementById("dlAllBtn");
+      const progress = document.getElementById("dlAllProgress");
+      btn.disabled = true;
+      progress.style.display = "inline";
+      progress.textContent = "A preparar ZIP…";
+
+      try {
+        const pids = toDownload.map(it => it.pid);
+        const r = await fetch(`${SERVER}/generated_docs.php`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "download_all", pids })
+        });
+
+        if (!r.ok) {
+          const err = await r.json().catch(() => null);
+          throw new Error(err?.error || "download failed");
+        }
+
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "todos_os_processos.zip";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        progress.textContent = `${pids.length} processo(s) incluídos no ZIP.`;
+        setTimeout(() => { progress.style.display = "none"; }, 4000);
+      } catch (e) {
+        progress.textContent = `Erro: ${e.message}`;
+        setTimeout(() => { progress.style.display = "none"; }, 5000);
+      } finally {
+        btn.disabled = toDownload.length === 0;
+      }
+    }
+
+    document.getElementById("reloadBtn").addEventListener("click", load);
+    document.getElementById("dlAllBtn").addEventListener("click", downloadAll);
+
+    ["q", "fStatus", "fMobility", "fCountry", "fPef"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", applyFilters);
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      ["q", "fStatus", "fMobility", "fCountry", "fPef"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      applyFilters();
+    });
+
+    load();
+  </script>
+</body>
+</html>

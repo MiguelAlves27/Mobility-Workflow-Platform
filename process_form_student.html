@@ -1,0 +1,3390 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobility Form</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+
+  <style>
+    /* ── Light theme (default) ── */
+    :root {
+      --bg:                   #dde2ea;
+      --text:                 #1f2937;
+      --text-muted:           #6b7280;
+      --text-label:           #374151;
+      --text-hint:            #9ca3af;
+      --text-placeholder:     #9ca3af;
+      --border:               #cdd2da;
+      --sep:                  #c8cdd6;
+      --card-bg:              #edf0f4;
+      --card-shadow:          0 2px 10px rgba(0,0,0,0.07);
+      --eq-card-bg:           #f0f3f7;
+      --eq-card-border:       #cdd2da;
+      --eq-card-shadow:       0 4px 16px rgba(0,0,0,0.12);
+      --inner-card-bg:        #e4e8ef;
+      --input-bg:             #f4f6f9;
+      --input-border:         #c4cad4;
+      --input-text:           #1f2937;
+      --input-disabled-bg:    #e4e8ef;
+      --input-disabled-text:  #7a8494;
+      --btn-primary-bg:       #2563eb;
+      --btn-primary-hover:    #1d4ed8;
+      --btn-primary-shadow:   rgba(37,99,235,0.18);
+      --btn-secondary-bg:     #edf0f4;
+      --btn-secondary-text:   #1f2937;
+      --btn-secondary-border: #c4cad4;
+      --btn-secondary-hover:  #e2e7ee;
+      --prefix-bg:            #e4e8ef;
+      --tab-bg:               #edf0f4;
+      --tab-text:             #374151;
+      --tab-border:           #c4cad4;
+      --tab-hover:            #e2e7ee;
+      --tab-active-bg:        #2563eb;
+      --tab-step-bg:          #dde2ea;
+      --tab-step-text:        #374151;
+      --tab-done-step-bg:     #dcfce7;
+      --tab-done-step-border: #86efac;
+      --tab-done-step-text:   #166534;
+      --pill-bg:              #f3f4f6;
+      --pill-border:          #d1d5db;
+      --pill-text:            #374151;
+      --msg-bg:               #fee2e2;
+      --msg-border:           #fca5a5;
+      --msg-text:             #991b1b;
+      --feedback-bg:          #fee2e2;
+      --feedback-border:      #fca5a5;
+      --feedback-ok-bg:       #dcfce7;
+      --feedback-ok-border:   #86efac;
+      --feedback-title:       #111827;
+      --feedback-meta:        #6b7280;
+      --sig-note-bg:          #e4e8ef;
+      --sig-note-border:      #c8cdd6;
+      --sig-note-text:        #6b7280;
+      --info-bg:              #e4e8ef;
+      --info-border:          #c8cdd6;
+      --info-title:           #111827;
+      --info-text:            #4b5563;
+      --help-bg:              #e4e8ef;
+      --help-border:          #c4cad4;
+      --help-text:            #374151;
+      --help-hover:           #d4d9e2;
+      --tooltip-bg:           #edf0f4;
+      --tooltip-border:       #cdd2da;
+      --tooltip-text:         #1f2937;
+      --tooltip-shadow:       rgba(0,0,0,0.12);
+      --eq-toggle-bg:         #edf0f4;
+      --eq-toggle-border:     #c4cad4;
+      --eq-toggle-text:       #6b7280;
+      --eq-toggle-hover:      #d4d9e2;
+      --eq-summary-text:      #6b7280;
+      --theme-btn-bg:         #edf0f4;
+      --theme-btn-border:     #c4cad4;
+      --theme-btn-text:       #374151;
+      --theme-btn-hover:      #e2e7ee;
+      --accent:               #2563eb;
+    }
+
+    /* ── Dark theme ── */
+    [data-theme="dark"] {
+      --bg:                   #111827;
+      --text:                 #f1f5f9;
+      --text-muted:           #94a3b8;
+      --text-label:           #cbd5e1;
+      --text-hint:            #4b5563;
+      --text-placeholder:     #4b5563;
+      --border:               #374151;
+      --sep:                  #374151;
+      --card-bg:              #1f2937;
+      --card-shadow:          0 4px 16px rgba(0,0,0,0.30);
+      --eq-card-bg:           #273449;
+      --eq-card-border:       #3d5068;
+      --eq-card-shadow:       0 4px 16px rgba(0,0,0,0.35);
+      --inner-card-bg:        #1a2332;
+      --input-bg:             #111827;
+      --input-border:         #374151;
+      --input-text:           #f1f5f9;
+      --input-disabled-bg:    #1a2332;
+      --input-disabled-text:  #6b7280;
+      --btn-primary-bg:       #3b82f6;
+      --btn-primary-hover:    #2563eb;
+      --btn-primary-shadow:   rgba(59,130,246,0.30);
+      --btn-secondary-bg:     transparent;
+      --btn-secondary-text:   #cbd5e1;
+      --btn-secondary-border: #374151;
+      --btn-secondary-hover:  rgba(255,255,255,0.06);
+      --prefix-bg:            #1f2937;
+      --tab-bg:               #1f2937;
+      --tab-text:             #cbd5e1;
+      --tab-border:           #374151;
+      --tab-hover:            #273449;
+      --tab-active-bg:        #3b82f6;
+      --tab-step-bg:          #111827;
+      --tab-step-text:        #cbd5e1;
+      --tab-done-step-bg:     rgba(74,222,128,0.15);
+      --tab-done-step-border: rgba(74,222,128,0.35);
+      --tab-done-step-text:   #4ade80;
+      --pill-bg:              #374151;
+      --pill-border:          #4b5563;
+      --pill-text:            #d1d5db;
+      --msg-bg:               rgba(239,68,68,0.15);
+      --msg-border:           rgba(239,68,68,0.40);
+      --msg-text:             #fca5a5;
+      --feedback-bg:          rgba(248,113,113,0.08);
+      --feedback-border:      rgba(248,113,113,0.25);
+      --feedback-ok-bg:       rgba(74,222,128,0.08);
+      --feedback-ok-border:   rgba(74,222,128,0.25);
+      --feedback-title:       #f1f5f9;
+      --feedback-meta:        #64748b;
+      --sig-note-bg:          #1a2332;
+      --sig-note-border:      #374151;
+      --sig-note-text:        #64748b;
+      --info-bg:              #1a2332;
+      --info-border:          #374151;
+      --info-title:           #f1f5f9;
+      --info-text:            #94a3b8;
+      --help-bg:              #374151;
+      --help-border:          #4b5563;
+      --help-text:            #cbd5e1;
+      --help-hover:           #4b5563;
+      --tooltip-bg:           #1f2937;
+      --tooltip-border:       #4b5563;
+      --tooltip-text:         #f1f5f9;
+      --tooltip-shadow:       rgba(0,0,0,0.50);
+      --eq-toggle-bg:         #374151;
+      --eq-toggle-border:     #4b5563;
+      --eq-toggle-text:       #94a3b8;
+      --eq-toggle-hover:      #4b5563;
+      --eq-summary-text:      #64748b;
+      --theme-btn-bg:         #1f2937;
+      --theme-btn-border:     #374151;
+      --theme-btn-text:       #cbd5e1;
+      --theme-btn-hover:      #273449;
+      --accent:               #3b82f6;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .overlay {
+      width: 100%;
+      max-width: 980px;
+      margin: 18px;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    header {
+      padding: 0;
+      border: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .sub {
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--btn-primary-bg);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--btn-primary-bg);
+      color: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--btn-primary-hover);
+      border-color: var(--btn-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px var(--btn-primary-shadow);
+    }
+
+    .btn.secondary {
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      border: 1px solid var(--btn-secondary-border);
+    }
+
+    .btn.secondary:hover {
+      background: var(--btn-secondary-hover);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--theme-btn-border);
+      background: var(--theme-btn-bg);
+      color: var(--theme-btn-text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle:hover {
+      background: var(--theme-btn-hover);
+    }
+
+    main {
+      padding: 10px 0 0 0;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 18px;
+      box-shadow: var(--card-shadow);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    #formCard {
+      width: min(1500px, 96%);
+      margin: 0 auto;
+    }
+
+    .sep {
+      height: 1px;
+      background: var(--sep);
+      margin: 16px 0;
+    }
+
+    .msg {
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.45;
+      min-height: 20px;
+      width: 600px;
+      max-width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: var(--msg-bg);
+      border: 1px solid var(--msg-border);
+      color: var(--msg-text);
+    }
+
+    .msg.hidden { display: none; }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 13px;
+      border: 1px solid var(--tab-border);
+      background: var(--tab-bg);
+      color: var(--tab-text);
+      user-select: none;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+      background: var(--tab-hover);
+    }
+
+    .tab.active {
+      background: var(--tab-active-bg);
+      border-color: var(--tab-active-bg);
+      color: #fff;
+    }
+
+    .tab .step {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--tab-step-bg);
+      border: 1px solid var(--tab-border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--tab-step-text);
+    }
+
+    .tab.active .step {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.4);
+      color: #fff;
+    }
+
+    .tab.done .step {
+      background: var(--tab-done-step-bg);
+      border-color: var(--tab-done-step-border);
+      color: var(--tab-done-step-text);
+    }
+
+    form { margin: 0; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: var(--text-label);
+    }
+
+    input, select, textarea {
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--input-text);
+      outline: none;
+      font-size: 15px;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-placeholder);
+    }
+
+    input:disabled, select:disabled, textarea:disabled {
+      background: var(--input-disabled-bg);
+      color: var(--input-disabled-text);
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--text-hint);
+    }
+
+    .phone {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .prefix {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 11px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      background: var(--prefix-bg);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .nav .left, .nav .right {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--pill-border);
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      white-space: nowrap;
+    }
+
+    .pill.approved {
+      background: var(--tab-done-step-bg);
+      border-color: var(--tab-done-step-border);
+      color: var(--tab-done-step-text);
+    }
+
+    .pill.changes {
+      background: var(--msg-bg);
+      border-color: var(--msg-border);
+      color: var(--msg-text);
+    }
+
+    .pill.not-reviewed {
+      background: rgba(251,191,36,0.12);
+      border-color: rgba(251,191,36,0.35);
+      color: #92400e;
+    }
+
+    [data-theme="dark"] .pill.not-reviewed {
+      color: #fbbf24;
+    }
+
+    .feedbackBox {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--feedback-border);
+      background: var(--feedback-bg);
+    }
+
+    .feedbackBox.approved {
+      border-color: var(--feedback-ok-border);
+      background: var(--feedback-ok-bg);
+    }
+
+    .feedbackTitle {
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--feedback-title);
+    }
+
+    .feedbackMeta {
+      color: var(--feedback-meta);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .signature-note {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--sig-note-text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--sig-note-bg);
+      border: 1px solid var(--sig-note-border);
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .overlay { margin: 12px; }
+      .phone { grid-template-columns: 72px 1fr; }
+    }
+
+    .europe-only { display: none; }
+    .outside-only { display: none; }
+
+    body.is-europe .europe-only { display: block; }
+    body.is-outside .outside-only { display: block; }
+
+    body.is-europe .europe-only.grid-item,
+    body.is-outside .outside-only.grid-item { display: flex; }
+
+    .label-with-help {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      width: fit-content;
+    }
+
+    .help-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--help-border);
+      background: var(--help-bg);
+      color: var(--help-text);
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      padding: 0;
+      line-height: 1;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .help-icon:hover, .help-icon:focus {
+      background: var(--help-hover);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .help-tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      z-index: 30;
+      min-width: 220px;
+      max-width: 320px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--tooltip-bg);
+      border: 1px solid var(--tooltip-border);
+      box-shadow: 0 10px 24px var(--tooltip-shadow);
+      color: var(--tooltip-text);
+      font-size: 12px;
+      line-height: 1.45;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .label-with-help.show-tooltip .help-tooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .info-box {
+      margin: 0 0 16px 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+    }
+
+    .info-box-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--info-title);
+    }
+
+    .info-box-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--info-text);
+    }
+
+    .file-input-hidden { display: none; }
+
+    input[type="checkbox"], input[type="radio"] {
+      accent-color: var(--accent);
+    }
+
+    .eq-card {
+      background: var(--eq-card-bg) !important;
+      border: 1px solid var(--eq-card-border) !important;
+      box-shadow: var(--eq-card-shadow) !important;
+    }
+
+    .eq-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--eq-toggle-border);
+      background: var(--eq-toggle-bg);
+      cursor: pointer;
+      color: var(--eq-toggle-text);
+      font-size: 10px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease;
+      padding: 0;
+    }
+
+    .eq-toggle:hover { background: var(--eq-toggle-hover); }
+
+    .eq-toggle-chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+
+    .eq-card.collapsed .eq-toggle-chevron { transform: rotate(-90deg); }
+    .eq-card.collapsed .eq-body { display: none; }
+
+    .eq-summary {
+      display: none;
+      font-size: 13px;
+      color: var(--eq-summary-text);
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 560px;
+    }
+
+    .eq-card.collapsed .eq-summary { display: block; }
+
+  </style>
+</head>
+
+<body>
+  <div class="overlay">
+    <header>
+      <div class="title">
+        <h1>Mobility form</h1>
+        <div class="sub" id="subtitle">Loading</div>
+      </div>
+      <button type="button" id="themeToggle" class="theme-toggle">☾ Dark</button>
+    </header>
+
+    <main>
+      <div class="formCard">
+        <h2 style="margin:0 0 10px 0; font-size:18px;" id="formTitle">Form</h2>
+        <div class="sub" id="formHint"></div>
+
+        <div class="tabs" id="tabs">
+          <div class="tab active" data-step="0" role="button" tabindex="0">
+            <span class="step">1</span>
+            <span>Personal</span>
+          </div>
+          <div class="tab" data-step="1" role="button" tabindex="0">
+            <span class="step">2</span>
+            <span>Host university</span>
+          </div>
+          <div class="tab" data-step="2" role="button" tabindex="0">
+            <span class="step">3</span>
+            <span>Equivalence proposal</span>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="msg" id="msg" style="display: none;"></div>
+
+        <div id="msgsep" class="sep" style="display: none;"></div>
+
+        <form id="form">
+          <section class="panel active" data-step="0">
+            <h2 style="margin:0 0 8px 0; font-size:18px; font-weight:600;">Personal information</h2>
+            <p style="margin:0 0 14px 0; opacity:0.9; font-size:14px; line-height:1.5;">
+              We prefilled your data from Fénix. Please confirm and complete the missing fields.
+            </p>
+
+            <div class="grid">
+              <div class="field">
+                <label>Full name</label>
+                <input name="personal_full_name" id="personal_full_name" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+              
+              <div class="field europe-only grid-item">
+                <label>First name(s)</label>
+                <input name="personal_first_names" id="personal_first_names" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Last name(s)</label>
+                <input name="personal_last_names" id="personal_last_names" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Nationality</label>
+                <input name="personal_nationality" id="personal_nationality" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Date of birth</label>
+                <input name="personal_birth_date" id="personal_birth_date" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>istId</label>
+                <input name="personal_ist_id" id="personal_ist_id" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>Institutional email</label>
+                <input name="personal_inst_email" id="personal_inst_email" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>Sex</label>
+                <input name="personal_sex" id="personal_sex" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Home degree</label>
+                <input name="personal_home_degree" id="personal_home_degree" required disabled />
+                <input type="hidden" id="personal_home_degree_acronym" name="personal_home_degree_acronym" />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>Phone number</label>
+
+                <div class="phone">
+                  <input
+                    name="phone_prefix"
+                    id="phone_prefix"
+                    class="prefix"
+                    value="+351"
+                    inputmode="numeric"
+                    placeholder="+351"
+                    required
+                  />
+
+                  <input
+                    name="personal_phone"
+                    id="personal_phone"
+                    inputmode="numeric"
+                    placeholder="912345678"
+                    pattern="[0-9]{6,12}"
+                    required
+                  />
+                </div>
+
+                <div class="hint">Prefix must start with +. Number only digits.</div>
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Mobility type</label>
+                <select name="personal_mobility_type" id="personal_mobility_type" required>
+                  <option value="">Select</option>
+                  <option value="ERASMUS">Erasmus</option>
+                  <option value="Almeida Garrett">Almeida Garrett</option>
+                  <option value="Acordos - África do Sul">Acordos - África do Sul</option>~
+                  <option value="Acordos - Argentina">Acordos - Argentina</option>
+                  <option value="Acordos - Arménia">Acordos - Arménia</option>
+                  <option value="Acordos - Austrália">Acordos - Austrália</option>
+                  <option value="Acordos - Azerbeijão">Acordos - Azerbeijão</option>
+                  <option value="Acordos - Bielorrússia">Acordos - Bielorrússia</option>
+                  <option value="Acordos - Brasil">Acordos - Brasil</option>
+                  <option value="Acordos - Canadá">Acordos - Canadá</option>
+                  <option value="Acordos - Cazaquistão">Acordos - Cazaquistão</option>
+                  <option value="Acordos - Chile">Acordos - Chile</option>
+                  <option value="Acordos - China">Acordos - China</option>
+                  <option value="Acordos - Colômbia">Acordos - Colômbia</option>
+                  <option value="Acordos - Coreia do Sul">Acordos - Coreia do Sul</option>
+                  <option value="Acordos - Costa Rica">Acordos - Costa Rica</option>
+                  <option value="Acordos - França">Acordos - França</option>
+                  <option value="Acordos - Índia">Acordos - Índia</option>
+                  <option value="Acordos - Irão">Acordos - Irão</option>
+                  <option value="Acordos - Iraque">Acordos - Iraque</option>
+                  <option value="Acordos - Israel">Acordos - Israel</option>
+                  <option value="Acordos - Japão">Acordos - Japão</option>
+                  <option value="Acordos - Jordânia">Acordos - Jordânia</option>
+                  <option value="Acordos - Malásia">Acordos - Malásia</option>
+                  <option value="Acordos - México">Acordos - México</option>
+                  <option value="Acordos - Palestina">Acordos - Palestina</option>
+                  <option value="Acordos - Rússia">Acordos - Rússia</option>
+                  <option value="Acordos - SMILE">Acordos - SMILE</option>
+                  <option value="Acordos - Tailândia">Acordos - Tailândia</option>
+                  <option value="Acordos - Taiwan">Acordos - Taiwan</option>
+                  <option value="Acordos - Timor Leste">Acordos - Timor Leste</option>
+                  <option value="Acordos - Tunísia">Acordos - Tunísia</option>
+                  <option value="Acordos - Uruguai">Acordos - Uruguai</option>     
+                  <option value="T.I.M.E">T.I.M.E</option>
+                  <option value="T.I.M.E Double Degree">T.I.M.E Double Degree (França)</option>
+                </select>
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label style="display:flex; gap:8px; align-items:center; cursor:pointer; font-weight:normal;">
+                  <input type="checkbox" id="personal_is_double_degree" style="width:16px; height:16px; cursor:pointer;">
+                  Double Degree
+                </label>
+              </div>
+
+              <div class="field">
+                <label>Mobility academic year</label>
+                <input
+                  name="personal_academic_year"
+                  id="personal_academic_year"
+                  placeholder="2026/2027"
+                  required
+                />
+                <div class="hint">Format: YYYY/ YYYY</div>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Mobility study cycle</label>
+                <select name="personal_study_cycle" id="personal_study_cycle" required>
+                  <option value="">Select</option>
+                  <option value="1st">1st</option>
+                  <option value="2nd">2nd</option>
+                  <option value="3rd">3rd</option>
+                </select>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Semester</label>
+                <select name="personal_semester" id="personal_semester" required>
+                  <option value="">Select</option>
+                  <option value="1st Semester">1st Semester</option>
+                  <option value="2nd Semester">2nd Semester</option>
+                  <option value="1st and 2nd Semester">1st and 2nd Semester</option>
+                </select>
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label class="label-with-help" for="planned_period">
+                  <span>Planned period of the mobility</span>
+
+                  <button
+                    type="button"
+                    class="help-icon"
+                    aria-label="Help about Planned period"
+                    data-help="Please respect the format: DAY/MONTH/YEAR. For example: 01/09/2026."
+                  >
+                    i
+                  </button>
+                </label>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                  <input name="personal_from_month" id="personal_from_month" required />
+                  <span style="opacity:0.85;">to</span>
+                  <input name="personal_to_month" id="personal_to_month" required />
+                </div>
+              </div>
+
+              <div class="field grid-item" style="grid-column: 1 / -1;">
+                <label>Signature (PNG)</label>
+
+                <div id="signature_status" style="margin-bottom:8px;"></div>
+                <img id="signature_preview" style="display:none; max-height:80px; max-width:120px; margin-bottom:8px;" />
+
+                <input type="file" id="personal_signature_png" accept="image/png" class="file-input-hidden" />
+
+                <button type="button" class="btn secondary" id="signature_pick_btn">Choose signature</button>
+
+                <div class="signature-note">
+                  The uploaded signature will be used exclusively for related documents generated within this platform.
+                  After the documents are finalized, the signature file will be permanently deleted from our system.
+                  All data is handled in accordance with applicable data protection regulations and institutional policies.
+                </div>
+
+                <div class="consent-box">
+                  <label>
+                    <input type="checkbox" id="signature_consent" required>
+                    I declare that I have read and consent to the use of my signature as described above.
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <section class="panel" data-step="1">
+            <h2 style="margin:0 0 8px 0; font-size:18px; font-weight:600;">Host university</h2>
+            <p style="margin:0 0 14px 0; opacity:0.9; font-size:14px; line-height:1.5;">
+              Please fill in the host university details.
+            </p>
+
+            <div class="grid">
+
+              <div class="field">
+                <label>Host country</label>
+                <input
+                  name="host_country"
+                  id="host_country"
+                  placeholder="e.g. Germany"
+                  required
+                />
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Host university name</label>
+                <input
+                  name="host_university_name"
+                  id="host_university_name"
+                  placeholder="e.g. Technische Universität München"
+                  required
+                />
+              </div>
+
+              <div id="approved-equivalences-container" style="display:none; margin-top:10px;">
+                <button type="button" class="btn secondary" id="view-approved-btn">
+                  View previously approved equivalences
+                </button>
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label>Faculty or Department</label>
+                <input name="host_faculty_department" id="host_faculty_department" required />
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label>Host university address</label>
+                <input name="host_address" id="host_address" required />
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label>Host contact</label>
+                <input name="host_contact" id="host_contact" required />
+                <div class="hint">Email or phone number</div>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label class="label-with-help" for="host_erasmus_code">
+                  <span>Erasmus code</span>
+
+                  <button
+                    type="button"
+                    class="help-icon"
+                    aria-label="Help about Erasmus code"
+                    data-help="Enter the official Erasmus code of the host university if available. This information is usually provided by the Erasmus team"
+                  >
+                    i
+                  </button>
+                </label>
+
+                <input name="host_erasmus_code" id="host_erasmus_code" />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Main language</label>
+                <input name="host_main_language" id="host_main_language" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Language proficiency level</label>
+                <select name="host_language_level" id="host_language_level" required>
+                  <option value="">Select</option>
+                  <option value="A1">A1</option>
+                  <option value="A2">A2</option>
+                  <option value="B1">B1</option>
+                  <option value="B2">B2</option>
+                  <option value="C1">C1</option>
+                  <option value="C2">C2</option>
+                  <option value="native">Native Speaker</option>
+                </select>
+              </div>
+
+              <div class="field grid-item full-width">
+                <label>Do you have an English certificate?</label>
+                <div class="radio-group">
+                  <label>
+                    <input type="radio" name="has_english_certificate" value="yes" />
+                    Yes
+                  </label>
+                  <label>
+                    <input type="radio" name="has_english_certificate" value="no" />
+                    No
+                  </label>
+                </div>
+              </div>
+
+              <div id="english_certificate_section" class="grid-item full-width " style="display:none; grid-column:1 / -1;">
+
+                <div class="field full-width" style="grid-column:1 / -1;">
+                <label>English certificate</label>
+
+                <div id="certificate_status" style="margin-bottom:8px;"></div>
+                <div id="certificate_filename" style="margin-bottom:6px; font-size:13px;"></div>
+
+                <input
+                  type="file"
+                  name="english_certificate_file"
+                  id="english_certificate_file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  class="file-input-hidden"
+                />
+
+                <button type="button" class="btn secondary" id="certificate_pick_btn">
+                  Choose certificate
+                </button>
+              </div>
+
+                <div class="field full-width" style="grid-column:1 / -1;">
+                  <h3 style="margin-top:10px;">Language Learning History</h3>
+                </div>
+
+                <div class="field grid-item">
+                  <label for="language_history_secondary">Secondary School</label>
+                  <input type="text" name="language_history_secondary" id="language_history_secondary">
+                </div>
+
+                <div class="field grid-item">
+                  <label for="language_history_university">University</label>
+                  <input type="text" name="language_history_university" id="language_history_university">
+                </div>
+
+                <div class="field grid-item">
+                  <label for="language_history_other">Other (private schools, etc)</label>
+                  <input type="text" name="language_history_other" id="language_history_other">
+                </div>
+
+                <div class="field grid-item">
+                  <label for="language_history_abroad">Abroad</label>
+                  <input type="text" name="language_history_abroad" id="language_history_abroad">
+                </div>
+
+                <div class="field full-width" style="grid-column:1 / -1;">
+                  <h3 style="margin-top:10px;">Student Evaluation</h3>
+                  <div class="hint">Levels: A1, A2, B1, B2, C1, C2</div>
+                </div>
+
+                <div class="field grid-item">
+                  <label for="evaluation_listening">Listening Comprehension</label>
+                  <select name="evaluation_listening" id="evaluation_listening">
+                    <option value="">Select</option>
+                    <option>A1</option>
+                    <option>A2</option>
+                    <option>B1</option>
+                    <option>B2</option>
+                    <option>C1</option>
+                    <option>C2</option>
+                  </select>
+                </div>
+
+                <div class="field grid-item">
+                  <label for="evaluation_speaking">Speaking Ability</label>
+                  <select name="evaluation_speaking" id="evaluation_speaking">
+                    <option value="">Select</option>
+                    <option>A1</option>
+                    <option>A2</option>
+                    <option>B1</option>
+                    <option>B2</option>
+                    <option>C1</option>
+                    <option>C2</option>
+                  </select>
+                </div>
+
+                <div class="field grid-item">
+                  <label for="evaluation_writing">Writing Ability</label>
+                  <select name="evaluation_writing" id="evaluation_writing">
+                    <option value="">Select</option>
+                    <option>A1</option>
+                    <option>A2</option>
+                    <option>B1</option>
+                    <option>B2</option>
+                    <option>C1</option>
+                    <option>C2</option>
+                  </select>
+                </div>
+
+                <div class="field grid-item">
+                  <label for="evaluation_reading">Reading Ability</label>
+                  <select name="evaluation_reading" id="evaluation_reading">
+                    <option value="">Select</option>
+                    <option>A1</option>
+                    <option>A2</option>
+                    <option>B1</option>
+                    <option>B2</option>
+                    <option>C1</option>
+                    <option>C2</option>
+                  </select>
+                </div>
+
+                <div class="field full-width" style="grid-column:1 / -1;">
+                  <label style="display:flex; gap:8px; align-items:flex-start;">
+                    <input type="checkbox" name="certificate_declaration" id="certificate_declaration">
+                    <span>
+                      I declare that the information provided matches the information on my certificate and that the certificate was awarded to me.
+                    </span>
+                  </label>
+                </div>
+
+              </div>
+
+            </div>
+          </section>
+
+          <section class="panel" data-step="2">
+            <h2 style="margin:0 0 8px 0; font-size:18px; font-weight:600;">Equivalence proposal</h2>
+            <p style="margin:0 0 14px 0; opacity:0.9; font-size:14px; line-height:1.5;">
+              Add one or more equivalence proposals. Each proposal may include multiple home and host courses.
+            </p>
+
+            <div class="info-box">
+              <div class="info-box-title">How equivalence proposals work</div>
+              <div class="info-box-text">
+                Each equivalence block corresponds to one equivalence proposal.
+                In each proposal, you may include one or more home courses from Técnico and one or more host courses from the destination university.
+
+                <br /><br />
+
+                Use the same block when the listed courses belong to the same equivalence proposal.
+                To propose a different equivalence, click <strong>Add equivalence</strong> and create a new block.
+              </div>
+            </div>
+
+            <div class="sep"></div>
+
+            <div id="equivalencesList" style="display:flex; flex-direction:column; gap:12px;"></div>
+
+            <div id="ectsWarning" style="display:none; margin-top:12px; padding:10px 14px; background:#fff8e1; border:1px solid #f9a825; border-radius:6px; font-size:13px; color:#7a5c00;">
+              Warning: if you complete fewer than 30 ECTS at the host university you will not be eligible for an Erasmus scholarship.
+            </div>
+
+            <template id="equivalenceTpl">
+              <div class="card eq-card">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+                  <div style="display:flex; gap:8px; align-items:center; flex:1; min-width:0;">
+                    <button type="button" class="eq-toggle" data-role="toggleBtn" title="Collapse/Expand">
+                      <span class="eq-toggle-chevron">▼</span>
+                    </button>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-weight:700;">Equivalence</div>
+                      <div class="eq-summary" data-role="eqSummary"></div>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <div class="pill not-reviewed" data-role="reviewPill" style="display:none;"></div>
+                    <button class="btn secondary" type="button" data-role="removeEquivalenceBtn">Remove equivalence</button>
+                  </div>
+                </div>
+
+                <div data-role="eqBody" class="eq-body">
+                  <div class="sep"></div>
+
+                  <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                    <div>
+                      <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <div style="font-weight:700;">Home courses</div>
+                        <button class="btn secondary" type="button" data-role="addHomeCourseBtn">Add home course</button>
+                      </div>
+
+                      <div data-role="homeList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <div style="font-weight:700;">Host courses</div>
+                        <button class="btn secondary" type="button" data-role="addHostCourseBtn">Add host course</button>
+                      </div>
+
+                      <div data-role="hostList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+                    </div>
+                  </div>
+
+                  <div class="sep"></div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Observations</label>
+                    <textarea data-role="eqComment" placeholder="Write here notes or observations about this equivalence"></textarea>
+                    <div class="hint">Saved in the process</div>
+                  </div>
+
+                  <div data-role="coordFeedback" style="display:none;"></div>
+                </div>
+              </div>
+            </template>
+
+            <template id="homeCourseTpl">
+              <div class="card" style="padding:12px; background: var(--inner-card-bg);">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                  <div style="font-weight:600; opacity:0.95;">Home course</div>
+                  <button class="btn secondary" type="button" data-role="removeCourseBtn">Remove</button>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 120px;">
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Home course</label>
+                    <select data-field="courseId" required>
+                      <option value="">Select</option>
+                    </select>
+                    <div class="hint">Loaded from Fénix</div>
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1; display:none;">
+                    <label>Course name</label>
+                    <input data-field="name" placeholder="e.g. Free Option 2" />
+                  </div>
+
+                  <div class="field">
+                    <label>Credits</label>
+                    <input data-field="credits" inputmode="decimal" placeholder="6" required />
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Link</label>
+                    <input data-field="link" placeholder="https://..." />
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <template id="hostCourseTpl">
+              <div class="card" style="padding:12px; background: var(--inner-card-bg);">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                  <div style="font-weight:600; opacity:0.95;">Host course</div>
+                  <button class="btn secondary" type="button" data-role="removeCourseBtn">Remove</button>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 120px;">
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Course name</label>
+                    <input data-field="name" placeholder="e.g. Ethics of New Technologies" required />
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Course code (if any)</label>
+                    <input data-field="code" />
+                  </div>
+
+                  <div class="fields-grid">
+                    <div class="field grid-item">
+                      <label>Credits</label>
+                      <input data-field="credits" inputmode="decimal" placeholder="5" required />
+                    </div>
+
+                    <br />
+
+                    <div class="field outside-only grid-item">
+                      <label class="label-with-help" for ="credits_equivalent">
+                        <span>Credits Equivalent</span>
+                        <button
+                          type="button"
+                          class="help-icon"
+                          aria-label="Help about Credits Equivalent"
+                          data-help="For universities outside Europe, the conversion of credits follows specific equivalency tables. These can be found on the NMPI page"
+                        >
+                          i
+                        </button>
+                      </label>
+
+                      <input data-field="credits_equivalent" inputmode="decimal" placeholder="5" required />
+                    </div>
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Link</label>
+                    <input data-field="link" placeholder="https://..." />
+                  </div>
+
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <label>Semester</label>
+                    <select data-field="semester" required>
+                      <option value="">Select</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <div id="changesReasonSection" style="display:none;">
+              <div class="sep"></div>
+              <div style="font-weight:600; font-size:13px; margin-bottom:10px;">Reasons for changes (at least one required)</div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="field">
+                  <label>Reason for removing course(s)</label>
+                  <select id="globalDeleteReason">
+                    <option value="">-- Select --</option>
+                    <option value="1">1. Component not available at receiving institution</option>
+                    <option value="2">2. Component in different language than specified</option>
+                    <option value="3">3. Timetable conflict</option>
+                    <option value="4">4. Other (please specify)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Reason for adding course(s)</label>
+                  <select id="globalAddReason">
+                    <option value="">-- Select --</option>
+                    <option value="5">5. Substituting a deleted component</option>
+                    <option value="6">6. Extending the mobility period</option>
+                    <option value="7">7. Other (please specify)</option>
+                  </select>
+                </div>
+                <div class="field" id="globalDeleteReasonTextField" style="display:none;">
+                  <label>Specify reason for deletion (max 25 chars)</label>
+                  <input type="text" id="globalDeleteReasonText" maxlength="25" placeholder="Specify...">
+                </div>
+                <div class="field" id="globalAddReasonTextField" style="display:none;">
+                  <label>Specify reason for addition (max 25 chars)</label>
+                  <input type="text" id="globalAddReasonText" maxlength="25" placeholder="Specify...">
+                </div>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+              <button class="btn" type="button" id="addEquivalenceBtn">Add equivalence</button>
+            </div>
+          </section>
+
+          <div class="sep"></div>
+
+          <div class="actions">
+            <button class="btn" id="saveBtn" type="button">Save</button>
+            <button class="btn secondary" id="submitBtn" type="button">Submit</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+
+    const PAGE_PARAMS = new URLSearchParams(window.location.search);
+    const OPENED_BY = safeText(PAGE_PARAMS.get("openedBy"));
+    const PROCESS_ID_FROM_URL = safeText(PAGE_PARAMS.get("processId"));
+    const STATUS_FROM_URL = safeText(PAGE_PARAMS.get("status"));
+
+    const uniInput = document.getElementById("host_university_name");
+    const countryInput = document.getElementById("host_country");
+
+    const container = document.getElementById("approved-equivalences-container");
+    const btn = document.getElementById("view-approved-btn");
+
+    let lastData = [];
+
+    let currentStep = 0;
+    let processStatus = "";
+    let mobilityType = "";
+
+    let equivalencesState = [];
+    let eqDecisions = {};
+    let processPayloadSnapshot = null;
+    const collapsedEqs = new Set();
+
+    let signaturePngBase64 = "";
+
+    let homeCoursesCatalog = [];
+    let homeCoursesById = {};
+
+    let englishCertificateFile = null;
+
+    let acronym = "";
+
+    async function fetchHomeCoursesCatalog(acronym) {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_home_courses", acronym: acronym })
+      });
+
+      const data = await r.json();
+      if (!r.ok || !data.ok) return { ok: false, items: [] };
+
+      const items = Array.isArray(data.items) ? data.items : [];
+
+      homeCoursesCatalog = items;
+      homeCoursesById = {};
+
+      items.forEach(it => {
+        const key = safeText(it.name);
+        if (key) homeCoursesById[key] = it;
+      });
+
+      return { ok: true, items };
+    }
+
+    function setMsg(t) {
+      const el = document.getElementById("msg");
+      const sep = document.getElementById("msgsep");
+      if (!el) return;
+
+      if (!t) {
+        el.textContent = "";
+        el.classList.add("hidden");
+        el.style.display = "none";
+        sep.style.display = "none";
+      } else {
+        el.textContent = t;
+        el.classList.remove("hidden");
+        el.style.display = "block";
+        sep.style.display = "block";
+      }
+    }
+
+    function isEditable() {
+      return processStatus === "DRAFT" || processStatus === "CHANGES_REQUESTED";
+    }
+
+    function setButtonsForStatus() {
+      const editable = isEditable();
+      const saveBtn = document.getElementById("saveBtn");
+      const submitBtn = document.getElementById("submitBtn");
+
+      if (!saveBtn || !submitBtn) return;
+
+      saveBtn.disabled = !editable;
+      submitBtn.disabled = !editable;
+
+      if (!editable && processStatus) {
+        setMsg("This process is submitted and can no longer be edited.");
+      }
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function pickHomeDegreeFromPerson(person, curriculum) {
+      const items = Array.isArray(curriculum) ? curriculum : [];
+      if (!items.length) return "";
+
+      function safeText(v) {
+        return typeof v === "string" ? v.trim() : "";
+      }
+
+      function getDegreeType(entry) {
+        const name = safeText(entry?.degree?.name).toLowerCase();
+        const acronym = safeText(entry?.degree?.acronym).toLowerCase();
+
+        if (
+          name.includes("master") ||
+          name.includes("mestrado") ||
+          acronym.startsWith("m")
+        ) {
+          return "master";
+        }
+
+        if (
+          name.includes("bologna degree") ||
+          name.includes("licenciatura") ||
+          acronym.startsWith("l")
+        ) {
+          return "bachelor";
+        }
+
+        return "unknown";
+      }
+
+      function isConcluded(entry) {
+        if (!entry) return true;
+
+        if (entry.isFinished === true) return true;
+
+        const credits = Number(entry.credits || 0);
+        const degreeType = getDegreeType(entry);
+
+        if (degreeType === "bachelor" && credits >= 180) return true;
+        if (degreeType === "master" && credits >= 120) return true;
+
+        return false;
+      }
+
+      const activeDegrees = items.filter(entry => !isConcluded(entry));
+
+      if (!activeDegrees.length) return "";
+
+      activeDegrees.sort((a, b) => {
+        const startA = safeText(a?.start).split("/").reverse().join("");
+        const startB = safeText(b?.start).split("/").reverse().join("");
+        return startB.localeCompare(startA);
+      });
+
+      const current = activeDegrees[0];
+
+      let n = safeText(current?.degree?.name);
+
+      n = n.replace(/^Bologna Degree in\s*/i, "");
+      n = n.replace(/^Bologna Master Degree in\s*/i, "");
+
+      const acronym = safeText(current?.degree?.acronym);
+
+      return { name: n || "", acronym };
+    }
+
+
+    function newEquivalenceId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+
+      const rand = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).slice(1);
+      return `eq_${Date.now()}_${rand()}${rand()}${rand()}`;
+    }
+
+    function fillPersonalFromFenix(person, curriculum) {
+      document.getElementById("personal_full_name").value = safeText(person.name || person.displayName);
+      document.getElementById("personal_ist_id").value = safeText(person.username);
+      document.getElementById("personal_inst_email").value = safeText(person.institutionalEmail || person.email);
+      document.getElementById("personal_sex").value = safeText(person.gender);
+      const degreeInfo = pickHomeDegreeFromPerson(person, curriculum);
+      document.getElementById("personal_home_degree").value = degreeInfo.name;
+      document.getElementById("personal_home_degree_acronym").value = degreeInfo.acronym;
+
+      const isEu = mobilityType === "EUROPE";
+
+      if (isEu){document.getElementById("personal_birth_date").value = safeText(person.birthday);}
+    }
+
+    function readSection1Payload() {
+      const isEu = mobilityType === "EUROPE";
+
+      const prefix = safeText(document.getElementById("phone_prefix").value);
+      const phoneRaw = safeText(document.getElementById("personal_phone").value);
+      const phoneDigits = phoneRaw.replace(/\D+/g, "");
+
+      return {
+        full_name: safeText(document.getElementById("personal_full_name").value),
+        ist_id: safeText(document.getElementById("personal_ist_id").value),
+        institutional_email: safeText(document.getElementById("personal_inst_email").value),
+        sex: safeText(document.getElementById("personal_sex").value),
+        home_degree: safeText(document.getElementById("personal_home_degree").value),
+        home_degree_acronym: safeText(document.getElementById("personal_home_degree_acronym").value),
+        phone_e164: (prefix && phoneDigits) ? `${prefix}${phoneDigits}` : "",
+        mobility_type: safeText(document.getElementById("personal_mobility_type").value),
+        is_double_degree: document.getElementById("personal_is_double_degree")?.checked ? true : false,
+        mobility_academic_year: safeText(document.getElementById("personal_academic_year").value),
+        signature_png_base64: safeText(signaturePngBase64),
+        signature_consent: document.getElementById("signature_consent")?.checked ? true : false,
+
+        first_names: isEu ? safeText(document.getElementById("personal_first_names")?.value) : "",
+        last_names: isEu ? safeText(document.getElementById("personal_last_names")?.value) : "",
+        birth_date: isEu ? safeText(document.getElementById("personal_birth_date")?.value) : "",
+        nationality: isEu ? safeText(document.getElementById("personal_nationality")?.value) : "",
+        study_cycle: isEu ? safeText(document.getElementById("personal_study_cycle")?.value) : "",
+        semester: isEu ? safeText(document.getElementById("personal_semester")?.value) : "",
+        from_month: isEu ? safeText(document.getElementById("personal_from_month")?.value) : "",
+        to_month: isEu ? safeText(document.getElementById("personal_to_month")?.value) : "",
+
+        sex_confirm: isEu ? safeText(document.getElementById("personal_sex_confirm")?.value) : "",
+      };
+    }
+
+    function validateSection1() {
+      const phoneRaw = safeText(document.getElementById("personal_phone").value).replace(/\D+/g, "");
+      if (phoneRaw.length !== 9) return { ok: false, msg: "Phone number must have 9 digits." };
+
+      const year = safeText(document.getElementById("personal_academic_year").value);
+      const okYear = /^\d{4}\/\d{4}$/.test(year);
+      if (!okYear) return { ok: false, msg: "Academic year must be like 2025/2026." };
+
+      const mt = safeText(document.getElementById("personal_mobility_type").value);
+      if (!mt) return { ok: false, msg: "Please select mobility type." };
+
+      const sigOk = safeText(signaturePngBase64);
+      if (!sigOk) return { ok: false, msg: "Please upload your signature PNG." };
+
+      const sigDecOk = document.getElementById("signature_consent")?.checked;
+      if (!sigDecOk) return { ok: false, msg: "You must consent to the use of your signature for the related documents." };
+
+      const prefix = safeText(document.getElementById("phone_prefix").value);
+      if (!/^\+\d{1,4}$/.test(prefix)) {
+        return { ok: false, msg: "Invalid international prefix." };
+      }
+
+      function validDateFormat(v) {
+        return /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(v);
+      }
+
+      function parsePtDate(v) {
+        if (!validDateFormat(v)) return null;
+
+        const [dd, mm, yyyy] = v.split("/").map(Number);
+        const d = new Date(yyyy, mm - 1, dd);
+
+        if (
+          d.getFullYear() !== yyyy ||
+          d.getMonth() !== mm - 1 ||
+          d.getDate() !== dd
+        ) {
+          return null;
+        }
+
+        return d;
+      }
+
+      function getAcademicYearBounds(academicYear) {
+        const m = academicYear.match(/^(\d{4})\/(\d{4})$/);
+        if (!m) return null;
+
+        const startYear = Number(m[1]);
+        const endYear = Number(m[2]);
+
+        if (endYear !== startYear + 1) return null;
+
+        return {
+          start: new Date(startYear, 7, 1),
+          end: new Date(endYear, 6, 31)
+        };
+      }
+
+      if (mobilityType === "EUROPE") {
+        const need = (id, msg) => {
+          const v = safeText(document.getElementById(id)?.value);
+          if (!v) return { ok: false, msg };
+          return null;
+        };
+
+        const basicValidation =
+          need("personal_first_names", "Please fill first name(s).") ||
+          need("personal_last_names", "Please fill last name(s).") ||
+          need("personal_birth_date", "Please fill date of birth.") ||
+          need("personal_nationality", "Please fill nationality.") ||
+          need("personal_study_cycle", "Please select study cycle.") ||
+          need("personal_semester", "Please select semester.") ||
+          need("personal_from_month", "Please fill the start date.") ||
+          need("personal_to_month", "Please fill the end date.");
+
+        if (basicValidation) return basicValidation;
+
+        const fromRaw = safeText(document.getElementById("personal_from_month")?.value);
+        const toRaw = safeText(document.getElementById("personal_to_month")?.value);
+
+        if (!validDateFormat(fromRaw)) {
+          return { ok: false, msg: "Start date must be in format DD/MM/YYYY." };
+        }
+
+        if (!validDateFormat(toRaw)) {
+          return { ok: false, msg: "End date must be in format DD/MM/YYYY." };
+        }
+
+        const fromDate = parsePtDate(fromRaw);
+        const toDate = parsePtDate(toRaw);
+
+        if (!fromDate) {
+          return { ok: false, msg: "Start date is invalid." };
+        }
+
+        if (!toDate) {
+          return { ok: false, msg: "End date is invalid." };
+        }
+
+        if (toDate < fromDate) {
+          return { ok: false, msg: "End date must be after or equal to start date." };
+        }
+
+        const bounds = getAcademicYearBounds(year);
+        if (!bounds) {
+          return { ok: false, msg: "Academic year is invalid." };
+        }
+
+        if (fromDate < bounds.start || fromDate > bounds.end) {
+          return { ok: false, msg: "Start date must be within the selected academic year." };
+        }
+
+        if (toDate < bounds.start || toDate > bounds.end) {
+          return { ok: false, msg: "End date must be within the selected academic year." };
+        }
+
+        return { ok: true, msg: "" };
+      }
+
+      return { ok: true, msg: "" };
+    }
+        
+    function readSection2Payload() {
+      const isEu = mobilityType === "EUROPE";
+      const engCertSelected = document.querySelector('input[name="has_english_certificate"]:checked');
+
+      return {
+        host_university: safeText(document.getElementById("host_university_name").value),
+        host_country: safeText(document.getElementById("host_country").value),
+
+        faculty_department: isEu ? safeText(document.getElementById("host_faculty_department")?.value) : "",
+        host_address: isEu ? safeText(document.getElementById("host_address")?.value) : "",
+        host_contact: isEu ? safeText(document.getElementById("host_contact")?.value) : "",
+        erasmus_code: isEu ? safeText(document.getElementById("host_erasmus_code")?.value) : "",
+        main_language: isEu ? safeText(document.getElementById("host_main_language")?.value) : "",
+        language_level: isEu ? safeText(document.getElementById("host_language_level")?.value) : "",
+        has_english_certificate: engCertSelected ? (engCertSelected.value === "yes") : "",
+        certificate_uploaded: engCertSelected && engCertSelected.value === "yes" ? true : false,
+        certificate_details: engCertSelected && engCertSelected.value === "yes" ? {
+          certificate_declaration: document.getElementById("certificate_declaration")?.checked ? true : false,
+          listening: safeText(document.getElementById("evaluation_listening")?.value),
+          speaking: safeText(document.getElementById("evaluation_speaking")?.value),
+          writing: safeText(document.getElementById("evaluation_writing")?.value),
+          reading: safeText(document.getElementById("evaluation_reading")?.value),
+          language_history: {
+            secondary: safeText(document.getElementById("language_history_secondary")?.value),
+            university: safeText(document.getElementById("language_history_university")?.value),
+            other: safeText(document.getElementById("language_history_other")?.value),
+            abroad: safeText(document.getElementById("language_history_abroad")?.value),
+          }
+        } : ""
+      };
+    }
+
+    function validateSection2() {
+      const uni = safeText(document.getElementById("host_university_name").value);
+      if (!uni) return { ok: false, msg: "Please enter the host university name." };
+
+      const country = safeText(document.getElementById("host_country").value);
+      if (!country) return { ok: false, msg: "Please enter the host country." };
+
+      const need = (id, msg) => {
+        const v = safeText(document.getElementById(id)?.value);
+        if (!v) return { ok: false, msg };
+        return null;
+      };
+
+      if (mobilityType === "EUROPE") {
+        const europeValidation =
+          need("host_faculty_department", "Please fill faculty or department.") ||
+          need("host_address", "Please fill host address.") ||
+          need("host_contact", "Please fill host contact.") ||
+          need("host_main_language", "Please fill main language.") ||
+          need("host_language_level", "Please select language level.");
+
+        if (europeValidation) return europeValidation;
+      }
+      const selected = document.querySelector('input[name="has_english_certificate"]:checked');
+
+      if (!selected) {
+        return { ok: false, msg: "Please indicate if you have an English certificate." };
+      }
+
+      const engCertificate = selected.value === "yes";
+      
+      if (engCertificate) {
+        const certificateDec = document.getElementById("certificate_declaration")?.checked;
+        if (!certificateDec) {
+          return { ok: false, msg: "You must declare that the information provided about your English certificate is accurate." };
+        }
+        return need("evaluation_listening", "Please fill listening evaluation.") ||
+          need("evaluation_speaking", "Please fill speaking evaluation.") ||
+          need("evaluation_writing", "Please fill writing evaluation.") ||
+          need("evaluation_reading", "Please fill reading evaluation.") ||
+          { ok: true, msg: "" };
+      }
+
+      return { ok: true, msg: "" };
+    }
+
+    function normalizeCredits(v) {
+      return safeText(v).replace(",", ".");
+    }
+
+    function parseCreditsNumber(v) {
+      const s = safeText(v).replace(",", ".").trim();
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function computeTotalHostEcts(eqs) {
+      let total = 0;
+      for (const eq of (Array.isArray(eqs) ? eqs : [])) {
+        const dest = Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [];
+        for (const c of dest) {
+          const n = parseCreditsNumber(c.credits);
+          if (Number.isFinite(n)) total += n;
+        }
+      }
+      return total;
+    }
+
+    function readSection3Payload() {
+      const clean = (arr) => (Array.isArray(arr) ? arr : []).map(x => ({
+      courseId: safeText(x.courseId),
+      name: safeText(x.name),
+      link: safeText(x.link),
+      credits: normalizeCredits(x.credits),
+      semester: safeText(x.semester)
+    }));
+
+      const cleanHost = (arr) => (Array.isArray(arr) ? arr : []).map(x => ({
+        name: safeText(x.name),
+        link: safeText(x.link),
+        credits: normalizeCredits(x.credits),
+        credits_equivalent: normalizeCredits(x.credits_equivalent),
+        semester: safeText(x.semester),
+        code: safeText(x.code)
+      }));
+
+      const useGlobalReasons = isChangesLA() && mobilityType === "EUROPE";
+      const globalDeleteReason = useGlobalReasons ? safeText(document.getElementById("globalDeleteReason")?.value) : "";
+      const globalDeleteReasonText = useGlobalReasons ? safeText(document.getElementById("globalDeleteReasonText")?.value) : "";
+      const globalAddReason = useGlobalReasons ? safeText(document.getElementById("globalAddReason")?.value) : "";
+      const globalAddReasonText = useGlobalReasons ? safeText(document.getElementById("globalAddReasonText")?.value) : "";
+
+      return (Array.isArray(equivalencesState) ? equivalencesState : []).map(eq => ({
+        id: safeText(eq.id) || newEquivalenceId(),
+        status: safeText(eq.status) || "A",
+        comment: safeText(eq.comment),
+        homeCourses: clean(eq.homeCourses),
+        destinationCourses: cleanHost(eq.destinationCourses),
+        deleteReason: useGlobalReasons ? globalDeleteReason : safeText(eq.deleteReason),
+        deleteReasonText: useGlobalReasons ? globalDeleteReasonText : safeText(eq.deleteReasonText),
+        addReason: useGlobalReasons ? globalAddReason : safeText(eq.addReason),
+        addReasonText: useGlobalReasons ? globalAddReasonText : safeText(eq.addReasonText)
+      }));
+    }
+
+    function validateSection3() {
+      const eqs = readSection3Payload();
+
+      if (!eqs.length) return { ok: false, msg: "Please add at least one equivalence." };
+
+      for (let i = 0; i < eqs.length; i += 1) {
+        const eq = eqs[i];
+
+        if (!eq.homeCourses.length) return { ok: false, msg: `Equivalence ${i + 1}: add at least one home course.` };
+        if (!eq.destinationCourses.length) return { ok: false, msg: `Equivalence ${i + 1}: add at least one host course.` };
+
+        for (let j = 0; j < eq.homeCourses.length; j += 1) {
+          const c = eq.homeCourses[j];
+          if (!c.courseId) return { ok: false, msg: `Equivalence ${i + 1}: home course ${j + 1} needs a selection.` };
+          if (!c.credits) return { ok: false, msg: `Equivalence ${i + 1}: home course ${j + 1} needs credits.` };
+          if (!Number.isFinite(parseCreditsNumber(c.credits))) return { ok: false, msg: `Equivalence ${i + 1}: home course ${j + 1} credits must be a number.` };
+        }
+
+        for (let j = 0; j < eq.destinationCourses.length; j += 1) {
+          const c = eq.destinationCourses[j];
+          if (!c.name) return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs a name.` };
+          if (!c.credits) return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs credits.` };
+          if (mobilityType === "OUTSIDE_EUROPE") {
+            if (!c.credits_equivalent) return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs credits equivalence.` };
+          }
+          if (!Number.isFinite(parseCreditsNumber(c.credits))) return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} credits must be a number.` };
+          if (!c.semester) return { ok: false, msg: `Equivalence ${i + 1}: host course ${j + 1} needs a semester.` };
+        }
+      }
+
+
+      if (isChangesLA() && mobilityType === "EUROPE") {
+        const delReason = safeText(document.getElementById("globalDeleteReason")?.value);
+        const addReason = safeText(document.getElementById("globalAddReason")?.value);
+        if (!delReason && !addReason) {
+          return { ok: false, msg: "Please select at least one reason for the changes (delete or add reason)." };
+        }
+      }
+
+      return { ok: true, msg: "" };
+    }
+
+    function applyType(mt) {
+      const title = document.getElementById("formTitle");
+      const hint = document.getElementById("formHint");
+
+      document.body.classList.remove("is-europe", "is-outside");
+
+      if (mt === "EUROPE") {
+        document.body.classList.add("is-europe");
+        title.textContent = "Europe mobility";
+        hint.textContent = "Fill the sections and save regularly.";
+      } else {
+        document.body.classList.add("is-outside");
+        title.textContent = "Outside Europe mobility";
+        hint.textContent = "Fill the sections and save regularly.";
+      }
+    }
+
+    function setActiveStep(step) {
+      currentStep = step;
+
+      document.querySelectorAll(".panel").forEach(p => {
+        const s = Number(p.getAttribute("data-step") || "0");
+        p.classList.toggle("active", s === step);
+      });
+
+      document.querySelectorAll(".tab").forEach(t => {
+        const s = Number(t.getAttribute("data-step") || "0");
+        t.classList.toggle("active", s === step);
+      });
+    }
+
+    function markTabsDone() {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("done"));
+
+      const s1 = validateSection1();
+      if (s1.ok) {
+        const tab0 = document.querySelector('.tab[data-step="0"]');
+        if (tab0) tab0.classList.add("done");
+      }
+
+      const s2 = validateSection2();
+      if (s2.ok) {
+        const tab1 = document.querySelector('.tab[data-step="1"]');
+        if (tab1) tab1.classList.add("done");
+      }
+    }
+
+    async function getProcess() {
+      const r = await fetch(`${SERVER}/process.php`, { credentials: "include" });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function savePayload(payload) {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "save", payload })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function submitProcess() {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit" })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function listReviews(pid) {
+      const r = await fetch(`${SERVER}/process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_reviews_for_student_process", pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    function defaultEquivalence() {
+      return {
+        id: newEquivalenceId(),
+        status: "A",
+        comment: "",
+        homeCourses: [{ courseId: "", name: "", credits: "", link: "", semester: "" }],
+        destinationCourses: [{ name: "", credits: "", credits_equivalent: "", link: "", semester: "", code: "" }],
+        deleteReason: "",
+        deleteReasonText: "",
+        addReason: "",
+        addReasonText: ""
+      };
+    }
+
+    function isChangesLA() {
+      return getLatestEquivalencesVersionArray(processPayloadSnapshot).length > 0;
+    }
+
+    function updateEctsWarning() {
+      const ectsWarning = document.getElementById("ectsWarning");
+      if (!ectsWarning) return;
+      const show = mobilityType === "EUROPE" && computeTotalHostEcts(equivalencesState) < 30;
+      ectsWarning.style.display = show ? "block" : "none";
+    }
+
+    function renderEquivalences() {
+      const list = document.getElementById("equivalencesList");
+      if (!list) return;
+      list.innerHTML = "";
+
+      updateEctsWarning();
+
+      if (!Array.isArray(equivalencesState) || equivalencesState.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "sub";
+        empty.style.opacity = "0.85";
+        empty.textContent = "No equivalences added yet.";
+        list.appendChild(empty);
+        return;
+      }
+
+      const eqTpl = document.getElementById("equivalenceTpl");
+      const homeTpl = document.getElementById("homeCourseTpl");
+      const hostTpl = document.getElementById("hostCourseTpl");
+
+      equivalencesState.forEach((eq, eqIndex) => {
+        const node = eqTpl.content.firstElementChild.cloneNode(true);
+        const editable = isEditable();
+
+        const commentEl = node.querySelector('[data-role="eqComment"]');
+        if (commentEl) {
+          commentEl.value = safeText(eq.comment);
+          commentEl.disabled = !editable;
+          if (editable) {
+            commentEl.addEventListener("input", (e) => {
+              eq.comment = e.target.value;
+            });
+          }
+        }
+
+
+        const reviewPill = node.querySelector('[data-role="reviewPill"]');
+        const feedbackRoot = node.querySelector('[data-role="coordFeedback"]');
+        const d = eqDecisions[safeText(eq && eq.id)];
+
+        if (reviewPill) {
+          if (d && d.decision) {
+            let label = "NOT REVIEWED";
+            let cls = "not-reviewed";
+            if (d.decision === "APPROVED") { label = "APPROVED"; cls = "approved"; }
+            if (d.decision === "CHANGES_REQUESTED") { label = "CHANGES REQUESTED"; cls = "changes"; }
+            reviewPill.textContent = label;
+            reviewPill.style.display = "inline-flex";
+            reviewPill.classList.remove("approved", "changes", "not-reviewed");
+            reviewPill.classList.add(cls);
+          } else {
+            reviewPill.style.display = "none";
+          }
+        }
+
+        if (feedbackRoot) {
+          feedbackRoot.innerHTML = "";
+
+          if (processStatus === "CHANGES_REQUESTED" && d) {
+            const box = document.createElement("div");
+            box.className = "feedbackBox";
+            if (d.decision === "APPROVED") box.classList.add("approved");
+
+            const title = document.createElement("div");
+            title.className = "feedbackTitle";
+            title.textContent = "Coordinator feedback";
+            box.appendChild(title);
+
+            const note = document.createElement("div");
+            note.textContent = safeText(d.note) || "No comment provided.";
+            note.style.whiteSpace = "pre-wrap";
+            note.style.lineHeight = "1.45";
+            box.appendChild(note);
+
+            const meta = document.createElement("div");
+            meta.className = "feedbackMeta";
+            const parts = [];
+            if (safeText(d.reviewed_at)) parts.push(`Updated ${safeText(d.reviewed_at)}`);
+            if (safeText(d.reviewed_by)) parts.push(`By ${safeText(d.reviewed_by)}`);
+            meta.textContent = parts.join(" · ");
+            if (meta.textContent) box.appendChild(meta);
+
+            feedbackRoot.appendChild(box);
+            feedbackRoot.style.display = "block";
+          } else {
+            feedbackRoot.style.display = "none";
+          }
+        }
+
+        const removeEqBtn = node.querySelector('[data-role="removeEquivalenceBtn"]');
+        if (removeEqBtn) {
+          removeEqBtn.style.display = editable ? "inline-flex" : "none";
+          if (editable) {
+            removeEqBtn.addEventListener("click", () => {
+              equivalencesState.splice(eqIndex, 1);
+              collapsedEqs.delete(safeText(eq.id));
+              renderEquivalences();
+            });
+          }
+        }
+
+        const toggleBtn = node.querySelector('[data-role="toggleBtn"]');
+        const eqSummary = node.querySelector('[data-role="eqSummary"]');
+
+        function getEqSummaryText() {
+          const homeNames = (eq.homeCourses || [])
+            .map(c => safeText(c.name) || safeText(c.courseId) || "")
+            .filter(Boolean);
+          const hostNames = (eq.destinationCourses || [])
+            .map(c => safeText(c.name) || "")
+            .filter(Boolean);
+          const parts = [];
+          if (homeNames.length) parts.push(homeNames.join(", "));
+          if (hostNames.length) parts.push(hostNames.join(", "));
+          return parts.join(" → ") || "No courses added yet";
+        }
+
+        if (collapsedEqs.has(safeText(eq.id))) {
+          node.classList.add("collapsed");
+          if (eqSummary) eqSummary.textContent = getEqSummaryText();
+        }
+
+        if (toggleBtn) {
+          toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const nowCollapsed = node.classList.toggle("collapsed");
+            if (nowCollapsed) {
+              collapsedEqs.add(safeText(eq.id));
+              if (eqSummary) eqSummary.textContent = getEqSummaryText();
+            } else {
+              collapsedEqs.delete(safeText(eq.id));
+            }
+          });
+        }
+
+        const homeList = node.querySelector('[data-role="homeList"]');
+        const hostList = node.querySelector('[data-role="hostList"]');
+
+        function renderHome() {
+          if (!homeList) return;
+
+          homeList.innerHTML = "";
+
+          const arr = Array.isArray(eq.homeCourses) ? eq.homeCourses : [];
+          arr.forEach((c, cIndex) => {
+            const row = homeTpl.content.firstElementChild.cloneNode(true);
+
+            const courseSel = row.querySelector('[data-field="courseId"]');
+            const name = row.querySelector('[data-field="name"]');
+            const credits = row.querySelector('[data-field="credits"]');
+            const link = row.querySelector('[data-field="link"]');
+            const rm = row.querySelector('[data-role="removeCourseBtn"]');
+
+            const editableLocal = editable === true;
+
+            const applyPicked = (nameKey, opts = {}) => {
+              const picked = homeCoursesById[safeText(nameKey)];
+
+              if (!picked) {
+                eq.homeCourses[cIndex].courseId = "";
+                eq.homeCourses[cIndex].name = "";
+                eq.homeCourses[cIndex].credits = "";
+                eq.homeCourses[cIndex].link = "";
+                eq.homeCourses[cIndex].semester = "";
+
+                if (courseSel) courseSel.value = "";
+                if (name) name.value = "";
+                if (credits) credits.value = "";
+                if (link) link.value = "";
+                return;
+              }
+
+              const pickedCredits =
+                picked && picked.credits != null && String(picked.credits).trim() !== ""
+                  ? String(picked.credits)
+                  : String(picked?.ects ?? "");
+
+              const existingCredits = safeText(eq.homeCourses?.[cIndex]?.credits);
+              const useExisting = opts.preserveExistingCredits === true &&
+                existingCredits &&
+                String(existingCredits).trim() !== "";
+
+              const finalCredits = useExisting ? String(existingCredits) : pickedCredits;
+
+              eq.homeCourses[cIndex].courseId = safeText(picked.name);
+              eq.homeCourses[cIndex].name = safeText(picked.name);
+              eq.homeCourses[cIndex].credits = finalCredits;
+              eq.homeCourses[cIndex].link = safeText(picked.link);
+              eq.homeCourses[cIndex].semester = safeText(picked.semester);
+
+              if (courseSel) courseSel.value = safeText(picked.name);
+              if (name) name.value = safeText(picked.name);
+              if (link) link.value = safeText(picked.link);
+
+              if (credits) {
+                credits.value = finalCredits;
+
+                const courseName = (picked.name || "").toLowerCase();
+                const isEditable =
+                  courseName.startsWith("free option") ||
+                  courseName.startsWith("extracurricular activities");
+
+                credits.disabled = !isEditable;
+              }
+            };
+
+            if (courseSel) {
+              courseSel.disabled = !editableLocal;
+              courseSel.innerHTML = "";
+
+              const opt0 = document.createElement("option");
+              opt0.value = "";
+              opt0.textContent = "Select";
+              courseSel.appendChild(opt0);
+
+              homeCoursesCatalog.forEach((it) => {
+                const opt = document.createElement("option");
+                opt.value = safeText(it.name);
+                opt.textContent = safeText(it.name);
+                courseSel.appendChild(opt);
+              });
+
+              courseSel.value = safeText(c.courseId);
+
+              if (editableLocal) {
+                courseSel.addEventListener("change", (e) => {
+                  eq.homeCourses[cIndex].courseId = e.target.value;
+
+                  eq.homeCourses[cIndex].credits = "";
+
+                  applyPicked(e.target.value, { preserveExistingCredits: false });
+                });
+              }
+
+              if (courseSel.value) applyPicked(courseSel.value, { preserveExistingCredits: true });
+            }
+
+            if (name) { name.disabled = true; }
+            if (link) { link.disabled = true; }
+
+            if (credits && editableLocal) {
+              credits.addEventListener("input", (e) => {
+                eq.homeCourses[cIndex].credits = e.target.value;
+              });
+            }
+
+            if (rm) {
+              rm.style.display = editableLocal ? "inline-flex" : "none";
+              if (editableLocal) {
+                rm.addEventListener("click", () => {
+                  eq.homeCourses.splice(cIndex, 1);
+                  if (eq.homeCourses.length === 0) {
+                    eq.homeCourses.push({ courseId: "", name: "", credits: "", link: "", semester: "" });
+                  }
+                  renderEquivalences();
+                });
+              }
+            }
+
+            homeList.appendChild(row);
+          });
+        }
+
+        function renderHost() {
+          hostList.innerHTML = "";
+          const arr = Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [];
+          arr.forEach((c, cIndex) => {
+            const row = hostTpl.content.firstElementChild.cloneNode(true);
+
+            const name = row.querySelector('[data-field="name"]');
+            const credits = row.querySelector('[data-field="credits"]');
+            const creditsEq = row.querySelector('[data-field="credits_equivalent"]');
+            const link = row.querySelector('[data-field="link"]');
+            const semester = row.querySelector('[data-field="semester"]');
+            const code = row.querySelector('[data-field="code"]');
+
+            if (name) {
+              name.value = safeText(c.name);
+              name.disabled = !editable;
+              if (editable) name.addEventListener("input", e => { eq.destinationCourses[cIndex].name = e.target.value; });
+            }
+
+            if (credits) {
+              credits.value = safeText(c.credits);
+              credits.disabled = !editable;
+              if (editable) credits.addEventListener("input", e => { eq.destinationCourses[cIndex].credits = e.target.value; });
+            }
+
+            if (creditsEq) {
+              creditsEq.value = safeText(c.credits_equivalent);
+              creditsEq.disabled = !editable;
+              if (editable) creditsEq.addEventListener("input", e => { eq.destinationCourses[cIndex].credits_equivalent = e.target.value; });
+            }
+
+            if (link) {
+              link.value = safeText(c.link);
+              link.disabled = !editable;
+              if (editable) link.addEventListener("input", e => { eq.destinationCourses[cIndex].link = e.target.value; });
+            }
+
+            if (semester) {
+              semester.value = safeText(c.semester);
+              semester.disabled = !editable;
+              if (editable) semester.addEventListener("change", e => { eq.destinationCourses[cIndex].semester = e.target.value; });
+            }
+
+            if (code) {
+              code.value = safeText(c.code);
+              code.disabled = !editable;
+              if (editable) code.addEventListener("input", e => { eq.destinationCourses[cIndex].code = e.target.value; });
+            }
+
+            const rm = row.querySelector('[data-role="removeCourseBtn"]');
+            if (rm) {
+              rm.style.display = editable ? "inline-flex" : "none";
+              if (editable) {
+                rm.addEventListener("click", () => {
+                  eq.destinationCourses.splice(cIndex, 1);
+                  if (eq.destinationCourses.length === 0) eq.destinationCourses.push({ name: "", credits: "", credits_equivalent: "", link: "", semester: "", code: "" });
+                  renderEquivalences();
+                });
+              }
+            }
+
+            hostList.appendChild(row);
+          });
+        }
+
+        const addHomeBtn = node.querySelector('[data-role="addHomeCourseBtn"]');
+        if (addHomeBtn) {
+          addHomeBtn.style.display = editable ? "inline-flex" : "none";
+          if (editable) {
+            addHomeBtn.addEventListener("click", () => {
+              if (!Array.isArray(eq.homeCourses)) eq.homeCourses = [];
+              eq.homeCourses.push({ courseId: "", name: "", credits: "", link: "" });
+              renderEquivalences();
+            });
+          }
+        }
+
+        const addHostBtn = node.querySelector('[data-role="addHostCourseBtn"]');
+        if (addHostBtn) {
+          addHostBtn.style.display = editable ? "inline-flex" : "none";
+          if (editable) {
+            addHostBtn.addEventListener("click", () => {
+              if (!Array.isArray(eq.destinationCourses)) eq.destinationCourses = [];
+              eq.destinationCourses.push({ name: "", credits: "", credits_equivalent: "", link: "", semester: "", code: "" });
+              renderEquivalences();
+            });
+          }
+        }
+
+        renderHome();
+        renderHost();
+        list.appendChild(node);
+      });
+      initHelpTooltips(list);
+
+      // Show/hide global changes reason section
+      const changesSection = document.getElementById("changesReasonSection");
+      if (changesSection) {
+        changesSection.style.display = (isChangesLA() && mobilityType === "EUROPE") ? "block" : "none";
+      }
+    }
+
+    function initEquivalencesUI() {
+      const btn = document.getElementById("addEquivalenceBtn");
+      if (btn) {
+        const editable = isEditable();
+        btn.style.display = editable ? "inline-flex" : "none";
+        if (editable) {
+          btn.addEventListener("click", () => {
+            equivalencesState.push(defaultEquivalence());
+            renderEquivalences();
+          });
+        }
+      }
+
+      // Bind global reason selects (changes LA + EUROPE)
+      const delSel = document.getElementById("globalDeleteReason");
+      const delTextField = document.getElementById("globalDeleteReasonTextField");
+      const delTextInput = document.getElementById("globalDeleteReasonText");
+      const addSel = document.getElementById("globalAddReason");
+      const addTextField = document.getElementById("globalAddReasonTextField");
+      const addTextInput = document.getElementById("globalAddReasonText");
+
+      if (delSel) {
+        delSel.addEventListener("change", () => {
+          if (delTextField) delTextField.style.display = delSel.value === "4" ? "block" : "none";
+        });
+      }
+      if (addSel) {
+        addSel.addEventListener("change", () => {
+          if (addTextField) addTextField.style.display = addSel.value === "7" ? "block" : "none";
+        });
+      }
+
+      if (!Array.isArray(equivalencesState)) equivalencesState = [];
+      renderEquivalences();
+    }
+
+    function normalizeCourse(c) {
+      const o = c && typeof c === "object" ? c : {};
+      return {
+        name: safeText(o.name).toLowerCase(),
+        credits: safeText(o.credits).replace(",", "."),
+        link: safeText(o.link),
+        semester: safeText(o.semester).toLowerCase()
+      };
+    }
+
+    function equivalenceKey(eq) {
+      const o = eq && typeof eq === "object" ? eq : {};
+      const home = Array.isArray(o.homeCourses) ? o.homeCourses : [];
+      const dest = Array.isArray(o.destinationCourses) ? o.destinationCourses : [];
+
+      const homeKey = home
+        .map(normalizeCourse)
+        .map(x => `${x.name}|${x.credits}|${x.link}`)
+        .sort()
+        .join("||");
+
+      const destKey = dest
+        .map(normalizeCourse)
+        .map(x => `${x.name}|${x.credits}|${x.link}|${x.semester}`)
+        .sort()
+        .join("||");
+
+      return `H:${homeKey}::D:${destKey}`;
+    }
+
+    function buildPayloadForSave() {
+      const base = (processPayloadSnapshot && typeof processPayloadSnapshot === "object") ? processPayloadSnapshot : {};
+      const out = {
+        personal: readSection1Payload(),
+        host: readSection2Payload(),
+        equivalences: readSection3Payload(),
+        mobility_type: mobilityType
+      };
+
+      for (const k of Object.keys(base)) {
+        if (k.startsWith("equivalences_")) out[k] = base[k];
+      }
+
+      return out;
+    }
+
+    function normalizeCourseForKey(c, isHost) {
+      const o = c && typeof c === "object" ? c : {};
+      const name = safeText(o.name).toLowerCase();
+      const credits = safeText(o.credits).replace(",", ".");
+      const link = safeText(o.link);
+
+      if (isHost) {
+        const semester = safeText(o.semester).toLowerCase();
+        return `${name}|${credits}|${link}|${semester}`;
+      }
+
+      return `${name}|${credits}|${link}`;
+    }
+
+    function equivalenceKeyExact(eq) {
+      const o = eq && typeof eq === "object" ? eq : {};
+      const home = Array.isArray(o.homeCourses) ? o.homeCourses : [];
+      const dest = Array.isArray(o.destinationCourses) ? o.destinationCourses : [];
+
+      const homeKey = home
+        .map(c => normalizeCourseForKey(c, false))
+        .sort()
+        .join("||");
+
+      const destKey = dest
+        .map(c => normalizeCourseForKey(c, true))
+        .sort()
+        .join("||");
+
+      return `H:${homeKey}::D:${destKey}`;
+    }
+
+    function getLatestEquivalencesVersionArray(payload) {
+      const pl = payload && typeof payload === "object" ? payload : processPayloadSnapshot;
+      if (!pl || typeof pl !== "object") return [];
+
+      let latestArr = null;
+      let latestV = -1;
+
+      for (const k of Object.keys(pl)) {
+        if (!k.startsWith("equivalences_")) continue;
+
+        const v = parseInt(k.slice("equivalences_".length), 10);
+        if (!Number.isFinite(v)) continue;
+
+        const arr = pl[k];
+        if (!Array.isArray(arr)) continue;
+
+        if (v > latestV) {
+          latestV = v;
+          latestArr = arr;
+        }
+      }
+
+      return Array.isArray(latestArr) ? latestArr : [];
+    }
+
+    function computeAddedUpdatedRemoved(previousArr, currentArr) {
+      const prevRaw = Array.isArray(previousArr) ? previousArr : [];
+      const cur = Array.isArray(currentArr) ? currentArr : [];
+
+      const prev = prevRaw.filter(eq => safeText(eq && eq.status) !== "R");
+
+      const prevMap = new Map();
+      for (const eq of prev) {
+        prevMap.set(equivalenceKeyExact(eq), eq);
+      }
+
+      const curMap = new Map();
+      for (const eq of cur) {
+        curMap.set(equivalenceKeyExact(eq), eq);
+      }
+
+      const out = [];
+
+      for (const eq of cur) {
+        const key = equivalenceKeyExact(eq);
+        const existedExactly = prevMap.has(key);
+        const status = existedExactly ? "U" : "A";
+
+        out.push({
+          id: status === "A"
+            ? newEquivalenceId()
+            : safeText(eq.id) || newEquivalenceId(),
+          status,
+          comment: safeText(eq.comment),
+          homeCourses: Array.isArray(eq.homeCourses) ? eq.homeCourses : [],
+          destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [],
+          deleteReason: safeText(eq.deleteReason),
+          deleteReasonText: safeText(eq.deleteReasonText),
+          addReason: safeText(eq.addReason),
+          addReasonText: safeText(eq.addReasonText)
+        });
+      }
+
+      for (const eq of prev) {
+        const key = equivalenceKeyExact(eq);
+        if (!curMap.has(key)) {
+          out.push({
+            id: safeText(eq.id) || newEquivalenceId(),
+            status: "R",
+            comment: safeText(eq.comment),
+            homeCourses: Array.isArray(eq.homeCourses) ? eq.homeCourses : [],
+            destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [],
+            deleteReason: safeText(document.getElementById("globalDeleteReason")?.value || eq.deleteReason),
+            deleteReasonText: safeText(document.getElementById("globalDeleteReasonText")?.value || eq.deleteReasonText),
+            addReason: safeText(eq.addReason),
+            addReasonText: safeText(eq.addReasonText)
+          });
+        }
+      }
+
+      return out;
+    }
+
+    function buildPayloadForSubmit() {
+      const base = (processPayloadSnapshot && typeof processPayloadSnapshot === "object")
+        ? processPayloadSnapshot
+        : {};
+
+      const out = {
+        personal: readSection1Payload(),
+        host: readSection2Payload(),
+        equivalences: readSection3Payload(),
+        mobility_type: mobilityType
+      };
+
+      for (const k of Object.keys(base)) {
+        if (k.startsWith("equivalences_")) out[k] = base[k];
+      }
+
+      const previous = getLatestEquivalencesVersionArray(base);
+      const current = out.equivalences;
+
+      const computed = computeAddedUpdatedRemoved(previous, current);
+      out.equivalences = computed;
+
+      return out;
+    }
+
+    async function submitFlow() {
+      if (!isEditable()) {
+        setMsg("This process cannot be submitted.");
+        return;
+      }
+
+      const v = validateSection1();
+      if (!v.ok) { setMsg(v.msg); setActiveStep(0); return; }
+
+      const v2 = validateSection2();
+      if (!v2.ok) { setMsg(v2.msg); setActiveStep(1); return; }
+
+      const v3 = validateSection3();
+      if (!v3.ok) { setMsg(v3.msg); setActiveStep(2); return; }
+
+      setMsg("Preparing submission");
+
+      const latest = await getProcess();
+      if (latest.ok && latest.data && latest.data.ok && latest.data.process) {
+        processPayloadSnapshot = latest.data.process.payload || {};
+      }
+
+      const selected = document.querySelector('input[name="has_english_certificate"]:checked');
+      if (selected && selected.value === "yes" && englishCertificateFile) {
+        const uploadRes = await uploadEnglishCertificate();
+        if (!uploadRes.ok) {
+          setMsg(uploadRes.msg || "Certificate upload failed.");
+          return;
+        }
+      }
+
+      const payload = buildPayloadForSubmit();
+
+      equivalencesState = Array.isArray(payload.equivalences) ? payload.equivalences : [];
+      renderEquivalences();
+
+      const resSave = await savePayload(payload);
+      if (!resSave.ok) {
+        if (resSave.data && resSave.data.error === "process_not_editable") {
+          setMsg("This process is submitted and can no longer be edited.");
+          return;
+        }
+        setMsg("Save before submit failed");
+        return;
+      }
+
+      processPayloadSnapshot = payload;
+
+      const sure = window.confirm(
+        `Are you sure you want to submit this process?
+        After submitting, you will no longer be able to edit your equivalency proposal until you receive feedback from your coordinator. 
+        Please wait patiently for their validation or request for changes/clarification. You will receive an email when control is returned to you.
+
+        By confirming, you declare that:
+        1. You do not intend to take any course you have previously failed at IST.
+        2. You do not intend to take any course you have already completed at IST.
+        3. You have read the regulations sent by NMPI.
+        4. You consent to the use of your uploaded signature for the documents generated within this platform.`
+      );
+
+      if (!sure) return;
+
+      setMsg("Submitting");
+      const res = await submitProcess();
+
+      if (!res.ok) {
+        setMsg("Submission failed");
+        return;
+      }
+
+      setMsg("Process submitted successfully.");
+      window.setTimeout(() => {
+        window.parent.postMessage({ type: "CLOSE_IFRAME", source: "submitFlow" }, "*");
+      }, 900);
+    }
+
+    async function saveFlow(showSuccess) {
+      setMsg("Saving");
+      if (!isEditable()) {
+        setMsg("This process is submitted and can no longer be edited.");
+        return false;
+      }
+
+      const latest = await getProcess();
+      if (latest.ok && latest.data && latest.data.ok && latest.data.process) {
+        processPayloadSnapshot = latest.data.process.payload || {};
+      }
+
+      const selected = document.querySelector('input[name="has_english_certificate"]:checked');
+      if (selected && selected.value === "yes" && englishCertificateFile) {
+        const uploadRes = await uploadEnglishCertificate();
+        if (!uploadRes.ok) {
+          setMsg(uploadRes.msg || "Certificate upload failed.");
+          return false;
+        }
+      }
+
+      const payload = buildPayloadForSave();
+      const res = await savePayload(payload);
+
+      if (!res.ok) {
+        if (res.data && res.data.error === "process_not_editable") {
+          setMsg("This process is submitted and can no longer be edited.");
+          return false;
+        }
+        setMsg("Save failed");
+        return false;
+      }
+
+      if (showSuccess) setMsg("Saved");
+      markTabsDone();
+      processPayloadSnapshot = payload;
+      return true;
+    }
+
+    function getLatestEquivalencesArrayFromSnapshot(pl) {
+      const payload = pl || processPayloadSnapshot;
+      if (!payload || typeof payload !== "object") return [];
+
+      let latest = null;
+      let latestV = -1;
+
+      for (const k of Object.keys(payload)) {
+        if (!k.startsWith("equivalences_")) continue;
+
+        const v = parseInt(k.slice("equivalences_".length), 10);
+        if (!Number.isFinite(v)) continue;
+
+        const arr = payload[k];
+        if (!Array.isArray(arr) || arr.length === 0) continue;
+
+        if (v > latestV) {
+          latestV = v;
+          latest = arr;
+        }
+      }
+
+      return Array.isArray(latest) ? latest : [];
+    }
+
+    function getEquivalencesPreferCurrent(pl) {
+      const payload = pl || processPayloadSnapshot;
+      if (!payload || typeof payload !== "object") return [];
+
+      const cur = payload.equivalences;
+      if (Array.isArray(cur) && cur.length > 0) return cur;
+
+      return getLatestEquivalencesArrayFromSnapshot(payload);
+    }
+
+    function fillFromProcessPayload(payload) {
+      if (!payload || typeof payload !== "object") return;
+
+      if (payload.personal && typeof payload.personal === "object") {
+        const p = payload.personal;
+
+        if (p.full_name) document.getElementById("personal_full_name").value = safeText(p.full_name);
+        if (p.ist_id) document.getElementById("personal_ist_id").value = safeText(p.ist_id);
+        if (p.institutional_email) document.getElementById("personal_inst_email").value = safeText(p.institutional_email);
+        if (p.sex) document.getElementById("personal_sex").value = safeText(p.sex);
+        if (p.home_degree) document.getElementById("personal_home_degree").value = safeText(p.home_degree);
+        if (p.home_degree_acronym) document.getElementById("personal_home_degree_acronym").value = safeText(p.home_degree_acronym);
+        if (p.signature_png_base64) {
+          const raw = safeText(p.signature_png_base64).trim();
+          const cleaned = raw.replace(/\s+/g, "");
+
+          signaturePngBase64 = cleaned.startsWith("data:image/")
+            ? cleaned
+            : `data:image/png;base64,${cleaned}`;
+
+          const preview = document.getElementById("signature_preview");
+          if (preview) {
+            preview.src = signaturePngBase64;
+          }
+
+          updateSignatureUI(true);
+        } else {
+          updateSignatureUI(false);
+        }
+
+        if (p.signature_consent) document.getElementById("signature_consent").checked = p.signature_consent === true;
+
+        if (p.phone_e164) {
+          const digits = String(p.phone_e164).replace(/\D+/g, "");
+          const nine = digits.length >= 9 ? digits.slice(digits.length - 9) : digits;
+          document.getElementById("personal_phone").value = nine;
+        }
+        if (p.mobility_type) document.getElementById("personal_mobility_type").value = p.mobility_type;
+        const ddCb = document.getElementById("personal_is_double_degree");
+        if (ddCb) ddCb.checked = !!p.is_double_degree;
+        if (p.mobility_academic_year) document.getElementById("personal_academic_year").value = p.mobility_academic_year;
+
+        if (p.first_names) document.getElementById("personal_first_names").value = safeText(p.first_names);
+        if (p.last_names) document.getElementById("personal_last_names").value = safeText(p.last_names);
+        if (p.birth_date) document.getElementById("personal_birth_date").value = safeText(p.birth_date);
+        if (p.nationality) document.getElementById("personal_nationality").value = safeText(p.nationality);
+        if (p.study_cycle) document.getElementById("personal_study_cycle").value = safeText(p.study_cycle);
+        if (p.semester) document.getElementById("personal_semester").value = safeText(p.semester);
+        if (p.from_month) document.getElementById("personal_from_month").value = safeText(p.from_month);
+        if (p.to_month) document.getElementById("personal_to_month").value = safeText(p.to_month);
+        if (p.sex_confirm) document.getElementById("personal_sex_confirm").value = safeText(p.sex_confirm);
+
+      }
+
+      if (payload.host && typeof payload.host === "object") {
+        const h = payload.host;
+        if (h.host_university) document.getElementById("host_university_name").value = h.host_university;
+        if (h.host_country) document.getElementById("host_country").value = h.host_country;
+
+        if (h.faculty_department) document.getElementById("host_faculty_department").value = safeText(h.faculty_department);
+        if (h.host_address) document.getElementById("host_address").value = safeText(h.host_address);
+        if (h.host_contact) document.getElementById("host_contact").value = safeText(h.host_contact);
+        if (h.erasmus_code) document.getElementById("host_erasmus_code").value = safeText(h.erasmus_code);
+        if (h.main_language) document.getElementById("host_main_language").value = safeText(h.main_language);
+        if (h.language_level) document.getElementById("host_language_level").value = safeText(h.language_level);
+
+        if (h.has_english_certificate || h.has_english_certificate === false) {
+          const val = h.has_english_certificate === true ? "yes" : "no";
+          const radio = document.querySelector(`input[name="has_english_certificate"][value="${val}"]`);
+          if (radio) radio.checked = true;
+          toggleCertificateSection();
+        }
+
+        if (h.certificate_details && typeof h.certificate_details === "object") {
+          const cd = h.certificate_details;
+
+          if (cd.certificate_declaration) document.getElementById("certificate_declaration").checked = cd.certificate_declaration === true;
+          if (cd.listening) document.getElementById("evaluation_listening").value = safeText(cd.listening);
+          if (cd.speaking)  document.getElementById("evaluation_speaking").value  = safeText(cd.speaking);
+          if (cd.writing)   document.getElementById("evaluation_writing").value   = safeText(cd.writing);
+          if (cd.reading)   document.getElementById("evaluation_reading").value   = safeText(cd.reading);
+
+          if (cd.language_history && typeof cd.language_history === "object") {
+            const lh = cd.language_history;
+            if (lh.secondary) document.getElementById("language_history_secondary").value = safeText(lh.secondary);
+            if (lh.university) document.getElementById("language_history_university").value = safeText(lh.university);
+            if (lh.other)     document.getElementById("language_history_other").value     = safeText(lh.other);
+            if (lh.abroad)    document.getElementById("language_history_abroad").value    = safeText(lh.abroad);
+          }
+        }
+      }
+
+      const eq = getEquivalencesPreferCurrent(payload);
+
+      const filtered = Array.isArray(eq)
+        ? eq.filter(x => safeText(x && x.status) !== "R")
+        : [];
+
+      equivalencesState = filtered.map(x => ({
+        id: safeText(x && x.id) || newEquivalenceId(),
+        status: safeText(x && x.status) || "A",
+        comment: safeText(x && x.comment),
+        homeCourses: Array.isArray(x && x.homeCourses) ? x.homeCourses : [],
+        destinationCourses: Array.isArray(x && x.destinationCourses) ? x.destinationCourses : [],
+        deleteReason: safeText(x && x.deleteReason),
+        deleteReasonText: safeText(x && x.deleteReasonText),
+        addReason: safeText(x && x.addReason),
+        addReasonText: safeText(x && x.addReasonText)
+      }));
+
+      // Restore global reason fields from saved data (first equivalence with values)
+      const withDelReason = filtered.find(x => safeText(x && x.deleteReason));
+      const withAddReason = filtered.find(x => safeText(x && x.addReason));
+      const delSel = document.getElementById("globalDeleteReason");
+      const delTextField = document.getElementById("globalDeleteReasonTextField");
+      const delTextInput = document.getElementById("globalDeleteReasonText");
+      const addSel = document.getElementById("globalAddReason");
+      const addTextField = document.getElementById("globalAddReasonTextField");
+      const addTextInput = document.getElementById("globalAddReasonText");
+      if (delSel && withDelReason) {
+        delSel.value = safeText(withDelReason.deleteReason);
+        if (delTextField) delTextField.style.display = delSel.value === "4" ? "block" : "none";
+        if (delTextInput) delTextInput.value = safeText(withDelReason.deleteReasonText);
+      }
+      if (addSel && withAddReason) {
+        addSel.value = safeText(withAddReason.addReason);
+        if (addTextField) addTextField.style.display = addSel.value === "7" ? "block" : "none";
+        if (addTextInput) addTextInput.value = safeText(withAddReason.addReasonText);
+      }
+
+      renderEquivalences();
+    }
+
+    document.getElementById("personal_phone").addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D+/g, "");
+    });
+
+    document.getElementById("phone_prefix").addEventListener("input", (e) => {
+      let v = e.target.value.replace(/[^\d+]/g, "");
+
+      if (!v.startsWith("+")) {
+        v = "+" + v.replace(/\+/g, "");
+      }
+
+      e.target.value = v.slice(0, 5);
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      await saveFlow(true);
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      await submitFlow();
+    });
+
+    function updateSignatureUI(hasSignature) {
+      const preview = document.getElementById("signature_preview");
+      const status = document.getElementById("signature_status");
+      const pickBtn = document.getElementById("signature_pick_btn");
+
+      if (!preview || !status || !pickBtn) return;
+
+      if (hasSignature) {
+        preview.style.display = "block";
+        status.textContent = "Signature loaded";
+        pickBtn.textContent = "Replace signature";
+      } else {
+        preview.style.display = "none";
+        preview.removeAttribute("src");
+        status.textContent = "";
+        pickBtn.textContent = "Choose signature";
+      }
+    }
+
+    function bindSignaturePicker() {
+      const input = document.getElementById("personal_signature_png");
+      const button = document.getElementById("signature_pick_btn");
+
+      if (!input || !button) return;
+
+      button.addEventListener("click", () => {
+        input.click();
+      });
+    }
+
+    const MAX_FILE_SIZE = 100 * 1024; // 100KB
+
+    function isValidPngBase64(base64) {
+      return (
+        base64.startsWith("data:image/png;base64,") &&
+        base64.includes("iVBORw0KGgo")
+      );
+    }
+
+    const sigInput = document.getElementById("personal_signature_png");
+
+    if (sigInput) {
+      sigInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+
+        if (!file) return;
+
+        if (file.size > MAX_FILE_SIZE) {
+          e.target.value = "";
+          signaturePngBase64 = "";
+          updateSignatureUI(false);
+          setMsg("File is too large. Max size is 100KB.");
+          return;
+        }
+
+        if (file.type !== "image/png") {
+          e.target.value = "";
+          signaturePngBase64 = "";
+          updateSignatureUI(false);
+          setMsg("Signature must be a PNG file.");
+          return;
+        }
+
+        const b64 = await fileToBase64(file);
+
+        if (!isValidPngBase64(b64)) {
+          e.target.value = "";
+          signaturePngBase64 = "";
+          updateSignatureUI(false);
+          setMsg("Invalid PNG file content.");
+          return;
+        }
+
+        signaturePngBase64 = b64;
+
+        const preview = document.getElementById("signature_preview");
+        if (preview) {
+          preview.src = b64;
+        }
+
+        updateSignatureUI(true);
+        setMsg("");
+      });
+    }
+
+    function initHelpTooltips(root = document) {
+      root.querySelectorAll(".help-icon").forEach((btn) => {
+        if (btn.dataset.tooltipReady === "1") return;
+
+        const wrapper = btn.closest(".label-with-help");
+        const text = btn.dataset.help || "";
+        if (!wrapper) return;
+
+        let tooltip = wrapper.querySelector(".help-tooltip");
+        if (!tooltip) {
+          tooltip = document.createElement("div");
+          tooltip.className = "help-tooltip";
+          tooltip.textContent = text;
+          wrapper.appendChild(tooltip);
+        }
+
+        btn.addEventListener("mouseenter", () => {
+          wrapper.classList.add("show-tooltip");
+        });
+
+        btn.addEventListener("mouseleave", () => {
+          wrapper.classList.remove("show-tooltip");
+        });
+
+        btn.addEventListener("focus", () => {
+          wrapper.classList.add("show-tooltip");
+        });
+
+        btn.addEventListener("blur", () => {
+          wrapper.classList.remove("show-tooltip");
+        });
+
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          wrapper.classList.toggle("show-tooltip");
+        });
+
+        btn.dataset.tooltipReady = "1";
+      });
+    }
+
+    async function uploadEnglishCertificate() {
+      const selected = document.querySelector('input[name="has_english_certificate"]:checked');
+      const status = document.getElementById("certificate_status");
+
+      if (!selected || selected.value !== "yes") {
+        return { ok: true, skipped: true };
+      }
+
+      if (!englishCertificateFile) {
+        return { ok: false, msg: "Please choose the English certificate file." };
+      }
+
+      const formData = new FormData();
+      formData.append("english_certificate_file", englishCertificateFile);
+
+      const r = await fetch(`${SERVER}/upload_certificate.php`, {
+        method: "POST",
+        credentials: "include",
+        body: formData
+      });
+
+      const text = await r.text();
+
+      if (!r.ok) {
+        return { ok: false, msg: text || "Certificate upload failed." };
+      }
+
+      status.textContent = "Certificate uploaded successfully.";
+      return { ok: true };
+    }
+
+    async function checkEquivalences() {
+      const uni = uniInput.value.trim();
+      const country = countryInput.value.trim();
+
+      if (!uni) {
+        container.style.display = "none";
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `${SERVER}/approved_equivalences.php?university=${encodeURIComponent(uni)}&country=${encodeURIComponent(country)}`
+        );
+
+        const json = await res.json();
+
+        if (json.ok && json.count > 0) {
+          lastData = json.data;
+          container.style.display = "block";
+        } else {
+          container.style.display = "none";
+        }
+
+      } catch (e) {
+        console.error(e);
+        container.style.display = "none";
+      }
+    }
+
+    let timeout;
+    uniInput.addEventListener("input", () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(checkEquivalences, 400);
+    });
+
+    btn.addEventListener("click", () => {
+      localStorage.setItem("equivalencesData", JSON.stringify(lastData));
+      window.open("equivalences.html", "_blank");
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initHelpTooltips();
+
+      document.addEventListener("click", (e) => {
+        document.querySelectorAll(".label-with-help").forEach((wrapper) => {
+          if (!wrapper.contains(e.target)) {
+            wrapper.classList.remove("show-tooltip");
+          }
+        });
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const step = Number(tab.getAttribute("data-step") || "0");
+
+        if (step >= 1) {
+          const v1 = validateSection1();
+          if (!v1.ok) { setMsg(v1.msg); setActiveStep(0); return; }
+        }
+
+        if (step >= 2) {
+          const v2 = validateSection2();
+          if (!v2.ok) { setMsg(v2.msg); setActiveStep(1); return; }
+        }
+
+        if (step >= 3) {
+          const v3 = validateSection3();
+          if (!v3.ok) { setMsg(v3.msg); setActiveStep(2); return; }
+        }
+
+        setMsg("");
+        setActiveStep(step);
+        markTabsDone();
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".help-icon").forEach((btn) => {
+        const wrapper = btn.closest(".label-with-help");
+        const text = btn.dataset.help;
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "help-tooltip";
+        tooltip.textContent = text;
+        wrapper.appendChild(tooltip);
+
+        btn.addEventListener("mouseenter", () => {
+          wrapper.classList.add("show-tooltip");
+        });
+
+        btn.addEventListener("mouseleave", () => {
+          wrapper.classList.remove("show-tooltip");
+        });
+
+        btn.addEventListener("focus", () => {
+          wrapper.classList.add("show-tooltip");
+        });
+
+        btn.addEventListener("blur", () => {
+          wrapper.classList.remove("show-tooltip");
+        });
+
+        btn.addEventListener("click", () => {
+          wrapper.classList.toggle("show-tooltip");
+        });
+      });
+
+      document.addEventListener("click", (e) => {
+        document.querySelectorAll(".label-with-help").forEach((wrapper) => {
+          if (!wrapper.contains(e.target)) {
+            wrapper.classList.remove("show-tooltip");
+          }
+        });
+      });
+    });
+
+    function toggleCertificateSection() {
+      const selected = document.querySelector('input[name="has_english_certificate"]:checked');
+      const certificateSection = document.getElementById("english_certificate_section");
+
+      if (selected && selected.value === "yes") {
+        certificateSection.style.display = "block";
+      } else {
+        certificateSection.style.display = "none";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const certificateRadios = document.querySelectorAll('input[name="has_english_certificate"]');
+
+      certificateRadios.forEach(radio => {
+        radio.addEventListener("change", toggleCertificateSection);
+      });
+
+      toggleCertificateSection();
+    });
+
+    document.getElementById("certificate_pick_btn").addEventListener("click", function () {
+      document.getElementById("english_certificate_file").click();
+    });
+
+    document.getElementById("english_certificate_file").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      const status = document.getElementById("certificate_status");
+      const filename = document.getElementById("certificate_filename");
+
+      englishCertificateFile = null;
+      status.textContent = "";
+      filename.textContent = "";
+
+      if (!file) return;
+
+      const allowedTypes = [
+        "application/pdf",
+        "image/jpeg",
+        "image/png"
+      ];
+
+      const maxSize = 5 * 1024 * 1024;
+
+      if (!allowedTypes.includes(file.type)) {
+        status.textContent = "Invalid file type. Only PDF, JPG and PNG are allowed.";
+        e.target.value = "";
+        return;
+      }
+
+      if (file.size > maxSize) {
+        status.textContent = "File is too large. Maximum size is 5 MB.";
+        e.target.value = "";
+        return;
+      }
+
+      englishCertificateFile = file;
+      filename.textContent = "Selected file: " + file.name;
+      status.textContent = "Certificate ready to upload.";
+    });
+
+    function getNextEquivalencesVersionKey(payload) {
+      const pl = payload && typeof payload === "object" ? payload : {};
+      let maxV = 0;
+
+      for (const k of Object.keys(pl)) {
+        if (!k.startsWith("equivalences_")) continue;
+
+        const v = parseInt(k.slice("equivalences_".length), 10);
+        if (Number.isFinite(v) && v > maxV) {
+          maxV = v;
+        }
+      }
+
+      return `equivalences_${maxV + 1}`;
+    }
+
+    function cloneEquivalences(arr) {
+      return JSON.parse(JSON.stringify(Array.isArray(arr) ? arr : []));
+    }
+
+    function preparePayloadForStudentRequestEdit(payload) {
+      const pl = payload && typeof payload === "object" ? payload : {};
+      const currentEquivalences = getEquivalencesPreferCurrent(pl);
+
+      if (!Array.isArray(currentEquivalences) || currentEquivalences.length === 0) {
+        return pl;
+      }
+
+      const nextKey = getNextEquivalencesVersionKey(pl);
+
+      return {
+        ...pl,
+        [nextKey]: cloneEquivalences(currentEquivalences),
+        equivalences: cloneEquivalences(currentEquivalences)
+      };
+    }
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      const res = await getProcess();
+      if (!res.ok || !res.data || !res.data.ok) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      const proc = res.data.process;
+      if (!proc) {
+        window.location.href = `${BASE_PATH}/dashboard.html`;
+        return;
+      }
+
+      processStatus = proc.status || "";
+      mobilityType = proc.mobilityType || "";
+      
+      applyType(mobilityType);
+      
+      fillPersonalFromFenix(me.person || {}, me.curriculum || {});
+      
+      const istFromPayload = proc.payload && proc.payload.personal && proc.payload.personal.ist_id
+      ? safeText(proc.payload.personal.ist_id)
+      : "";
+      
+      document.getElementById("subtitle").textContent = istFromPayload
+      ? `Process ${proc.id} · ${proc.status} · ${istFromPayload}`
+      : `Process ${proc.id} · ${proc.status}`;
+      
+      processPayloadSnapshot = proc.payload || {};
+      
+      fillFromProcessPayload(processPayloadSnapshot);
+      if (OPENED_BY === "STUDENT_REQUEST_EDIT") {
+
+        processPayloadSnapshot = preparePayloadForStudentRequestEdit(processPayloadSnapshot);
+
+        const saveRes = await savePayload(processPayloadSnapshot);
+
+        if (!saveRes.ok) {
+          setMsg("Failed to prepare equivalence snapshot.");
+          return;
+        }
+        renderEquivalences();
+      }
+
+      const rev = await listReviews(proc.id);
+      eqDecisions = {};
+      if (rev.ok && rev.data && rev.data.ok && Array.isArray(rev.data.items)) {
+        rev.data.items.forEach(it => {
+          const eqId = safeText(it && it.equivalence_id);
+          if (!eqId) return;
+
+          eqDecisions[eqId] = {
+            decision: safeText(it.decision),
+            note: safeText(it.note),
+            reviewed_at: safeText(it.updated_at || it.created_at || ""),
+            reviewed_by: safeText(it.reviewed_by || "")
+          };
+        });
+      }
+
+      acronym = document.getElementById("personal_home_degree_acronym").value;
+      await fetchHomeCoursesCatalog(acronym);
+
+      bindSignaturePicker();
+      setButtonsForStatus();
+      initEquivalencesUI();
+      markTabsDone();
+      setActiveStep(0);
+    }
+        
+    document.getElementById("personal_mobility_type").addEventListener("change", function () {
+      const ddCb = document.getElementById("personal_is_double_degree");
+      if (!ddCb) return;
+      if (this.value.toLowerCase().includes("double degree")) {
+        ddCb.checked = true;
+      }
+    });
+
+    load();
+
+    (function () {
+      const KEY = "mobility-form-theme";
+      function applyTheme(t) {
+        document.documentElement.setAttribute("data-theme", t);
+        const btn = document.getElementById("themeToggle");
+        if (btn) btn.textContent = t === "dark" ? "☀ Light" : "☾ Dark";
+      }
+      applyTheme(localStorage.getItem(KEY) || "light");
+      document.getElementById("themeToggle")?.addEventListener("click", () => {
+        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        localStorage.setItem(KEY, next);
+        applyTheme(next);
+      });
+    })();
+  </script>
+</body>
+</html>

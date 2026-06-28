@@ -1,0 +1,1330 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage home courses</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 14px;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: rgba(0,0,0,0.12);
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: calc(100vh - 28px);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+      background: rgba(255,255,255,0.9);
+      color: #000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(255,255,255,0.20);
+    }
+
+    .btn.danger {
+      background: rgba(255,80,80,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,80,80,0.35);
+    }
+
+    .btn.danger:hover {
+      background: rgba(255,80,80,0.26);
+    }
+
+    .btn.small {
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status {
+      opacity: 0.9;
+      font-size: 13px;
+      min-height: 18px;
+      padding-left: 2px;
+    }
+
+    .card {
+      flex: 1;
+      min-height: 0;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tableWrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1100px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 2;
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      font-size: 12px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      white-space: nowrap;
+    }
+
+    .cellActions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      padding: 16px;
+      opacity: 0.85;
+      font-size: 13px;
+    }
+
+    .input {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      outline: none;
+      font-size: 12px;
+    }
+
+    .input:focus {
+      border-color: rgba(255,255,255,0.32);
+      background: rgba(255,255,255,0.11);
+    }
+
+    .input::placeholder {
+      color: rgba(255,255,255,0.55);
+    }
+
+    .input[type="number"] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rowMeta {
+      display: inline-flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      opacity: 0.9;
+      font-size: 12px;
+    }
+
+    .rowMeta .mono {
+      opacity: 0.95;
+    }
+
+    .topBar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .searchWrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search {
+      min-width: 220px;
+      max-width: 340px;
+    }
+
+    .hint {
+      opacity: 0.8;
+      font-size: 12px;
+    }
+
+    .filterSelect {
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .filterSelect option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .clearBtn {
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .clearBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    .linkA {
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(255,255,255,0.30);
+      padding: 1px 0;
+    }
+
+    .linkA:hover {
+      border-bottom-color: rgba(255,255,255,0.65);
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .syncCard {
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .syncHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      cursor: pointer;
+    }
+
+    .syncHeader h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .syncBody {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .syncBody.collapsed {
+      display: none;
+    }
+
+    .yearInput {
+      width: 110px;
+    }
+
+    .degreeList {
+      max-height: 220px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 10px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .degreeItem {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 6px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .degreeItem:hover {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .degreeItem .acro {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      opacity: 0.85;
+      min-width: 64px;
+    }
+
+    .previewBlock {
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .previewHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .previewHeader h4 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .diffTable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
+    }
+
+    .diffTable th {
+      text-align: left;
+      font-size: 11px;
+      opacity: 0.8;
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+      white-space: nowrap;
+    }
+
+    .diffTable td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    .diffRow.add td {
+      background: rgba(70,200,120,0.10);
+    }
+
+    .diffRow.remove td {
+      background: rgba(255,80,80,0.10);
+    }
+
+    .diffRow.update td {
+      background: rgba(255,200,60,0.10);
+    }
+
+    .diffBadge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .diffBadge.add {
+      background: rgba(70,200,120,0.18);
+    }
+
+    .diffBadge.remove {
+      background: rgba(255,80,80,0.18);
+    }
+
+    .diffBadge.update {
+      background: rgba(255,200,60,0.18);
+    }
+
+    .diffBadge.same {
+      background: rgba(255,255,255,0.10);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topBar">
+      <div class="actions">
+        <button class="btn" id="btnNew" type="button">➕ New home course</button>
+        <button class="btn secondary" id="btnReload" type="button">↻ Reload</button>
+      </div>
+
+      <div class="searchWrap">
+        <input class="input search" id="q" type="text" placeholder="Search by name or link…" />
+        <select id="fCourse"   class="filterSelect" style="min-width:120px;"><option value="">All courses</option></select>
+        <select id="fSemester" class="filterSelect" style="min-width:130px;">
+          <option value="">All semesters</option>
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
+        <button class="clearBtn" id="clearBtn">Clear</button>
+        <div class="hint" id="hint"></div>
+      </div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="syncCard">
+      <div class="syncHeader" id="syncHeader">
+        <h3>🔄 Sync home courses from Fenix API</h3>
+        <span class="hint">Click to expand/collapse</span>
+      </div>
+
+      <div class="syncBody collapsed" id="syncBody">
+        <div class="actions">
+          <label class="hint" for="syncYear">Academic year</label>
+          <input class="input yearInput" id="syncYear" type="text" value="2025/2026" placeholder="2025/2026" />
+          <button class="btn secondary" id="btnLoadDegrees" type="button">⬇ Load degrees</button>
+          <input class="input search" id="degreeFilter" type="text" placeholder="Filter degrees by name or acronym" style="min-width:240px;" />
+        </div>
+
+        <div class="degreeList" id="degreeList">
+          <div class="hint" style="padding:6px;">Click "Load degrees" to fetch the degree list from Fenix.</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="btnPreview" type="button">🔍 Preview selected degrees</button>
+          <div class="hint" id="syncStatus"></div>
+        </div>
+
+        <div id="previewContainer"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="nowrap">Course</th>
+              <th>Name</th>
+              <th class="nowrap">ECTS</th>
+              <th class="nowrap">Semester</th>
+              <th>Link</th>
+              <th class="nowrap">Created</th>
+              <th class="nowrap">Updated</th>
+              <th class="nowrap">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="empty" style="display:none;">No rows found.</div>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+    const ENDPOINT = `${SERVER}/admin_home_degrees.php`;
+    const SYNC_ENDPOINT = `${SERVER}/admin_sync_home_courses.php`;
+
+    function setStatus(t) {
+      const el = document.getElementById("status");
+      if (el) el.textContent = t || "";
+    }
+
+    function clampInt(v, fallback) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.trunc(n);
+    }
+
+    function normalizeUrl(url) {
+      let u = safeText(url).trim();
+      if (!u) return "";
+      if (u.toLowerCase().startsWith("www.")) u = "https://" + u;
+      return u;
+    }
+
+    function shortOneLine(t, maxLen) {
+      const s = safeText(t).replace(/\s+/g, " ").trim();
+      if (!s) return "";
+      if (s.length <= maxLen) return s;
+      return s.slice(0, maxLen - 1) + "…";
+    }
+
+    function makeInputText(value, placeholder) {
+      const i = document.createElement("input");
+      i.className = "input";
+      i.type = "text";
+      i.value = safeText(value);
+      i.placeholder = placeholder || "";
+      return i;
+    }
+
+    function makeInputNumber(value, placeholder, min, step) {
+      const i = document.createElement("input");
+      i.className = "input mono";
+      i.type = "number";
+      i.value = safeText(value);
+      if (placeholder) i.placeholder = placeholder;
+      if (min !== undefined) i.min = String(min);
+      if (step !== undefined) i.step = String(step);
+      return i;
+    }
+
+    function makeLinkPreview(url) {
+      const u = normalizeUrl(url);
+      if (!u) return null;
+      const a = document.createElement("a");
+      a.className = "linkA";
+      a.href = u;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = shortOneLine(u, 70);
+      a.title = u;
+      return a;
+    }
+
+    async function apiCall(payload) {
+      const r = await fetch(ENDPOINT, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {})
+      });
+      const data = await r.json().catch(() => null);
+      return { ok: r.ok, data };
+    }
+
+    async function syncCall(payload) {
+      const r = await fetch(SYNC_ENDPOINT, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {})
+      });
+      const data = await r.json().catch(() => null);
+      return { ok: r.ok, data };
+    }
+
+    async function apiList() {
+      return apiCall({ action: "list" });
+    }
+
+    async function apiCreate(row) {
+      return apiCall({ action: "create", row });
+    }
+
+    async function apiUpdate(id, patch) {
+      return apiCall({ action: "update", id, patch });
+    }
+
+    async function apiDelete(id) {
+      return apiCall({ action: "delete", id });
+    }
+
+    let ALL_ROWS = [];
+
+    function populateCourseDropdown() {
+      const sel = document.getElementById("fCourse");
+      if (!sel) return;
+      const prev = sel.value;
+      const courses = [...new Set(ALL_ROWS.map(r => safeText(r.course)).filter(Boolean))].sort();
+      sel.innerHTML = `<option value="">All courses</option>`;
+      courses.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c; opt.textContent = c;
+        sel.appendChild(opt);
+      });
+      if (prev) sel.value = prev;
+    }
+
+    function currentRows() {
+      const q   = safeText(document.getElementById("q")?.value).trim().toLowerCase();
+      const crs = safeText(document.getElementById("fCourse")?.value);
+      const sem = safeText(document.getElementById("fSemester")?.value);
+
+      return (Array.isArray(ALL_ROWS) ? ALL_ROWS : []).filter(row => {
+        if (crs && safeText(row.course)   !== crs) return false;
+        if (sem && String(row.semester)   !== sem)  return false;
+        if (q) {
+          const name = safeText(row.name).toLowerCase();
+          const link = safeText(row.link).toLowerCase();
+          if (!name.includes(q) && !link.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function setHint(text) {
+      const el = document.getElementById("hint");
+      if (el) el.textContent = text || "";
+    }
+
+    function render(rows) {
+      const tbody = document.getElementById("tbody");
+      const empty = document.getElementById("empty");
+      if (!tbody || !empty) return;
+
+      tbody.innerHTML = "";
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        empty.style.display = "block";
+        setHint("");
+        return;
+      }
+
+      empty.style.display = "none";
+      setHint(`${rows.length} row(s)`);
+
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+
+        const id = row && row.id;
+
+        const tdCourse = document.createElement("td");
+        const inCourse = makeInputText(row && row.course, "Course");
+        tdCourse.appendChild(inCourse);
+        tr.appendChild(tdCourse);
+
+        const tdName = document.createElement("td");
+        const inName = makeInputText(row && row.name, "Name");
+        tdName.appendChild(inName);
+        tr.appendChild(tdName);
+
+        const tdEcts = document.createElement("td");
+        const inEcts = makeInputNumber(row && row.ects, "ECTS", 0, 1);
+        tdEcts.appendChild(inEcts);
+        tr.appendChild(tdEcts);
+
+        const tdSem = document.createElement("td");
+        const inSem = makeInputNumber(row && row.semester, "Semester", 1, 1);
+        tdSem.appendChild(inSem);
+        tr.appendChild(tdSem);
+
+        const tdLink = document.createElement("td");
+        const linkWrap = document.createElement("div");
+        linkWrap.style.display = "flex";
+        linkWrap.style.flexDirection = "column";
+        linkWrap.style.gap = "8px";
+
+        const inLink = makeInputText(row && row.link, "https://...");
+        inLink.addEventListener("input", () => {
+          const prev = linkWrap.querySelector("a");
+          if (prev) prev.remove();
+          const a = makeLinkPreview(inLink.value);
+          if (a) linkWrap.appendChild(a);
+        });
+
+        linkWrap.appendChild(inLink);
+        const a0 = makeLinkPreview(inLink.value);
+        if (a0) linkWrap.appendChild(a0);
+
+        tdLink.appendChild(linkWrap);
+        tr.appendChild(tdLink);
+
+        const tdCreated = document.createElement("td");
+        tdCreated.className = "mono nowrap";
+        tdCreated.textContent = safeText(row && row.created_at);
+        tr.appendChild(tdCreated);
+
+        const tdUpdated = document.createElement("td");
+        tdUpdated.className = "mono nowrap";
+        tdUpdated.textContent = safeText(row && row.updated_at);
+        tr.appendChild(tdUpdated);
+
+        const tdActions = document.createElement("td");
+        const wrap = document.createElement("div");
+        wrap.className = "cellActions";
+
+        const btnSave = document.createElement("button");
+        btnSave.className = "btn small";
+        btnSave.type = "button";
+        btnSave.textContent = "💾 Save";
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "btn danger small";
+        btnDel.type = "button";
+        btnDel.textContent = "❌";
+
+        function getPatch() {
+          const course = safeText(inCourse.value).trim();
+          const name = safeText(inName.value).trim();
+          const ects = clampInt(inEcts.value, NaN);
+          const semester = clampInt(inSem.value, NaN);
+          const link = normalizeUrl(inLink.value);
+          
+          return { course, name, ects, semester, link };
+        }
+
+        function validatePatch(p) {
+          if (!p.course) return "Course is required";
+          if (!p.name) return "Name is required";
+          if (!Number.isFinite(p.ects) || p.ects < 0) return "ECTS must be a number >= 0";
+          if (!Number.isFinite(p.semester) || p.semester < 1) return "Semester must be a number >= 1";
+          if (safeText(p.link).length > 500) return "Link too long";
+          return "";
+        }
+
+        btnSave.addEventListener("click", async () => {
+          if (!id) return;
+
+          const patch = getPatch();
+          const err = validatePatch(patch);
+          if (err) {
+            setStatus(err);
+            return;
+          }
+
+          setStatus("Saving...");
+          btnSave.disabled = true;
+          btnDel.disabled = true;
+
+          const res = await apiUpdate(id, patch);
+
+          btnSave.disabled = false;
+          btnDel.disabled = false;
+
+          if (!res.ok || !res.data || !res.data.ok) {
+            const msg = res.data && res.data.error ? res.data.error : "Save failed";
+            setStatus(msg);
+            return;
+          }
+
+          await loadRows();
+        });
+
+        btnDel.addEventListener("click", async () => {
+          if (!id) return;
+
+          const ok = window.confirm("Delete this home course?");
+          if (!ok) return;
+
+          setStatus("Deleting...");
+          btnSave.disabled = true;
+          btnDel.disabled = true;
+
+          const res = await apiDelete(id);
+          if (!res.ok || !res.data || !res.data.ok) {
+            const msg = res.data && res.data.error ? res.data.error : "Delete failed";
+            setStatus(msg);
+            btnSave.disabled = false;
+            btnDel.disabled = false;
+            return;
+          }
+
+          await loadRows();
+        });
+
+        wrap.appendChild(btnSave);
+        wrap.appendChild(btnDel);
+
+        tdActions.appendChild(wrap);
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadRows() {
+      setStatus("Loading...");
+      const res = await apiList();
+
+      if (!res.ok || !res.data || !res.data.ok) {
+        const msg = res.data && res.data.error ? res.data.error : "Failed to load";
+        setStatus(msg);
+        ALL_ROWS = [];
+        render([]);
+        return;
+      }
+
+      ALL_ROWS = Array.isArray(res.data.rows) ? res.data.rows : [];
+      populateCourseDropdown();
+      render(currentRows());
+      setStatus(`Loaded ${ALL_ROWS.length} rows`);
+    }
+
+    function addNewRow() {
+      const tbody = document.getElementById("tbody");
+      const empty = document.getElementById("empty");
+      if (!tbody || !empty) return;
+
+      empty.style.display = "none";
+
+      const tr = document.createElement("tr");
+
+      const tdCourse = document.createElement("td");
+      const inCourse = makeInputText("", "Course");
+      tdCourse.appendChild(inCourse);
+      tr.appendChild(tdCourse);
+
+      const tdName = document.createElement("td");
+      const inName = makeInputText("", "Name");
+      tdName.appendChild(inName);
+      tr.appendChild(tdName);
+
+      const tdEcts = document.createElement("td");
+      const inEcts = makeInputNumber("", "ECTS", 0, 1);
+      tdEcts.appendChild(inEcts);
+      tr.appendChild(tdEcts);
+
+      const tdSem = document.createElement("td");
+      const inSem = makeInputNumber("", "Semester", 1, 1);
+      tdSem.appendChild(inSem);
+      tr.appendChild(tdSem);
+
+      const tdLink = document.createElement("td");
+      const linkWrap = document.createElement("div");
+      linkWrap.style.display = "flex";
+      linkWrap.style.flexDirection = "column";
+      linkWrap.style.gap = "8px";
+
+      const inLink = makeInputText("", "https://...");
+      inLink.addEventListener("input", () => {
+        const prev = linkWrap.querySelector("a");
+        if (prev) prev.remove();
+        const a = makeLinkPreview(inLink.value);
+        if (a) linkWrap.appendChild(a);
+      });
+
+      linkWrap.appendChild(inLink);
+      tdLink.appendChild(linkWrap);
+      tr.appendChild(tdLink);
+
+      const tdCreated = document.createElement("td");
+      tdCreated.className = "mono nowrap";
+      tdCreated.textContent = "";
+      tr.appendChild(tdCreated);
+
+      const tdUpdated = document.createElement("td");
+      tdUpdated.className = "mono nowrap";
+      tdUpdated.textContent = "";
+      tr.appendChild(tdUpdated);
+
+      const tdActions = document.createElement("td");
+      const wrap = document.createElement("div");
+      wrap.className = "cellActions";
+
+      const btnCreate = document.createElement("button");
+      btnCreate.className = "btn small";
+      btnCreate.type = "button";
+      btnCreate.textContent = "✅ Create";
+
+      const btnCancel = document.createElement("button");
+      btnCancel.className = "btn secondary small";
+      btnCancel.type = "button";
+      btnCancel.textContent = "↩ Cancel";
+
+      function getRow() {
+        const course = safeText(inCourse.value).trim();
+        const name = safeText(inName.value).trim();
+        const ects = clampInt(inEcts.value, NaN);
+        const semester = clampInt(inSem.value, NaN);
+        const link = normalizeUrl(inLink.value);
+        return { course, name, ects, semester, link };
+      }
+
+      function validateRow(p) {
+        if (!p.course) return "Course is required";
+        if (!p.name) return "Name is required";
+        if (!Number.isFinite(p.ects) || p.ects < 0) return "ECTS must be a number >= 0";
+        if (!Number.isFinite(p.semester) || p.semester < 1) return "Semester must be a number >= 1";
+        if (safeText(p.link).length > 500) return "Link too long";
+        return "";
+      }
+
+      btnCreate.addEventListener("click", async () => {
+        const row = getRow();
+        const err = validateRow(row);
+        if (err) {
+          setStatus(err);
+          return;
+        }
+
+        setStatus("Creating...");
+        btnCreate.disabled = true;
+        btnCancel.disabled = true;
+
+        const res = await apiCreate(row);
+
+        btnCreate.disabled = false;
+        btnCancel.disabled = false;
+
+        if (!res.ok || !res.data || !res.data.ok) {
+          const msg = res.data && res.data.error ? res.data.error : "Create failed";
+          setStatus(msg);
+          return;
+        }
+
+        await loadRows();
+      });
+
+      btnCancel.addEventListener("click", () => {
+        tr.remove();
+        render(currentRows());
+        setStatus("");
+      });
+
+      wrap.appendChild(btnCreate);
+      wrap.appendChild(btnCancel);
+
+      tdActions.appendChild(wrap);
+      tr.appendChild(tdActions);
+
+      tbody.prepend(tr);
+      setStatus("");
+    }
+
+    document.getElementById("btnReload").addEventListener("click", () => loadRows());
+    document.getElementById("btnNew").addEventListener("click", () => addNewRow());
+
+    ["q", "fCourse", "fSemester"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => render(currentRows()));
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      ["q", "fCourse", "fSemester"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      render(currentRows());
+    });
+
+    loadRows();
+
+    // ---- Sync from Fenix API ----
+
+    let ALL_DEGREES = [];
+
+    function setSyncStatus(t) {
+      const el = document.getElementById("syncStatus");
+      if (el) el.textContent = t || "";
+    }
+
+    document.getElementById("syncHeader").addEventListener("click", () => {
+      document.getElementById("syncBody").classList.toggle("collapsed");
+    });
+
+    function normKey(name, semester) {
+      return safeText(name).trim().toLowerCase().replace(/\s+/g, " ") + "|" + String(semester);
+    }
+
+    function renderDegreeList() {
+      const list = document.getElementById("degreeList");
+      const filter = safeText(document.getElementById("degreeFilter").value).trim().toLowerCase();
+      list.innerHTML = "";
+
+      if (!Array.isArray(ALL_DEGREES) || ALL_DEGREES.length === 0) {
+        list.innerHTML = '<div class="hint" style="padding:6px;">No degrees loaded.</div>';
+        return;
+      }
+
+      const filtered = ALL_DEGREES.filter(d => {
+        if (!filter) return true;
+        return (
+          safeText(d.name).toLowerCase().includes(filter) ||
+          safeText(d.acronym).toLowerCase().includes(filter) ||
+          safeText(d.type).toLowerCase().includes(filter)
+        );
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="hint" style="padding:6px;">No degrees match the filter.</div>';
+        return;
+      }
+
+      filtered.forEach(d => {
+        const row = document.createElement("label");
+        row.className = "degreeItem";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = JSON.stringify({ id: d.id, acronym: d.acronym, name: d.name, type: d.type });
+
+        const acro = document.createElement("span");
+        acro.className = "acro";
+        acro.textContent = d.acronym;
+
+        const label = document.createElement("span");
+        label.textContent = `${d.name} (${d.type || ""})`;
+
+        row.appendChild(cb);
+        row.appendChild(acro);
+        row.appendChild(label);
+
+        list.appendChild(row);
+      });
+    }
+
+    document.getElementById("degreeFilter").addEventListener("input", () => renderDegreeList());
+
+    document.getElementById("btnLoadDegrees").addEventListener("click", async () => {
+      setSyncStatus("Loading degrees from Fenix...");
+      const res = await syncCall({ action: "degrees" });
+
+      if (!res.ok || !res.data || !res.data.ok) {
+        const msg = res.data && res.data.error ? res.data.error : "Failed to load degrees";
+        setSyncStatus(msg);
+        return;
+      }
+
+      ALL_DEGREES = Array.isArray(res.data.degrees) ? res.data.degrees : [];
+      renderDegreeList();
+      setSyncStatus(`Loaded ${ALL_DEGREES.length} degree(s)`);
+    });
+
+    function getSelectedDegrees() {
+      const boxes = document.querySelectorAll('#degreeList input[type="checkbox"]:checked');
+      return Array.from(boxes).map(b => JSON.parse(b.value));
+    }
+
+    function buildDiff(existing, fetched) {
+      const existingMap = new Map();
+      (existing || []).forEach(r => existingMap.set(normKey(r.name, r.semester), r));
+
+      const fetchedMap = new Map();
+      (fetched || []).forEach(r => fetchedMap.set(normKey(r.name, r.semester), r));
+
+      const rows = [];
+
+      fetchedMap.forEach((row, key) => {
+        const old = existingMap.get(key);
+        if (!old) {
+          rows.push({ type: "add", fetched: row, existing: null });
+        } else {
+          const ectsChanged = Number(old.ects) !== Number(row.ects);
+          const linkChanged = safeText(old.link) !== safeText(row.link);
+          if (ectsChanged || linkChanged) {
+            rows.push({ type: "update", fetched: row, existing: old });
+          } else {
+            rows.push({ type: "same", fetched: row, existing: old });
+          }
+        }
+      });
+
+      existingMap.forEach((row, key) => {
+        if (!fetchedMap.has(key)) {
+          rows.push({ type: "remove", fetched: null, existing: row });
+        }
+      });
+
+      const order = { remove: 0, update: 1, add: 2, same: 3 };
+      rows.sort((a, b) => {
+        const oa = order[a.type], ob = order[b.type];
+        if (oa !== ob) return oa - ob;
+        const sa = (a.fetched || a.existing).semester;
+        const sb = (b.fetched || b.existing).semester;
+        if (sa !== sb) return sa - sb;
+        return safeText((a.fetched || a.existing).name).localeCompare(safeText((b.fetched || b.existing).name));
+      });
+
+      return rows;
+    }
+
+    function renderPreviewBlock(degree, fetched, existing) {
+      const block = document.createElement("div");
+      block.className = "previewBlock";
+
+      const header = document.createElement("div");
+      header.className = "previewHeader";
+
+      const h4 = document.createElement("h4");
+      h4.textContent = `${degree.acronym} - ${degree.name} (${degree.type || ""})`;
+
+      const counts = document.createElement("div");
+      counts.className = "hint";
+
+      const diff = buildDiff(existing, fetched);
+      const addCount = diff.filter(r => r.type === "add").length;
+      const removeCount = diff.filter(r => r.type === "remove").length;
+      const updateCount = diff.filter(r => r.type === "update").length;
+      const sameCount = diff.filter(r => r.type === "same").length;
+
+      counts.textContent = `+${addCount} new, -${removeCount} removed, ~${updateCount} updated, ${sameCount} unchanged`;
+
+      const btnToggleSame = document.createElement("button");
+      btnToggleSame.className = "btn secondary small";
+      btnToggleSame.type = "button";
+      btnToggleSame.textContent = `👁 Show ${sameCount} unchanged`;
+
+      const btnApply = document.createElement("button");
+      btnApply.className = "btn small";
+      btnApply.type = "button";
+      btnApply.textContent = "✅ Apply selected changes";
+
+      header.appendChild(h4);
+      header.appendChild(counts);
+      header.appendChild(btnToggleSame);
+      header.appendChild(btnApply);
+      block.appendChild(header);
+
+      const changeRows = diff.filter(d => d.type !== "same");
+
+      if (changeRows.length === 0) {
+        const none = document.createElement("div");
+        none.className = "hint";
+        none.textContent = "No changes - everything is already up to date.";
+        block.appendChild(none);
+        btnApply.disabled = true;
+        if (sameCount === 0) btnToggleSame.style.display = "none";
+      }
+
+      const table = document.createElement("table");
+      table.className = "diffTable";
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th class="nowrap"><input type="checkbox" class="rowCheck" data-role="selectAll" checked /></th>
+            <th>Status</th>
+            <th class="nowrap">Semester</th>
+            <th>Name</th>
+            <th class="nowrap">ECTS</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+      `;
+      const tbody = document.createElement("tbody");
+      const selectAll = table.querySelector('[data-role="selectAll"]');
+
+      let showSame = false;
+
+      diff.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.className = "diffRow " + d.type;
+        if (d.type === "same") tr.style.display = "none";
+
+        const tdCheck = document.createElement("td");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "rowCheck";
+        cb.checked = true;
+        cb._diff = d;
+        if (d.type === "same") cb.style.display = "none";
+        tdCheck.appendChild(cb);
+
+        const tdBadge = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = "diffBadge " + d.type;
+        badge.textContent = d.type;
+        tdBadge.appendChild(badge);
+
+        const row = d.fetched || d.existing;
+
+        const tdSem = document.createElement("td");
+        tdSem.className = "mono nowrap";
+        tdSem.textContent = safeText(row.semester);
+
+        const tdName = document.createElement("td");
+        tdName.textContent = safeText(row.name);
+
+        const tdEcts = document.createElement("td");
+        tdEcts.className = "mono nowrap";
+        if (d.type === "update") {
+          tdEcts.textContent = `${safeText(d.existing.ects)} → ${safeText(d.fetched.ects)}`;
+        } else {
+          tdEcts.textContent = safeText(row.ects);
+        }
+
+        const tdLink = document.createElement("td");
+        if (d.type === "update" && safeText(d.existing.link) !== safeText(d.fetched.link)) {
+          const oldA = makeLinkPreview(d.existing.link);
+          const newA = makeLinkPreview(d.fetched.link);
+          const oldDiv = document.createElement("div");
+          oldDiv.textContent = "old: ";
+          if (oldA) oldDiv.appendChild(oldA); else oldDiv.appendChild(document.createTextNode("(empty)"));
+          const newDiv = document.createElement("div");
+          newDiv.textContent = "new: ";
+          if (newA) newDiv.appendChild(newA); else newDiv.appendChild(document.createTextNode("(empty)"));
+          tdLink.appendChild(oldDiv);
+          tdLink.appendChild(newDiv);
+        } else {
+          const a = makeLinkPreview(row.link);
+          if (a) tdLink.appendChild(a);
+        }
+
+        tr.appendChild(tdCheck);
+        tr.appendChild(tdBadge);
+        tr.appendChild(tdSem);
+        tr.appendChild(tdName);
+        tr.appendChild(tdEcts);
+        tr.appendChild(tdLink);
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      block.appendChild(table);
+
+      selectAll.addEventListener("change", () => {
+        tbody.querySelectorAll(".rowCheck").forEach(cb => {
+          if (cb._diff.type === "same" && !showSame) return;
+          cb.checked = selectAll.checked;
+        });
+      });
+
+      btnToggleSame.addEventListener("click", () => {
+        showSame = !showSame;
+        btnToggleSame.textContent = showSame
+          ? `🙈 Hide ${sameCount} unchanged`
+          : `👁 Show ${sameCount} unchanged`;
+
+        tbody.querySelectorAll("tr.diffRow.same").forEach(tr => {
+          tr.style.display = showSame ? "" : "none";
+          const cb = tr.querySelector(".rowCheck");
+          if (cb) cb.style.display = showSame ? "" : "none";
+        });
+      });
+
+      btnApply.addEventListener("click", async () => {
+        const checked = Array.from(tbody.querySelectorAll(".rowCheck")).filter(cb => cb.checked);
+
+        const adds = [];
+        const updates = [];
+        const removes = [];
+
+        checked.forEach(cb => {
+          const d = cb._diff;
+          if (d.type === "add") {
+            adds.push(d.fetched);
+          } else if (d.type === "update") {
+            updates.push({ id: d.existing.id, ects: d.fetched.ects, link: d.fetched.link });
+          } else if (d.type === "remove") {
+            removes.push(d.existing.id);
+          }
+        });
+
+        if (adds.length === 0 && updates.length === 0 && removes.length === 0) {
+          setSyncStatus("Nothing selected to apply.");
+          return;
+        }
+
+        const ok = window.confirm(
+          `Apply for ${degree.acronym}: add ${adds.length}, update ${updates.length}, remove ${removes.length}. Continue?`
+        );
+        if (!ok) return;
+
+        btnApply.disabled = true;
+        setSyncStatus(`Applying sync for ${degree.acronym}...`);
+
+        const res = await syncCall({ action: "apply", acronym: degree.acronym, adds, updates, removes });
+
+        btnApply.disabled = false;
+
+        if (!res.ok || !res.data || !res.data.ok) {
+          const msg = res.data && res.data.error ? res.data.error : "Apply failed";
+          setSyncStatus(msg);
+          return;
+        }
+
+        setSyncStatus(`${degree.acronym}: inserted ${res.data.inserted}, updated ${res.data.updated}, deleted ${res.data.deleted}`);
+        block.remove();
+        await loadRows();
+      });
+
+      return block;
+    }
+
+    document.getElementById("btnPreview").addEventListener("click", async () => {
+      const selected = getSelectedDegrees();
+      const year = safeText(document.getElementById("syncYear").value).trim();
+
+      if (selected.length === 0) {
+        setSyncStatus("Select at least one degree.");
+        return;
+      }
+      if (!/^\d{4}\/\d{4}$/.test(year)) {
+        setSyncStatus("Academic year must look like 2025/2026.");
+        return;
+      }
+
+      const container = document.getElementById("previewContainer");
+      container.innerHTML = "";
+
+      for (const degree of selected) {
+        setSyncStatus(`Fetching courses for ${degree.acronym}...`);
+
+        const res = await syncCall({ action: "preview", degreeId: degree.id, acronym: degree.acronym, year });
+
+        if (!res.ok || !res.data || !res.data.ok) {
+          const msg = res.data && res.data.error ? res.data.error : "Preview failed";
+          setSyncStatus(`${degree.acronym}: ${msg}`);
+          continue;
+        }
+
+        const block = renderPreviewBlock(degree, res.data.fetched || [], res.data.existing || []);
+        container.appendChild(block);
+      }
+
+      setSyncStatus(`Preview ready for ${selected.length} degree(s)`);
+    });
+  </script>
+</body>
+</html>

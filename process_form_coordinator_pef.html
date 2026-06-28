@@ -1,0 +1,853 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinator PEF Review</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .overlay { max-width: 1400px; margin: 18px; }
+    .tabs { flex-wrap: wrap; margin-bottom: 12px; display: flex; gap: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+    main { padding: 10px 0 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .overlay { margin: 12px; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="overlay">
+    <main>
+      <div class="tabs">
+        <button class="tabBtn" id="tabPersonal" type="button">Personal Information</button>
+        <button class="tabBtn" id="tabHost" type="button">Host University</button>
+        <button class="tabBtn active" id="tabEquivalences" type="button">Equivalences &amp; Grades</button>
+      </div>
+
+      <div id="panelPersonal" style="display:none;">
+        <div class="card">
+          <div style="font-weight:800; font-size:16px;">Personal Information</div>
+          <div class="sub" id="personalHint" style="opacity:0.9;"></div>
+          <div class="sep"></div>
+          <div id="personalRows"></div>
+        </div>
+      </div>
+
+      <div id="panelHost" style="display:none;">
+        <div class="card">
+          <div style="font-weight:800; font-size:16px;">Host University</div>
+          <div class="sub" style="opacity:0.9;">Host university information</div>
+          <div class="sep"></div>
+          <div id="hostRows"></div>
+        </div>
+      </div>
+
+      <div id="panelEquivalences" style="display:block;">
+        <div id="coordEqBar">
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+            <div>
+              <div style="font-weight:800; font-size:16px;">Equivalences &amp; Grades</div>
+              <div class="sub" id="coordEqInfo" style="opacity:0.9; margin-top:4px;"></div>
+            </div>
+          </div>
+          <div class="sep"></div>
+          <div id="equivalencesList" style="display:flex; flex-direction:column; gap:12px;"></div>
+          <div class="msg" id="msg"></div>
+
+          <!-- ── Staff comment ──────────────────────────────────────── -->
+          <div id="staffCommentBox" style="display:none; margin-top:20px; max-width:680px;">
+            <div class="sep"></div>
+            <div style="font-size:13px; font-weight:700; opacity:0.75; margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;">Comment from staff</div>
+            <div class="card" id="staffCommentText"
+                 style="padding:12px; background:rgba(255,255,255,0.05);
+                        white-space:pre-wrap; font-size:13px; line-height:1.55;"></div>
+          </div>
+          <!-- ── End Staff comment ───────────────────────────────────── -->
+
+          <!-- ── Coordinator PEF Decision ────────────────────────────── -->
+          <div id="coordPefDecisionSection" style="display:none; margin-top:20px;">
+            <div class="sep"></div>
+            <div style="font-weight:800; font-size:15px; margin-bottom:12px;">Coordinator Decision</div>
+
+            <div id="coordPefDecisionForm">
+              <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+                <label style="font-size:13px; opacity:0.85;">Comment for the student (optional)</label>
+                <textarea id="coordPefComment" placeholder="Add a comment…" rows="3"
+                  style="padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.14);
+                         background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:14px;
+                         resize:vertical; font-family:inherit; max-width:680px; width:100%;"></textarea>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <button class="btn" id="coordPefApproveBtn" type="button">Approve &amp; Generate PEF</button>
+                <button class="btn secondary" id="coordPefRejectBtn" type="button"
+                  style="background:rgba(231,76,60,0.18); border-color:rgba(231,76,60,0.45); color:#e74c3c;">
+                  Reject
+                </button>
+              </div>
+            </div>
+
+            <div id="coordPefDecisionDone" style="display:none; margin-top:12px;">
+              <div class="pill" id="coordPefDecisionPill" style="font-size:14px; padding:8px 14px;"></div>
+              <div id="coordPefDecisionComment" style="display:none; margin-top:12px; max-width:680px;">
+                <div style="font-size:13px; opacity:0.75; margin-bottom:6px;">Comment sent to student</div>
+                <div class="card" style="padding:12px; background:rgba(255,255,255,0.05); white-space:pre-wrap; font-size:13px;"
+                     id="coordPefDecisionCommentText"></div>
+              </div>
+            </div>
+          </div>
+          <!-- ── End Coordinator PEF Decision ──────────────────────── -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/pdf-utils.js"></script>
+  <script>
+
+    const params = new URLSearchParams(window.location.search);
+    const PID = params.get("pid") || "";
+
+    let processPayload = null;
+    let processId = null;
+    let processObj = null;
+
+    function setMsg(t) {
+      const el = document.getElementById("msg");
+      if (el) el.textContent = t || "";
+    }
+
+
+    async function getProcessById(pid) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get_by_id", id: pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function finalizePef(pid, decision, comment) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize_pef", id: pid, decision, comment })
+      });
+      const data = await r.json();
+      return { ok: r.ok && data && data.ok, data };
+    }
+
+    async function markFinalGenerateDocs(pid) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize_generate_docs", id: pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok && data && data.ok, data };
+    }
+
+    async function uploadZipToServer(pid, filename, zipBlob) {
+      try {
+        const form = new FormData();
+        form.append("action", "upload_generated_docs_zip");
+        form.append("pid", String(pid));
+        form.append("file", zipBlob, filename);
+
+        const r = await fetch(`${SERVER}/final_generated_docs.php`, {
+          method: "POST",
+          credentials: "include",
+          body: form
+        });
+        return await r.json().catch(() => ({ ok: r.ok }));
+      } catch (e) {
+        return { ok: false };
+      }
+    }
+
+
+    function getStudentSignatureDataUrl(proc) {
+      return safeText(proc?.payload?.personal?.signature_png_base64);
+    }
+
+    async function getCoordinatorSignatureBytes() {
+      const r = await fetch(`${SERVER}/coordinator_signature.php`, { credentials: "include" });
+      const j = await r.json();
+      if (!j || !j.ok || !j.exists || !j.signature_url) return null;
+      const imgRes = await fetch(j.signature_url, { credentials: "include" });
+      if (!imgRes.ok) return null;
+      const buf = await imgRes.arrayBuffer();
+      return { bytes: new Uint8Array(buf), dn: j.display_name };
+    }
+
+    async function generatePEFDocument(proc, sigs) {
+      const mt = safeText(proc?.payload?.personal?.mobility_type).toUpperCase();
+      const isEurope = mt === "EUROPE";
+      const templateUrl = isEurope
+        ? `${BASE_PATH}/templates/PEF.pdf`
+        : `${BASE_PATH}/templates/PEF_Outside.pdf`;
+      const fileName = buildFileName(proc, "PEF");
+      const fieldMap = isEurope ? mapFieldsPEF(proc) : mapFieldsPEF_Outside(proc);
+      return fillPdfTemplate({ templateUrl, fileName, fieldMap, signatures: sigs });
+    }
+
+    function mapFieldsPEF(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const mappings = Array.isArray(p.equivalences)
+        ? p.equivalences.filter(eq => eq && eq.status !== 'R')
+        : [];
+
+      const today = new Date();
+      const data =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      const baseFields = {
+        studentName: personal.full_name,
+        studentId: personal.ist_id,
+        studentEmail: personal.institutional_email,
+        studentPhone: personal.phone_e164,
+        mobilityType: personal.mobility_type,
+        destinationUniversity: host.host_university,
+        hostCountry: host.host_country,
+        academicYear: personal.mobility_academic_year,
+        data: data,
+        homeDegree: personal.home_degree
+      };
+
+      let firstSemesterIndex = 0;
+      let secondSemesterIndex = 0;
+      let numberOfLinesNeeded = -1;
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        numberOfLinesNeeded += Math.max(homeCourses.length, destinationCourses.length) + 1;
+      });
+
+      const courseFields = {};
+
+      const isFirstSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "1st semester" || s === "1" || s === "first" || s === "1º" || s === "1o";
+      };
+
+      const isSecondSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "2nd semester" || s === "2" || s === "second" || s === "2º" || s === "2o";
+      };
+
+      let totalECTShostFirstSemester = 0;
+      let totalECTShostSecondSemester = 0;
+      let totalECTShomeFirstSemester = 0;
+      let totalECTShomeSecondSemester = 0;
+      
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        const maxLength = Math.max(homeCourses.length, destinationCourses.length);
+
+        const anyFirst = destinationCourses.some(isFirstSemester);
+        const anySecond = destinationCourses.some(isSecondSemester);
+        for (let i = 0; i < maxLength; i++) {
+          const homeCourse = homeCourses[i] ?? null;
+          const destinationCourse = destinationCourses[i] ?? null;
+
+          if (homeCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h1${firstSemesterIndex}`] = String(homeCourse.credits ?? "");
+              totalECTShomeFirstSemester += Number(homeCourse.credits ?? 0);
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h2${secondSemesterIndex}`] = String(homeCourse.credits ?? "");
+              totalECTShomeSecondSemester += Number(homeCourse.credits ?? 0);
+            }
+          }
+
+          if (destinationCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`e1${firstSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              courseFields[`g1${firstSemesterIndex}`] = String(destinationCourse.grade ?? "");
+              courseFields[`ge1${firstSemesterIndex}`] = String(destinationCourse.grade_equivalent ?? "");
+              totalECTShostFirstSemester += Number(destinationCourse.credits ?? 0);
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`e2${secondSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              courseFields[`g2${secondSemesterIndex}`] = String(destinationCourse.grade ?? "");
+              courseFields[`ge2${secondSemesterIndex}`] = String(destinationCourse.grade_equivalent ?? "");
+              totalECTShostSecondSemester += Number(destinationCourse.credits ?? 0);
+            }
+          }
+
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+
+        if (numberOfLinesNeeded <= 9) {
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+      });
+
+      courseFields.credits_destination_1 = totalECTShostFirstSemester === 0 ? "" : String(totalECTShostFirstSemester);
+      courseFields.credits_destination_2 = totalECTShostSecondSemester === 0 ? "" : String(totalECTShostSecondSemester);
+      courseFields.credits_home_1 = totalECTShomeFirstSemester === 0 ? "" : String(totalECTShomeFirstSemester);
+      courseFields.credits_home_2 = totalECTShomeSecondSemester === 0 ? "" : String(totalECTShomeSecondSemester);
+
+      return {
+        ...baseFields,
+        ...courseFields
+      };
+    }
+
+    function mapFieldsPEF_Outside(process) {
+      const p = process && process.payload ? process.payload : {};
+      const personal = p && p.personal ? p.personal : {};
+      const host = p && p.host ? p.host : {};
+
+      const mappings = Array.isArray(p.equivalences)
+        ? p.equivalences.filter(eq => eq && eq.status !== 'R')
+        : [];
+
+      const today = new Date();
+      const data =
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        today.getFullYear();
+
+      const baseFields = {
+        studentName: personal.full_name,
+        studentId: personal.ist_id,
+        studentEmail: personal.institutional_email,
+        studentPhone: personal.phone_e164,
+        mobilityType: personal.mobility_type,
+        destinationUniversity: host.host_university,
+        hostCountry: host.host_country,
+        academicYear: personal.mobility_academic_year,
+        data: data,
+        homeDegree: personal.home_degree
+      };
+
+      let firstSemesterIndex = 0;
+      let secondSemesterIndex = 0;
+      let numberOfLinesNeeded = -1;
+      let sumECTSDestinationSemester1 = 0;
+      let sumECTSDestinationSemester2 = 0;
+      let sumECTSHomeSemester1 = 0;
+      let sumECTSHomeSemester2 = 0;
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        numberOfLinesNeeded += Math.max(homeCourses.length, destinationCourses.length) + 1;
+      });
+
+      const courseFields = {};
+
+      const isFirstSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "1st semester" || s === "1" || s === "first" || s === "1º" || s === "1o";
+      };
+
+      const isSecondSemester = course => {
+        const s = String(course && course.semester ? course.semester : "").trim().toLowerCase();
+        return s === "2nd semester" || s === "2" || s === "second" || s === "2º" || s === "2o";
+      };
+
+      mappings.forEach(mapping => {
+        const homeCourses = Array.isArray(mapping.homeCourses) ? mapping.homeCourses : [];
+        const destinationCourses = Array.isArray(mapping.destinationCourses) ? mapping.destinationCourses : [];
+        const maxLength = Math.max(homeCourses.length, destinationCourses.length);
+
+        const anyFirst = destinationCourses.some(isFirstSemester);
+        const anySecond = destinationCourses.some(isSecondSemester);
+
+        for (let i = 0; i < maxLength; i++) {
+          const homeCourse = homeCourses[i] ?? null;
+          const destinationCourse = destinationCourses[i] ?? null;
+
+          if (homeCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h1${firstSemesterIndex}`] = String(homeCourse.credits ?? "");
+              sumECTSHomeSemester1 += Number(homeCourse.credits ?? 0);
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}home`] = String(homeCourse.name ?? "");
+              courseFields[`h2${secondSemesterIndex}`] = String(homeCourse.credits ?? "");
+              sumECTSHomeSemester2 += Number(homeCourse.credits ?? 0);
+            }
+          }
+
+          if (destinationCourse) {
+            if (anyFirst) {
+              courseFields[`firstSemesterCourse${firstSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`d1${firstSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              courseFields[`e1${firstSemesterIndex}`] = String(destinationCourse.credits_equivalent ?? "");
+              courseFields[`g1${firstSemesterIndex}`] = String(destinationCourse.grade ?? "");
+              courseFields[`ge1${firstSemesterIndex}`] = String(destinationCourse.grade_equivalent ?? "");
+              sumECTSDestinationSemester1 += Number(destinationCourse.credits_equivalent ?? 0);
+            }
+            if (anySecond) {
+              courseFields[`secondSemesterCourse${secondSemesterIndex}destination`] = String(destinationCourse.name ?? "");
+              courseFields[`d2${secondSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              courseFields[`e2${secondSemesterIndex}`] = String(destinationCourse.credits_equivalent ?? "");
+              courseFields[`g2${secondSemesterIndex}`] = String(destinationCourse.grade ?? "");
+              courseFields[`ge2${secondSemesterIndex}`] = String(destinationCourse.grade_equivalent ?? "");
+              sumECTSDestinationSemester2 += Number(destinationCourse.credits_equivalent ?? 0);
+            }
+          }
+
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+
+        if (numberOfLinesNeeded <= 6) {
+          firstSemesterIndex += 1;
+          secondSemesterIndex += 1;
+        }
+      });
+
+      courseFields.credits_destination_1 = sumECTSDestinationSemester1 === 0 ? "" : String(sumECTSDestinationSemester1);
+      courseFields.credits_destination_2 = sumECTSDestinationSemester2 === 0 ? "" : String(sumECTSDestinationSemester2);
+      courseFields.credits_home_1 = sumECTSHomeSemester1 === 0 ? "" : String(sumECTSHomeSemester1);
+      courseFields.credits_home_2 = sumECTSHomeSemester2 === 0 ? "" : String(sumECTSHomeSemester2);
+
+      return {
+        ...baseFields,
+        ...courseFields
+      };
+    }
+
+    async function buildAndUploadPEF(proc) {
+      const mt = safeText(proc?.payload?.personal?.mobility_type).toUpperCase();
+      const isEurope = mt === "EUROPE";
+      const coordSig = await getCoordinatorSignatureBytes().catch(() => null);
+      const studentSigDataUrl = getStudentSignatureDataUrl(proc);
+      const sigs = [];
+      if (studentSigDataUrl) {
+        const placement = isEurope
+          ? { pageIndex: 0, x: 200, y: 110, width: 75, height: 30 }
+          : { pageIndex: 0, x: 40,  y: 70,  width: 160, height: 35 };
+        sigs.push({ dataUrl: studentSigDataUrl, ...placement });
+      }
+      if (coordSig) {
+        const placement = isEurope
+          ? { pageIndex: 0, x: 300,  y: 90, width: 75, height: 30 }
+          : { pageIndex: 0, x: 220, y: 70, width: 160, height: 35 };
+        sigs.push({ bytes: coordSig.bytes, ...placement });
+      }
+      const pefRes = await generatePEFDocument(proc, sigs);
+
+      if (!pefRes.ok) return { ok: false, error: pefRes.error || "PDF generation failed" };
+
+      const zip = new JSZip();
+      zip.file(pefRes.fileName, pefRes.bytes);
+
+      const zipBlob = new Blob([await zip.generateAsync({ type: "uint8array" })], { type: "application/zip" });
+      const pid     = proc.id;
+      const name    = safeFilePart(safeText((proc.payload?.personal || {}).full_name) || "student");
+      const zipName = `${name}_PEF.zip`;
+
+      const upload = await uploadZipToServer(pid, zipName, zipBlob);
+      return { ok: upload && upload.ok !== false, zipName, zipBlob };
+    }
+
+
+    function showCoordPefDecisionSection(proc) {
+      const section = document.getElementById("coordPefDecisionSection");
+      if (!section) return;
+
+      const status = safeText(proc && proc.status);
+
+      if (status === "STAFF_APPROVED") {
+        section.style.display = "block";
+        document.getElementById("coordPefDecisionForm").style.display = "block";
+        document.getElementById("coordPefDecisionDone").style.display = "none";
+        return;
+      }
+
+      if (status === "DONE" || status === "APPROVED" || status === "CHANGES_REQUESTED") {
+        section.style.display = "block";
+        document.getElementById("coordPefDecisionForm").style.display = "none";
+
+        const doneDiv     = document.getElementById("coordPefDecisionDone");
+        const pill        = document.getElementById("coordPefDecisionPill");
+        const commentWrap = document.getElementById("coordPefDecisionComment");
+        const commentText = document.getElementById("coordPefDecisionCommentText");
+
+        doneDiv.style.display = "block";
+
+        if (status === "DONE" || status === "APPROVED") {
+          pill.textContent = "PEF APPROVED - documents sent to student";
+          pill.style.background = "rgba(46,204,113,0.18)";
+          pill.style.border     = "1px solid rgba(46,204,113,0.45)";
+          pill.style.color      = "#2ecc71";
+        } else {
+          pill.textContent = "PEF REJECTED - changes requested";
+          pill.style.background = "rgba(231,76,60,0.18)";
+          pill.style.border     = "1px solid rgba(231,76,60,0.45)";
+          pill.style.color      = "#e74c3c";
+        }
+
+        const savedComment = safeText(proc?.payload?.coordinator_pef_comment);
+        if (savedComment && commentWrap && commentText) {
+          commentWrap.style.display = "block";
+          commentText.textContent   = savedComment;
+        }
+
+        return;
+      }
+
+      section.style.display = "none";
+    }
+
+    function initCoordPefDecisionButtons(pid, proc) {
+      const approveBtn = document.getElementById("coordPefApproveBtn");
+      const rejectBtn  = document.getElementById("coordPefRejectBtn");
+      if (!approveBtn || !rejectBtn) return;
+
+      approveBtn.addEventListener("click", async () => {
+        const comment = (document.getElementById("coordPefComment")?.value || "").trim();
+        if (!window.confirm("Approve this PEF and generate documents? The student will receive the documents by email.")) return;
+
+        approveBtn.disabled = true;
+        rejectBtn.disabled  = true;
+
+        // 1. Finalise in DB - saves comment and sets status to DONE
+        setMsg("Finalising…");
+        const finalRes = await finalizePef(pid, "APPROVED", comment);
+        if (!finalRes.ok) {
+          setMsg("Failed to finalise: " + (finalRes.data?.error || "unknown error"));
+          approveBtn.disabled = false;
+          rejectBtn.disabled  = false;
+          return;
+        }
+
+        // 2. Generate and upload PEF document
+        setMsg("Generating PEF document…");
+        const buildRes = await buildAndUploadPEF(proc);
+        if (!buildRes.ok) {
+          setMsg("PEF approved in DB, but document generation failed: " + (buildRes.error || "unknown error"));
+          // Don't block - continue to show the done state
+        }
+
+        // 3. Send email to student
+        setMsg("Sending email to student…");
+        const studentEmail = safeText(proc?.payload?.personal?.institutional_email);
+        const studentName  = safeText(proc?.payload?.personal?.full_name);
+
+        const emailRes = await fetch(`${SERVER}/send_pef_approved_email.php`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pid: Number(pid),
+            student_email: studentEmail,
+            student_name: studentName,
+            global_comment: comment,
+            zip_name: buildRes?.zipName || ""
+          })
+        });
+        const emailData = await emailRes.json().catch(() => null);
+
+        if (!emailRes.ok || !emailData?.ok) {
+          setMsg("PEF approved and documents generated, but email notification failed.");
+        } else {
+          setMsg("PEF approved. Documents generated and emailed to student.");
+        }
+
+        document.getElementById("coordPefDecisionForm").style.display = "none";
+        const doneDiv     = document.getElementById("coordPefDecisionDone");
+        const pill        = document.getElementById("coordPefDecisionPill");
+        const commentWrap = document.getElementById("coordPefDecisionComment");
+        const commentText = document.getElementById("coordPefDecisionCommentText");
+        doneDiv.style.display = "block";
+        pill.textContent = "PEF APPROVED - documents sent to student";
+        pill.style.background = "rgba(46,204,113,0.18)";
+        pill.style.border     = "1px solid rgba(46,204,113,0.45)";
+        pill.style.color      = "#2ecc71";
+
+        if (comment && commentWrap && commentText) {
+          commentWrap.style.display = "block";
+          commentText.textContent   = comment;
+        }
+
+        window.parent?.postMessage({ type: "PROCESS_UPDATED" }, "*");
+      });
+
+      rejectBtn.addEventListener("click", async () => {
+        const comment = (document.getElementById("coordPefComment")?.value || "").trim();
+        if (!window.confirm("Reject this PEF? The student will be notified by email.")) return;
+
+        approveBtn.disabled = true;
+        rejectBtn.disabled  = true;
+        setMsg("Rejecting…");
+
+        const res = await finalizePef(pid, "REJECTED", comment);
+        if (!res.ok) {
+          setMsg("Failed to reject: " + (res.data?.error || "unknown error"));
+          approveBtn.disabled = false;
+          rejectBtn.disabled  = false;
+          return;
+        }
+
+        setMsg("Sending email notification…");
+        const studentEmail = safeText(proc?.payload?.personal?.institutional_email);
+        const studentName  = safeText(proc?.payload?.personal?.full_name);
+
+        await fetch(`${SERVER}/send_final_changes_email.php`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pid: Number(pid),
+            student_email: studentEmail,
+            student_name: studentName,
+            comment,
+            rejected_by: "coordinator"
+          })
+        }).catch(() => null);
+
+        setMsg("PEF rejected. Student notified by email.");
+
+        document.getElementById("coordPefDecisionForm").style.display = "none";
+        const doneDiv2     = document.getElementById("coordPefDecisionDone");
+        const pill2        = document.getElementById("coordPefDecisionPill");
+        const commentWrap2 = document.getElementById("coordPefDecisionComment");
+        const commentText2 = document.getElementById("coordPefDecisionCommentText");
+        doneDiv2.style.display = "block";
+        pill2.textContent = "PEF REJECTED - changes requested";
+        pill2.style.background = "rgba(231,76,60,0.18)";
+        pill2.style.border     = "1px solid rgba(231,76,60,0.45)";
+        pill2.style.color      = "#e74c3c";
+
+        if (comment && commentWrap2 && commentText2) {
+          commentWrap2.style.display = "block";
+          commentText2.textContent   = comment;
+        }
+
+        window.parent?.postMessage({ type: "PROCESS_UPDATED" }, "*");
+      });
+    }
+
+    function renderPersonal() {
+      const p = processPayload?.personal || {};
+      const hint = document.getElementById("personalHint");
+      if (hint) {
+        hint.textContent = [safeText(p.full_name), safeText(p.ist_id), safeText(processPayload?.mobility_type)].filter(Boolean).join(" ");
+      }
+      const labels = {
+        full_name:"Full name", ist_id:"IST ID", institutional_email:"Email",
+        sex:"Sex", home_degree:"Home degree", phone_e164:"Phone",
+        mobility_type:"Mobility type", mobility_academic_year:"Academic year",
+        first_names:"First names", last_names:"Last names", birth_date:"Birth date",
+        nationality:"Nationality", study_cycle:"Study cycle", semester:"Semester",
+        from_month:"From month", to_month:"To month"
+      };
+      renderRows("personalRows", objectToRows(p, labels));
+    }
+
+    function renderHost() {
+      const h = processPayload?.host || {};
+      const labels = {
+        host_university:"Host university", host_country:"Host country",
+        faculty_department:"Faculty department", host_address:"Host address",
+        host_contact:"Host contact", erasmus_code:"Erasmus code",
+        main_language:"Main language", language_level:"Language level"
+      };
+      renderRows("hostRows", objectToRows(h, labels));
+    }
+
+    function setActiveTab(name) {
+      ["Personal","Host","Equivalences"].forEach(t => {
+        document.getElementById("tab"+t)?.classList.remove("active");
+        document.getElementById("panel"+t)?.style && (document.getElementById("panel"+t).style.display = "none");
+      });
+      document.getElementById("tab"+name[0].toUpperCase()+name.slice(1))?.classList.add("active");
+      document.getElementById("panel"+name[0].toUpperCase()+name.slice(1)).style.display = "block";
+      if (name === "equivalences") renderEquivalences();
+      if (name === "personal") renderPersonal();
+      if (name === "host") renderHost();
+    }
+
+    function renderEquivalences() {
+      const list = document.getElementById("equivalencesList");
+      const info = document.getElementById("coordEqInfo");
+      if (!list) return;
+
+      const eqs = Array.isArray(processPayload?.equivalences)
+        ? processPayload.equivalences.filter(e => e && e.status !== "R")
+        : [];
+
+      if (info) info.textContent = `Total: ${eqs.length}`;
+      list.innerHTML = "";
+
+      if (!eqs.length) {
+        const el = document.createElement("div");
+        el.className = "sub"; el.style.opacity = "0.85"; el.textContent = "No equivalences.";
+        list.appendChild(el);
+        return;
+      }
+
+      function sumCredits(courses) {
+        return (Array.isArray(courses) ? courses : []).reduce((acc, c) => {
+          const n = Number(String(safeText(c?.credits)).replace(",","."));
+          return acc + (Number.isFinite(n) ? n : 0);
+        }, 0);
+      }
+
+      function makeCourseCard(c, isHost) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.cssText = "padding:12px; background:rgba(255,255,255,0.05);";
+
+        const nameEl = document.createElement("a");
+        nameEl.style.fontWeight = "700";
+        nameEl.textContent = safeText(c.name) || "Untitled course";
+        nameEl.href = safeText(c.link) || "#";
+        nameEl.target = "_blank"; nameEl.rel = "noopener noreferrer";
+        nameEl.style.color = "inherit"; nameEl.style.textDecoration = "none";
+        if (!safeText(c.link)) nameEl.addEventListener("click", e => e.preventDefault());
+
+        const meta = document.createElement("div");
+        meta.className = "sub"; meta.style.opacity = "0.9"; meta.style.fontSize = "13px";
+
+        if (isHost) {
+          const hostGrade  = safeText(c.grade);
+          const staffGrade = safeText(c.grade_equivalent);
+          const gradeStr   = hostGrade  ? ` | Host grade: ${hostGrade}`  : "";
+          const staffStr   = staffGrade ? ` | IST grade: ${staffGrade}` : "";
+          meta.textContent = `Credits ${safeText(c.credits)} | Semester ${safeText(c.semester)} | Code ${safeText(c.code)}${gradeStr}${staffStr}`;
+        } else {
+          meta.textContent = `Credits ${safeText(c.credits)}`;
+        }
+
+        card.appendChild(nameEl);
+        card.appendChild(meta);
+        return card;
+      }
+
+      eqs.forEach((eq, idx) => {
+        const wrap = document.createElement("div");
+        wrap.className = "card"; wrap.style.background = "rgba(0,0,0,0.18)";
+
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:baseline;";
+
+        const title = document.createElement("div");
+        title.style.fontWeight = "800"; title.textContent = `Equivalence ${idx + 1}`;
+        head.appendChild(title);
+
+        const sep = document.createElement("div"); sep.className = "sep";
+
+        const grid = document.createElement("div"); grid.className = "grid";
+        const homeCol = document.createElement("div");
+        const hostCol = document.createElement("div");
+
+        const homeTitle = document.createElement("div");
+        homeTitle.style.fontWeight = "700"; homeTitle.textContent = "Home courses";
+
+        const hostTitle = document.createElement("div");
+        hostTitle.style.fontWeight = "700"; hostTitle.textContent = "Host courses";
+
+        const homeTotal = document.createElement("div");
+        homeTotal.className = "sub"; homeTotal.style.cssText = "opacity:0.9; font-size:13px; margin-top:6px;";
+        homeTotal.textContent = `Total home credits ${sumCredits(eq.homeCourses)}`;
+
+        const hostTotal = document.createElement("div");
+        hostTotal.className = "sub"; hostTotal.style.cssText = "opacity:0.9; font-size:13px; margin-top:6px;";
+        hostTotal.textContent = `Total host credits ${sumCredits(eq.destinationCourses)}`;
+
+        homeCol.appendChild(homeTitle);
+        homeCol.appendChild(homeTotal);
+        hostCol.appendChild(hostTitle);
+        hostCol.appendChild(hostTotal);
+
+        const homeList = document.createElement("div");
+        homeList.style.cssText = "display:flex; flex-direction:column; gap:10px; margin-top:10px;";
+        const hostList = document.createElement("div");
+        hostList.style.cssText = "display:flex; flex-direction:column; gap:10px; margin-top:10px;";
+
+        (Array.isArray(eq.homeCourses) ? eq.homeCourses : []).forEach(c => homeList.appendChild(makeCourseCard(c, false)));
+        (Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []).forEach(c => hostList.appendChild(makeCourseCard(c, true)));
+
+        homeCol.appendChild(homeList);
+        hostCol.appendChild(hostList);
+        grid.appendChild(homeCol);
+        grid.appendChild(hostCol);
+
+        wrap.appendChild(head);
+        wrap.appendChild(sep);
+        wrap.appendChild(grid);
+        list.appendChild(wrap);
+      });
+    }
+
+
+    async function load() {
+      const me = await whoami();
+      if (!me) { window.location.href = `${BASE_PATH}/index.html`; return; }
+
+      if (!PID) { setMsg("Missing pid in URL."); return; }
+
+      const res = await getProcessById(PID);
+      if (!res.ok || !res.data?.ok || !res.data?.process) {
+        window.location.href = `${BASE_PATH}/dashboard_coordinator.html`;
+        return;
+      }
+
+      const proc = res.data.process;
+      processId      = proc.id;
+      processObj     = proc;
+      processPayload = proc.payload || {};
+
+      const staffComment = safeText(proc?.payload?.staff_comment);
+      if (staffComment) {
+        const box = document.getElementById("staffCommentBox");
+        const txt = document.getElementById("staffCommentText");
+        if (box && txt) { txt.textContent = staffComment; box.style.display = "block"; }
+      }
+
+      document.getElementById("tabPersonal").addEventListener("click",    () => setActiveTab("personal"));
+      document.getElementById("tabHost").addEventListener("click",        () => setActiveTab("host"));
+      document.getElementById("tabEquivalences").addEventListener("click", () => setActiveTab("equivalences"));
+
+      setActiveTab("equivalences");
+
+      showCoordPefDecisionSection(proc);
+      initCoordPefDecisionButtons(proc.id, proc);
+    }
+
+    load();
+  </script>
+</body>
+</html>

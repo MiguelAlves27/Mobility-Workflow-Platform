@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin dashboard selector</title>
+  <link rel="icon" href="assets/favicon.ico">
+  <link rel="stylesheet" href="styles/dark.css">
+</head>
+
+<body style="
+  margin:0;
+  min-height:100vh;
+  background:url('assets/images/background.jpg') no-repeat center center fixed;
+  background-size:cover;
+  font-family:Arial;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+">
+
+<div style="
+  background:rgba(0,0,0,0.65);
+  padding:28px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.14);
+  backdrop-filter:blur(6px);
+  text-align:center;
+">
+
+  <h2 style="margin-top:0;">Choose dashboard</h2>
+
+  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+
+    <button onclick="goStudent()" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+    ">
+      Student view
+    </button>
+
+    <button onclick="goStaff()" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+    ">
+      Staff view
+    </button>
+
+
+    <button onclick="goCoordinator()" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+    ">
+      Coordinator view
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+  const BASE_PATH = "";
+
+  function goStudent() {
+    window.location.href = `${BASE_PATH}/dashboard_student.html`;
+  }
+
+  function goStaff() {
+    window.location.href = `${BASE_PATH}/dashboard_staff.html`;
+  }
+
+  function goCoordinator() {
+    window.location.href = `${BASE_PATH}/dashboard_coordinator.html`;
+  }
+</script>
+
+</body>
+</html>
