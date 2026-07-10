@@ -230,7 +230,7 @@
                 type="checkbox"
                 class="doc-checkbox"
                 value="${doc.key}"
-                checked
+                ${doc.key === "changes_la" ? "" : "checked"}
               />
               <span>${doc.label}</span>
             </label>
@@ -2112,6 +2112,7 @@
             if (anySecond) {
               courseFields[`secondSemesterCourse${secondSemesterIndex}destination`] = String(destinationCourse.name ?? "");
               courseFields[`d2${secondSemesterIndex}`] = String(destinationCourse.credits ?? "");
+              courseFields[`e2${secondSemesterIndex}`] = String(destinationCourse.credits_equivalent ?? "");
               sumECTSDestinationSemester2 += Number(destinationCourse.credits_equivalent ?? 0);
             }
           }
