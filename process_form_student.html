@@ -2641,7 +2641,9 @@
 
       const payload = buildPayloadForSubmit();
 
-      equivalencesState = Array.isArray(payload.equivalences) ? payload.equivalences : [];
+      equivalencesState = Array.isArray(payload.equivalences)
+        ? payload.equivalences.filter(eq => safeText(eq && eq.status) !== "R")
+        : [];
       renderEquivalences();
 
       const resSave = await savePayload(payload);
