@@ -249,6 +249,101 @@ try {
     }
   }
 
+  if ($action === "start_standalone") {
+    if ($role !== "STUDENT" && $role !== "ADMIN") {
+      respond(403, ["ok" => false, "error" => "forbidden"]);
+    }
+
+    $mobilityType = safe_string($body["mobility_type"] ?? "");
+    if (!in_array($mobilityType, ["EUROPE", "OUTSIDE_EUROPE"], true)) {
+      respond(400, ["ok" => false, "error" => "invalid_mobility_type"]);
+    }
+
+    $pdo->beginTransaction();
+
+    try {
+      $existingFinal = $pdo->prepare("
+        SELECT id, student_id, mobility_type, status, payload_json, submitted_at, created_at, updated_at, version
+        FROM final_processes
+        WHERE student_id = :sid
+        LIMIT 1
+        FOR UPDATE
+      ");
+      $existingFinal->execute([":sid" => $userId]);
+      $finalProc = $existingFinal->fetch();
+
+      if ($finalProc) {
+        $pdo->commit();
+
+        respond(200, [
+          "ok" => true,
+          "already_exists" => true,
+          "process" => [
+            "id" => (int)$finalProc["id"],
+            "studentId" => (int)$finalProc["student_id"],
+            "mobilityType" => $finalProc["mobility_type"],
+            "status" => $finalProc["status"],
+            "submittedAt" => $finalProc["submitted_at"],
+            "createdAt" => $finalProc["created_at"],
+            "updatedAt" => $finalProc["updated_at"],
+            "version" => (int)$finalProc["version"],
+            "payload" => !empty($finalProc["payload_json"]) ? json_decode($finalProc["payload_json"], true) : null
+          ]
+        ]);
+      }
+
+      $ins = $pdo->prepare("
+        INSERT INTO final_processes (
+          student_id,
+          mobility_type,
+          status,
+          payload_json,
+          submitted_at,
+          created_at,
+          updated_at,
+          version
+        ) VALUES (
+          :student_id,
+          :mobility_type,
+          'DRAFT',
+          NULL,
+          NULL,
+          CURRENT_TIMESTAMP,
+          CURRENT_TIMESTAMP,
+          1
+        )
+      ");
+
+      $ins->bindValue(":student_id", $userId, PDO::PARAM_INT);
+      $ins->bindValue(":mobility_type", $mobilityType, PDO::PARAM_STR);
+      $ins->execute();
+
+      $finalId = (int)$pdo->lastInsertId();
+
+      $pdo->commit();
+
+      respond(200, [
+        "ok" => true,
+        "process" => [
+          "id" => $finalId,
+          "studentId" => $userId,
+          "mobilityType" => $mobilityType,
+          "status" => "DRAFT",
+          "submittedAt" => null,
+          "createdAt" => date("c"),
+          "updatedAt" => date("c"),
+          "version" => 1,
+          "payload" => null
+        ]
+      ]);
+    } catch (Throwable $e) {
+      if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+      }
+      respond(500, ["ok" => false, "error" => "db_error"]);
+    }
+  }
+
   if ($action === "get_by_student") {
     if ($role !== "STUDENT" && $role !== "COORDINATOR" && $role !== "ADMIN") {
       respond(403, ["ok" => false, "error" => "forbidden"]);
@@ -947,8 +1042,185 @@ try {
     respond(200, ["ok" => true, "status" => "DRAFT"]);
   }
 
+  if ($action === "list_all") {
+    if ($role !== "ADMIN" && $role !== "STAFF") {
+      respond(403, ["ok" => false, "error" => "forbidden"]);
+    }
+
+    $q = $pdo->query("
+      SELECT fp.id, fp.student_id, u.ist_id, fp.mobility_type, fp.status, fp.payload_json, fp.submitted_at, fp.created_at, fp.updated_at, fp.version
+      FROM final_processes fp
+      JOIN users u ON u.id = fp.student_id
+      ORDER BY fp.updated_at DESC, fp.id DESC
+    ");
+
+    $rows = $q->fetchAll();
+    $processes = [];
+
+    foreach ($rows as $r) {
+      $payload = null;
+      if (!empty($r["payload_json"])) {
+        $payload = json_decode($r["payload_json"], true);
+      }
+
+      $processes[] = [
+        "id" => (int)$r["id"],
+        "studentId" => (int)$r["student_id"],
+        "istId" => $r["ist_id"],
+        "mobilityType" => $r["mobility_type"],
+        "status" => $r["status"],
+        "submittedAt" => $r["submitted_at"],
+        "createdAt" => $r["created_at"],
+        "updatedAt" => $r["updated_at"],
+        "version" => (int)$r["version"],
+        "payload" => $payload
+      ];
+    }
+
+    respond(200, ["ok" => true, "processes" => $processes]);
+  }
+
+  if ($action === "admin_update_process") {
+    if ($role !== "ADMIN" && $role !== "STAFF") {
+      respond(403, ["ok" => false, "error" => "forbidden"]);
+    }
+
+    $pid = isset($body["pid"]) ? (int)$body["pid"] : 0;
+    if ($pid <= 0) {
+      respond(400, ["ok" => false, "error" => "invalid_process_id"]);
+    }
+
+    $status = safe_string($body["status"] ?? "");
+    $mobilityType = safe_string($body["mobility_type"] ?? "");
+    $payload = $body["payload"] ?? null;
+
+    if (!in_array($status, ["DRAFT", "SUBMITTED", "CHANGES_REQUESTED", "STAFF_APPROVED", "APPROVED"], true)) {
+      respond(400, ["ok" => false, "error" => "invalid_status"]);
+    }
+
+    if (!in_array($mobilityType, ["EUROPE", "OUTSIDE_EUROPE"], true)) {
+      respond(400, ["ok" => false, "error" => "invalid_mobility_type"]);
+    }
+
+    if (!is_array($payload) && !is_null($payload)) {
+      respond(400, ["ok" => false, "error" => "payload_must_be_object_or_null"]);
+    }
+
+    $chk = $pdo->prepare("SELECT id FROM final_processes WHERE id = :pid LIMIT 1");
+    $chk->execute([":pid" => $pid]);
+    if (!$chk->fetch()) {
+      respond(404, ["ok" => false, "error" => "no_process"]);
+    }
+
+    $payloadJson = $payload === null
+      ? null
+      : json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+    $upd = $pdo->prepare("
+      UPDATE final_processes
+      SET mobility_type = :mt,
+          status = :st,
+          payload_json = :pj,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = :pid
+      LIMIT 1
+    ");
+
+    $upd->bindValue(":mt", $mobilityType, PDO::PARAM_STR);
+    $upd->bindValue(":st", $status, PDO::PARAM_STR);
+    if ($payloadJson === null) {
+      $upd->bindValue(":pj", null, PDO::PARAM_NULL);
+    } else {
+      $upd->bindValue(":pj", $payloadJson, PDO::PARAM_STR);
+    }
+    $upd->bindValue(":pid", $pid, PDO::PARAM_INT);
+    $upd->execute();
+
+    respond(200, ["ok" => true]);
+  }
+
+  if ($action === "admin_delete_process") {
+    if ($role !== "ADMIN" && $role !== "STAFF") {
+      respond(403, ["ok" => false, "error" => "forbidden"]);
+    }
+
+    $pid = isset($body["pid"]) ? (int)$body["pid"] : 0;
+    if ($pid <= 0) {
+      respond(400, ["ok" => false, "error" => "invalid_process_id"]);
+    }
+
+    $del = $pdo->prepare("DELETE FROM final_processes WHERE id = :pid LIMIT 1");
+    $del->execute([":pid" => $pid]);
+
+    if ($del->rowCount() === 0) {
+      respond(404, ["ok" => false, "error" => "no_process"]);
+    }
+
+    respond(200, ["ok" => true, "deleted" => true, "pid" => $pid]);
+  }
+
+  if ($action === "list_degrees") {
+    $sel = $pdo->query("SELECT id, name, acronym FROM courses ORDER BY name ASC");
+    $rows = $sel->fetchAll(PDO::FETCH_ASSOC);
+    respond(200, ["ok" => true, "degrees" => $rows]);
+  }
+
+  if ($action === "list_home_courses") {
+    $acronym = safe_string($body["acronym"] ?? "");
+
+    if ($acronym === "") {
+      $accessToken = safe_string($_SESSION["fenix_access_token"] ?? "");
+      if ($accessToken === "") respond(401, ["ok" => false, "error" => "not_authenticated"]);
+
+      $cur = fenix_get_json("/person/curriculum", $accessToken);
+      if (!$cur["ok"] || !is_array($cur["data"])) {
+        respond(502, ["ok" => false, "error" => "fenix_curriculum_failed", "code" => $cur["code"]]);
+      }
+
+      $entry = get_active_degree_entry($cur["data"]);
+      if (!$entry) respond(404, ["ok" => false, "error" => "degree_not_found"]);
+
+      $deg = $entry["degree"] ?? null;
+      if (!is_array($deg)) respond(404, ["ok" => false, "error" => "degree_not_found"]);
+
+      $acronym = safe_string($deg["acronym"] ?? "");
+      if ($acronym === "") respond(404, ["ok" => false, "error" => "degree_not_found"]);
+    }
+
+    $studentCourse = $acronym;
+
+    $sel = $pdo->prepare("
+      SELECT course, name, ects, semester, link, created_at, updated_at
+      FROM home_degrees
+      WHERE course = :course
+      ORDER BY semester ASC, name ASC
+    ");
+    $sel->execute([":course" => $studentCourse]);
+    $items = $sel->fetchAll(PDO::FETCH_ASSOC);
+
+    $out = [];
+    foreach ($items as $row) {
+      $out[] = [
+        "course" => safe_string($row["course"] ?? ""),
+        "name" => safe_string($row["name"] ?? ""),
+        "ects" => (int)($row["ects"] ?? 0),
+        "semester" => (int)($row["semester"] ?? 0),
+        "link" => safe_string($row["link"] ?? ""),
+        "created_at" => safe_string($row["created_at"] ?? ""),
+        "updated_at" => safe_string($row["updated_at"] ?? ""),
+      ];
+    }
+
+    respond(200, [
+      "ok" => true,
+      "course" => $studentCourse,
+      "count" => count($out),
+      "items" => $out
+    ]);
+  }
+
   respond(400, ["ok" => false, "error" => "unknown_action"]);
-  
+
   } catch (Throwable $e) {
   respond(500, ["ok" => false, "error" => "server_error"]);
 }

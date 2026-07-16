@@ -9,7 +9,6 @@
   <style>
     body {
       transform-origin: top center;
-      transform: scale(0.75);
       margin: 0;
       padding: 0;
       height: 100vh;
@@ -329,6 +328,17 @@
         <button class="btn" id="createEuropeBtn" type="button">Europe</button>
         <button class="btn secondary" id="createOutsideBtn" type="button">Outside Europe</button>
       </div>
+
+      <div id="standaloneFinalOption" style="margin-top:14px; display:none;">
+        <hr class="divider">
+        <div class="msg" style="margin-top:0;">
+          <strong>Only for 2025/2026 students</strong> returning now from mobility whose PEI is not in this platform. Already completed your mobility and only need to submit the final documents PEF.
+        </div>
+        <div class="actions" style="margin-top:10px;">
+          <button class="btn secondary" id="startStandaloneEuropeBtn" type="button">Start Final Documents (Europe)</button>
+          <button class="btn secondary" id="startStandaloneOutsideBtn" type="button">Start Final Documents (Outside Europe)</button>
+        </div>
+      </div>
     </div>
 
     <div class="card" id="hasProcess" style="display:none;">
@@ -553,6 +563,29 @@
       }
     }
 
+    async function startStandaloneFinalProcess(mobilityType) {
+      try {
+        setFinalMsg("Creating final process…");
+        const res = await fetch(`${SERVER}/final_process.php`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "start_standalone", mobility_type: mobilityType })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          setFinalMsg("Could not start final process.");
+          console.error(data);
+          return;
+        }
+        await load();
+        if (data.process) openFinalProcessFrame(data.process);
+      } catch (err) {
+        console.error(err);
+        setFinalMsg("Could not start final process.");
+      }
+    }
+
     function downloadZip(pid, endpoint) {
       const url = `${SERVER}/${endpoint}?action=download&pid=${encodeURIComponent(String(pid))}`;
       window.open(url, "_blank");
@@ -702,10 +735,13 @@
       document.getElementById("subtitle").textContent = `Welcome ${name}`;
 
       const p = await getProcess();
+      const fp = await getFinalProcess();
+      const hasFinalProcess = !!(fp && fp.ok && fp.data && fp.data.process);
 
       if (!p || !p.ok || !p.process) {
         document.getElementById("noProcess").style.display = "block";
         document.getElementById("hasProcess").style.display = "none";
+        document.getElementById("standaloneFinalOption").style.display = hasFinalProcess ? "none" : "block";
         hideFrame();
       } else {
         renderProcess(p.process);
@@ -715,8 +751,7 @@
       document.getElementById("finalSectionTitle").style.display = "none";
       document.getElementById("hasFinalProcess").style.display = "none";
 
-      const fp = await getFinalProcess();
-      if (fp && fp.ok && fp.data && fp.data.process) {
+      if (hasFinalProcess) {
         renderFinalProcess(fp.data.process);
       }
     }
@@ -752,6 +787,14 @@
         if (p && p.ok && p.process) openProcess(p.process);
         await load();
       }
+    });
+
+    document.getElementById("startStandaloneEuropeBtn").addEventListener("click", () => {
+      startStandaloneFinalProcess("EUROPE");
+    });
+
+    document.getElementById("startStandaloneOutsideBtn").addEventListener("click", () => {
+      startStandaloneFinalProcess("OUTSIDE_EUROPE");
     });
 
 

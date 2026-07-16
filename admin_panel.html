@@ -237,6 +237,7 @@
       <button class="navBtn" id="navDocs" type="button">Manage generated documents</button>
       <button class="navBtn" id="navDegrees" type="button">Manage home degrees</button>
       <button class="navBtn" id="navProcesses" type="button">Manage processes</button>
+      <button class="navBtn" id="navFinalProcesses" type="button">Manage final processes</button>
     </div>
 
     <div class="hint" id="hint">
@@ -265,12 +266,14 @@
       const c = document.getElementById("navDocs");
       const d = document.getElementById("navDegrees");
       const e = document.getElementById("navProcesses");
+      const f = document.getElementById("navFinalProcesses");
 
       if (a) a.classList.remove("active");
       if (b) b.classList.remove("active");
       if (c) c.classList.remove("active");
       if (d) d.classList.remove("active");
       if (e) e.classList.remove("active");
+      if (f) f.classList.remove("active");
 
       const btn = document.getElementById(navId);
       if (btn) btn.classList.add("active");
@@ -281,6 +284,13 @@
       document.getElementById("frameTitle").textContent = "Manage processes";
       document.getElementById("hint").textContent = "View all processes and edit status, mobility type and payload.";
       document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_processes.html`;
+    }
+
+    function openFinalProcesses() {
+      setActive("navFinalProcesses");
+      document.getElementById("frameTitle").textContent = "Manage final processes";
+      document.getElementById("hint").textContent = "View all final processes and edit status, mobility type and payload.";
+      document.getElementById("adminFrame").src = `${BASE_PATH}/admin_manage_final_processes.html`;
     }
 
     function openCoordinators() {
@@ -300,6 +310,7 @@
     document.getElementById("navCoords").addEventListener("click", openCoordinators);
     document.getElementById("navEq").addEventListener("click", openEquivalences);
     document.getElementById("navProcesses").addEventListener("click", openProcesses);
+    document.getElementById("navFinalProcesses").addEventListener("click", openFinalProcesses);
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
       window.location.href = `${SERVER}/logout.php`;
@@ -360,6 +371,7 @@
       if (role !== "ADMIN") {
         document.getElementById("navCoords").style.display = "none";
         document.getElementById("navProcesses").style.display = "none";
+        document.getElementById("navFinalProcesses").style.display = "none";
       }
 
       openEquivalences();

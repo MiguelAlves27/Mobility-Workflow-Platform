@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage final processes</title>
+
+  <link rel="stylesheet" href="styles/dark.css">
+  <style>
+    body { margin: 0; padding: 16px; background: transparent; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 16px;
+      height: calc(100vh - 32px);
+    }
+
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .label {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-bottom: 5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .field { margin-bottom: 10px; }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item {
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .item:hover { background: rgba(255,255,255,0.11); }
+
+    .item.active {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.28);
+    }
+
+    .itemTitle {
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .itemSub {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.45;
+    }
+
+    .statusChip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .chip-DRAFT { background: rgba(100,116,139,0.30); color: #cbd5e1; border: 1px solid rgba(100,116,139,0.40); }
+    .chip-SUBMITTED { background: rgba(59,130,246,0.25); color: #93c5fd; border: 1px solid rgba(59,130,246,0.40); }
+    .chip-CHANGES_REQUESTED { background: rgba(251,191,36,0.20); color: #fde68a; border: 1px solid rgba(251,191,36,0.40); }
+    .chip-STAFF_APPROVED { background: rgba(168,85,247,0.20); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.40); }
+    .chip-APPROVED { background: rgba(74,222,128,0.18); color: #86efac; border: 1px solid rgba(74,222,128,0.35); }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 12px 14px 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      flex-shrink: 0;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      border: 1px solid transparent;
+      border-bottom: none;
+      user-select: none;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .tab:hover { color: #fff; }
+
+    .tab.active {
+      color: #fff;
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .tabPanel { display: none; padding: 14px; overflow: auto; flex: 1; min-height: 0; }
+    .tabPanel.active { display: block; }
+
+    .processBar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      flex-shrink: 0;
+    }
+
+    .processBarField { display: flex; flex-direction: column; gap: 3px; }
+
+    .eqCard {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .eqCardHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .eqCardTitle { font-weight: 700; font-size: 14px; }
+
+    .eqGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .courseCard {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .courseCardHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .courseCardTitle { font-size: 12px; font-weight: 700; opacity: 0.75; text-transform: uppercase; }
+
+    .sep {
+      height: 1px;
+      background: rgba(255,255,255,0.10);
+      margin: 10px 0;
+    }
+
+    .statusBox {
+      font-size: 13px;
+      min-height: 20px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .statusBox.ok { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25); color: #86efac; }
+    .statusBox.err { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+    .statusBox.neutral { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); }
+    .statusBox.hidden { display: none; }
+
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 10px;
+      opacity: 0.45;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .placeholder svg { opacity: 0.5; }
+
+
+    /* hide/show by mobility type */
+    .europe-only { display: none; }
+    .outside-only { display: none; }
+    .is-europe .europe-only { display: block; }
+    .is-outside .outside-only { display: block; }
+    .is-europe .europe-only.row2 { display: grid; }
+    .is-outside .outside-only.row2 { display: grid; }
+
+    @media (max-width: 1000px) {
+      .layout { grid-template-columns: 1fr; height: auto; }
+      .eqGrid { grid-template-columns: 1fr; }
+    }
+
+    /* JSON editor modal */
+    .jsonModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.65);
+      align-items: center;
+      justify-content: center;
+    }
+    .jsonModal.open { display: flex; }
+    .jsonModalBox {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      width: min(860px, 95vw);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .jsonModalHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .jsonModalBody { flex: 1; overflow: auto; padding: 14px 18px; }
+    .jsonModalFoot {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 12px 18px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      flex-shrink: 0;
+    }
+    #jsonTextarea {
+      width: 100%;
+      min-height: 420px;
+      font-family: 'Consolas', 'Fira Mono', monospace;
+      font-size: 12px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #e2e8f0;
+      padding: 10px;
+      resize: vertical;
+      box-sizing: border-box;
+      line-height: 1.55;
+    }
+    #jsonError {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #fca5a5;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Left: process list -->
+    <div class="panel">
+      <div class="panelHead">
+        Final processes
+        <button id="reloadBtn" class="btn secondary" type="button" style="font-size:12px; padding:6px 10px;">Reload</button>
+      </div>
+      <div class="panelBody">
+        <div class="toolbar">
+          <input id="searchInput" class="input" type="text" placeholder="Search by process ID, IST ID or status…" style="flex:1;">
+        </div>
+        <div id="processList" class="list"></div>
+      </div>
+    </div>
+
+    <!-- Right: edit panel -->
+    <div class="panel" id="editPanel" style="overflow:hidden;">
+
+      <!-- placeholder when nothing selected -->
+      <div class="placeholder" id="placeholder">
+        <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+          <rect x="3" y="4" width="18" height="16" rx="2"/>
+          <path d="M8 9h8M8 13h5"/>
+        </svg>
+        Select a final process to edit
+      </div>
+
+      <!-- content when process selected -->
+      <div id="editContent" style="display:none; flex-direction:column; height:100%; overflow:hidden; display:none;">
+
+        <!-- process info + controls bar -->
+        <div class="processBar" id="processBar">
+          <div id="procTitle" style="font-weight:800; font-size:15px;"></div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div class="processBarField">
+              <div class="label">Status</div>
+              <select id="statusSelect" class="select" style="width:auto; min-width:150px;">
+                <option value="DRAFT">DRAFT</option>
+                <option value="SUBMITTED">SUBMITTED</option>
+                <option value="CHANGES_REQUESTED">CHANGES_REQUESTED</option>
+                <option value="STAFF_APPROVED">STAFF_APPROVED</option>
+                <option value="APPROVED">APPROVED</option>
+              </select>
+            </div>
+            <div class="processBarField">
+              <div class="label">Mobility category</div>
+              <select id="mobilityTypeSelect" class="select" style="width:auto; min-width:140px;">
+                <option value="EUROPE">EUROPE</option>
+                <option value="OUTSIDE_EUROPE">OUTSIDE_EUROPE</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button id="saveBtn" class="btn" type="button">Save</button>
+            <button id="reloadCurrentBtn" class="btn secondary" type="button">Reload</button>
+            <button id="editJsonBtn" class="btn secondary" type="button">Edit JSON</button>
+            <button id="deleteBtn" class="btn danger" type="button">Delete</button>
+          </div>
+        </div>
+
+        <!-- status message -->
+        <div id="statusBox" class="statusBox hidden" style="margin:0 14px 0 14px; border-radius:8px; flex-shrink:0;"></div>
+
+        <!-- tabs -->
+        <div class="tabs" id="tabs">
+          <div class="tab active" data-tab="personal">Personal info</div>
+          <div class="tab" data-tab="host">Host university</div>
+          <div class="tab" data-tab="equivalences">Equivalences</div>
+        </div>
+
+        <!-- tab panels -->
+        <div style="flex:1; overflow:hidden; display:flex; flex-direction:column; min-height:0;" id="tabPanelsWrap">
+
+          <!-- Personal -->
+          <div class="tabPanel active" data-tab="personal" id="editContent">
+
+            <div class="row2">
+              <div class="field">
+                <div class="label">Full name</div>
+                <input id="p_full_name" class="input" type="text" />
+              </div>
+              <div class="field">
+                <div class="label">IST ID</div>
+                <input id="p_ist_id" class="input" type="text" />
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <div class="label">Institutional email</div>
+                <input id="p_inst_email" class="input" type="text" />
+              </div>
+              <div class="field">
+                <div class="label">Sex</div>
+                <input id="p_sex" class="input" type="text" />
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <div class="label">Home degree (name)</div>
+                <input id="p_home_degree" class="input" type="text" disabled style="opacity:0.55; cursor:not-allowed;" />
+              </div>
+              <div class="field">
+                <div class="label">Home degree (acronym)</div>
+                <select id="p_home_degree_acronym" class="select">
+                  <option value="">Loading…</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row2 europe-only">
+              <div class="field">
+                <div class="label">First name(s)</div>
+                <input id="p_first_names" class="input" type="text" />
+              </div>
+              <div class="field">
+                <div class="label">Last name(s)</div>
+                <input id="p_last_names" class="input" type="text" />
+              </div>
+            </div>
+
+            <div class="row2 europe-only">
+              <div class="field">
+                <div class="label">Nationality</div>
+                <input id="p_nationality" class="input" type="text" />
+              </div>
+              <div class="field">
+                <div class="label">Date of birth</div>
+                <input id="p_birth_date" class="input" type="text" placeholder="DD/MM/YYYY" />
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <div class="label">Phone prefix</div>
+                <input id="p_phone_prefix" class="input" type="text" placeholder="+351" />
+              </div>
+              <div class="field">
+                <div class="label">Phone number</div>
+                <input id="p_phone" class="input" type="text" placeholder="912345678" />
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <div class="label">Mobility type</div>
+                <select id="p_mobility_type" class="select">
+                  <option value="">Select</option>
+                  <option value="ERASMUS">Erasmus</option>
+                  <option value="Almeida Garrett">Almeida Garrett</option>
+                  <option value="Acordos - África do Sul">Acordos - África do Sul</option>
+                  <option value="Acordos - Argentina">Acordos - Argentina</option>
+                  <option value="Acordos - Arménia">Acordos - Arménia</option>
+                  <option value="Acordos - Austrália">Acordos - Austrália</option>
+                  <option value="Acordos - Azerbeijão">Acordos - Azerbeijão</option>
+                  <option value="Acordos - Bielorrússia">Acordos - Bielorrússia</option>
+                  <option value="Acordos - Brasil">Acordos - Brasil</option>
+                  <option value="Acordos - Canadá">Acordos - Canadá</option>
+                  <option value="Acordos - Cazaquistão">Acordos - Cazaquistão</option>
+                  <option value="Acordos - Chile">Acordos - Chile</option>
+                  <option value="Acordos - China">Acordos - China</option>
+                  <option value="Acordos - Colômbia">Acordos - Colômbia</option>
+                  <option value="Acordos - Coreia do Sul">Acordos - Coreia do Sul</option>
+                  <option value="Acordos - Costa Rica">Acordos - Costa Rica</option>
+                  <option value="Acordos - França">Acordos - França</option>
+                  <option value="Acordos - Índia">Acordos - Índia</option>
+                  <option value="Acordos - Irão">Acordos - Irão</option>
+                  <option value="Acordos - Iraque">Acordos - Iraque</option>
+                  <option value="Acordos - Israel">Acordos - Israel</option>
+                  <option value="Acordos - Japão">Acordos - Japão</option>
+                  <option value="Acordos - Jordânia">Acordos - Jordânia</option>
+                  <option value="Acordos - Malásia">Acordos - Malásia</option>
+                  <option value="Acordos - México">Acordos - México</option>
+                  <option value="Acordos - Palestina">Acordos - Palestina</option>
+                  <option value="Acordos - Rússia">Acordos - Rússia</option>
+                  <option value="Acordos - SMILE">Acordos - SMILE</option>
+                  <option value="Acordos - Tailândia">Acordos - Tailândia</option>
+                  <option value="Acordos - Taiwan">Acordos - Taiwan</option>
+                  <option value="Acordos - Timor Leste">Acordos - Timor Leste</option>
+                  <option value="Acordos - Tunísia">Acordos - Tunísia</option>
+                  <option value="Acordos - Uruguai">Acordos - Uruguai</option>
+                  <option value="T.I.M.E">T.I.M.E</option>
+                  <option value="T.I.M.E Double Degree">T.I.M.E Double Degree (France)</option>
+                </select>
+              </div>
+              <div class="field">
+                <div class="label">Academic year</div>
+                <input id="p_academic_year" class="input" type="text" placeholder="2026/2027" />
+              </div>
+            </div>
+
+            <div class="row2 europe-only">
+              <div class="field">
+                <div class="label">Study cycle</div>
+                <select id="p_study_cycle" class="select">
+                  <option value="">Select</option>
+                  <option value="1st">1st</option>
+                  <option value="2nd">2nd</option>
+                  <option value="3rd">3rd</option>
+                </select>
+              </div>
+              <div class="field">
+                <div class="label">Semester</div>
+                <select id="p_semester" class="select">
+                  <option value="">Select</option>
+                  <option value="1st Semester">1st Semester</option>
+                  <option value="2nd Semester">2nd Semester</option>
+                  <option value="1st and 2nd Semester">1st and 2nd Semester</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row2 europe-only">
+              <div class="field">
+                <div class="label">Mobility start date</div>
+                <input id="p_from_month" class="input" type="text" placeholder="DD/MM/YYYY" />
+              </div>
+              <div class="field">
+                <div class="label">Mobility end date</div>
+                <input id="p_to_month" class="input" type="text" placeholder="DD/MM/YYYY" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label style="display:flex; gap:8px; align-items:center; cursor:pointer; font-size:14px;">
+                <input type="checkbox" id="p_is_double_degree" style="width:15px;height:15px; accent-color:#60a5fa;">
+                Double Degree
+              </label>
+            </div>
+
+          </div>
+
+          <!-- Host university -->
+          <div class="tabPanel" data-tab="host">
+
+            <div class="row2">
+              <div class="field">
+                <div class="label">Host country</div>
+                <input id="h_country" class="input" type="text" placeholder="e.g. Germany" />
+              </div>
+              <div class="field">
+                <div class="label">University name</div>
+                <input id="h_university" class="input" type="text" placeholder="e.g. Technische Universität München" />
+              </div>
+            </div>
+
+            <div class="field europe-only">
+              <div class="label">Faculty / Department</div>
+              <input id="h_faculty" class="input" type="text" />
+            </div>
+
+            <div class="field europe-only">
+              <div class="label">University address</div>
+              <input id="h_address" class="input" type="text" />
+            </div>
+
+            <div class="field europe-only">
+              <div class="label">University contact</div>
+              <input id="h_contact" class="input" type="text" placeholder="Email or phone" />
+            </div>
+
+            <div class="row2 europe-only">
+              <div class="field">
+                <div class="label">Erasmus code</div>
+                <input id="h_erasmus_code" class="input" type="text" />
+              </div>
+              <div class="field">
+                <div class="label">Main language</div>
+                <input id="h_main_language" class="input" type="text" />
+              </div>
+            </div>
+
+            <div class="field europe-only">
+              <div class="label">Language proficiency level</div>
+              <select id="h_language_level" class="select">
+                <option value="">Select</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+                <option value="native">Native Speaker</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- Equivalences -->
+          <div class="tabPanel" data-tab="equivalences">
+            <div id="equivalencesList"></div>
+            <button type="button" class="btn secondary" id="addEqBtn" style="width:100%; margin-top:4px;">
+              + Add equivalence
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON editor modal -->
+  <div class="jsonModal" id="jsonModal">
+    <div class="jsonModalBox">
+      <div class="jsonModalHead">
+        <span id="jsonModalTitle">Edit Payload JSON</span>
+        <button type="button" class="btn secondary" id="jsonModalCloseBtn" style="font-size:12px;padding:5px 10px;">✕ Close</button>
+      </div>
+      <div class="jsonModalBody">
+        <textarea id="jsonTextarea" spellcheck="false"></textarea>
+        <div id="jsonError"></div>
+      </div>
+      <div class="jsonModalFoot">
+        <button type="button" class="btn secondary" id="jsonCancelBtn">Cancel</button>
+        <button type="button" class="btn" id="jsonApplyBtn">Apply changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+    const PROCESS_API = "/server/final_process.php";
+
+    let allProcesses = [];
+    let acronymOptions = []; // [{acronym, name}, …] from courses table
+    let acronymToDegreeName = {}; // acronym → degree name, from courses table
+    let selectedPid = null;
+    let currentProc = null;
+    let equivalencesState = [];
+    let homeCoursesCatalog = [];
+    let currentMobilityCategory = "EUROPE";
+
+    async function api(body) {
+      const r = await fetch(PROCESS_API, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      let data = null;
+      try { data = await r.json(); } catch (_) {}
+      if (!r.ok || !data || !data.ok) {
+        throw new Error(data && data.error ? data.error : `http_${r.status}`);
+      }
+      return data;
+    }
+
+    function setStatus(msg, type = "neutral") {
+      const el = document.getElementById("statusBox");
+      if (!msg) { el.className = "statusBox hidden"; el.textContent = ""; return; }
+      el.className = `statusBox ${type}`;
+      el.textContent = msg;
+    }
+
+    function esc(v) {
+      return String(v ?? "")
+        .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    }
+
+    /* ── Mobility category → body class ── */
+    function applyMobilityCategory(cat) {
+      currentMobilityCategory = cat;
+      const wrap = document.getElementById("tabPanelsWrap");
+      wrap.classList.remove("is-europe", "is-outside");
+      wrap.classList.add(cat === "EUROPE" ? "is-europe" : "is-outside");
+    }
+
+    function renderList() {
+      const wrap = document.getElementById("processList");
+      const q = safeText(document.getElementById("searchInput").value).toLowerCase();
+
+      const filtered = allProcesses.filter(p => {
+        if (!q) return true;
+        return [p.id, p.istId, p.status, p.mobilityType]
+          .map(v => safeText(v)).join(" ").toLowerCase().includes(q);
+      });
+
+      if (!filtered.length) {
+        wrap.innerHTML = `<div class="item"><div class="itemTitle">No final processes found</div></div>`;
+        return;
+      }
+
+      wrap.innerHTML = filtered.map(p => `
+        <div class="item ${selectedPid === p.id ? "active" : ""}" data-pid="${p.id}">
+          <div class="itemTitle">#${esc(p.id)} · ${esc(safeText(p.istId) || "-")}</div>
+          <div class="itemSub">
+            <span class="statusChip chip-${esc(p.status)}">${esc(p.status)}</span>
+            ${esc(safeText(p.mobilityType))}<br>
+            <span style="opacity:0.6;">${esc(safeText(p.updatedAt))}</span>
+          </div>
+        </div>
+      `).join("");
+
+      wrap.querySelectorAll(".item[data-pid]").forEach(el => {
+        el.addEventListener("click", () => {
+          const pid = Number(el.getAttribute("data-pid") || "0");
+          if (pid > 0) selectProcess(pid);
+        });
+      });
+    }
+
+    async function loadAll() {
+      setStatus("Loading final processes…", "neutral");
+      const data = await api({ action: "list_all" });
+      allProcesses = Array.isArray(data.processes) ? data.processes : [];
+      renderList();
+      setStatus(`${allProcesses.length} final processes loaded.`, "ok");
+      setTimeout(() => setStatus(""), 2500);
+
+      if (selectedPid) {
+        const exists = allProcesses.find(p => p.id === selectedPid);
+        if (exists) await selectProcess(selectedPid, false);
+      }
+    }
+
+    async function loadAcronyms() {
+      try {
+        const data = await api({ action: "list_degrees" });
+        const rows = Array.isArray(data.degrees) ? data.degrees : [];
+        acronymOptions = rows
+          .filter(r => safeText(r.acronym))
+          .map(r => ({ acronym: safeText(r.acronym), name: safeText(r.name) }));
+        acronymToDegreeName = {};
+        acronymOptions.forEach(r => { acronymToDegreeName[r.acronym] = r.name; });
+      } catch (_) {
+        acronymOptions = [];
+      }
+      buildAcronymSelect();
+    }
+
+    function buildAcronymSelect(currentValue) {
+      const sel = document.getElementById("p_home_degree_acronym");
+      if (!sel) return;
+      const prev = currentValue ?? sel.value;
+      sel.innerHTML = `<option value="">- select -</option>`;
+      acronymOptions.forEach(({ acronym, name }) => {
+        const opt = document.createElement("option");
+        opt.value = acronym;
+        opt.textContent = `${acronym} - ${name}`;
+        sel.appendChild(opt);
+      });
+      // If stored value isn't in the list, add it so it shows correctly
+      if (prev && !acronymToDegreeName[prev]) {
+        const opt = document.createElement("option");
+        opt.value = prev;
+        opt.textContent = prev;
+        sel.insertBefore(opt, sel.options[1]);
+      }
+      if (prev) sel.value = prev;
+    }
+
+    async function loadHomeCourses(acronym) {
+      if (!acronym) { homeCoursesCatalog = []; return; }
+      try {
+        const data = await api({ action: "list_home_courses", acronym });
+        homeCoursesCatalog = Array.isArray(data.items) ? data.items : [];
+      } catch (_) {
+        homeCoursesCatalog = [];
+      }
+      rebuildAllHomeCourseSelects();
+    }
+
+    async function selectProcess(pid, fetchFresh = true) {
+      selectedPid = pid;
+      renderList();
+
+      let proc = allProcesses.find(p => p.id === pid) || null;
+      if (fetchFresh) {
+        const data = await api({ action: "get_by_id", id: pid });
+        proc = data.process || null;
+      }
+
+      if (!proc) { setStatus("Final process not found.", "err"); return; }
+      currentProc = proc;
+
+      document.getElementById("placeholder").style.display = "none";
+      const ec = document.getElementById("editContent");
+      ec.style.display = "flex";
+      ec.style.flexDirection = "column";
+      ec.style.height = "100%";
+      ec.style.overflow = "hidden";
+
+      document.getElementById("procTitle").textContent = `Final process #${proc.id} · ${safeText(proc.payload?.personal?.full_name) || safeText(proc.istId) || "-"}`;
+
+      document.getElementById("statusSelect").value = safeText(proc.status) || "DRAFT";
+      const cat = safeText(proc.mobilityType) || "EUROPE";
+      document.getElementById("mobilityTypeSelect").value = cat;
+      applyMobilityCategory(cat);
+
+      const pay = proc.payload || {};
+      const per = pay.personal || {};
+      const host = pay.host || {};
+
+      document.getElementById("p_full_name").value = safeText(per.full_name);
+      document.getElementById("p_ist_id").value = safeText(per.ist_id || proc.istId);
+      document.getElementById("p_inst_email").value = safeText(per.institutional_email);
+      document.getElementById("p_sex").value = safeText(per.sex);
+      document.getElementById("p_home_degree").value = safeText(per.home_degree);
+      buildAcronymSelect(safeText(per.home_degree_acronym));
+      document.getElementById("p_first_names").value = safeText(per.first_names);
+      document.getElementById("p_last_names").value = safeText(per.last_names);
+      document.getElementById("p_nationality").value = safeText(per.nationality);
+      document.getElementById("p_birth_date").value = safeText(per.birth_date);
+      document.getElementById("p_is_double_degree").checked = !!per.is_double_degree;
+      document.getElementById("p_academic_year").value = safeText(per.mobility_academic_year);
+      document.getElementById("p_study_cycle").value = safeText(per.study_cycle);
+      document.getElementById("p_semester").value = safeText(per.semester);
+      document.getElementById("p_from_month").value = safeText(per.from_month);
+      document.getElementById("p_to_month").value = safeText(per.to_month);
+
+      // Phone: try to split e164 or use stored values
+      const e164 = safeText(per.phone_e164);
+      if (e164 && e164.startsWith("+")) {
+        const prefixMatch = e164.match(/^(\+\d{1,4})/);
+        if (prefixMatch) {
+          document.getElementById("p_phone_prefix").value = prefixMatch[1];
+          document.getElementById("p_phone").value = e164.slice(prefixMatch[1].length);
+        } else {
+          document.getElementById("p_phone_prefix").value = "+351";
+          document.getElementById("p_phone").value = e164;
+        }
+      } else {
+        document.getElementById("p_phone_prefix").value = safeText(per.phone_prefix) || "+351";
+        document.getElementById("p_phone").value = safeText(per.phone);
+      }
+
+      // Mobility type specific
+      const mt = safeText(per.mobility_type);
+      const sel = document.getElementById("p_mobility_type");
+      let found = false;
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === mt) { sel.selectedIndex = i; found = true; break; }
+      }
+      if (!found && mt) {
+        const opt = document.createElement("option");
+        opt.value = mt; opt.textContent = mt;
+        sel.appendChild(opt);
+        sel.value = mt;
+      }
+
+      document.getElementById("h_country").value = safeText(host.host_country || pay.host_country);
+      document.getElementById("h_university").value = safeText(host.host_university || pay.host_university);
+      document.getElementById("h_faculty").value = safeText(host.faculty_department || pay.faculty_department);
+      document.getElementById("h_address").value = safeText(host.host_address || pay.host_address);
+      document.getElementById("h_contact").value = safeText(host.host_contact || pay.host_contact);
+      document.getElementById("h_erasmus_code").value = safeText(host.erasmus_code || pay.erasmus_code);
+      document.getElementById("h_main_language").value = safeText(host.main_language || pay.main_language);
+      document.getElementById("h_language_level").value = safeText(host.language_level || pay.language_level);
+
+      const acronym = safeText(per.home_degree_acronym);
+      await loadHomeCourses(acronym);
+
+      const rawEqs = Array.isArray(pay.equivalences) ? pay.equivalences : [];
+      equivalencesState = rawEqs.map(eq => ({
+        id: safeText(eq.id) || crypto.randomUUID(),
+        status: safeText(eq.status) || "A",
+        comment: safeText(eq.comment),
+        homeCourses: Array.isArray(eq.homeCourses) ? eq.homeCourses.map(c => ({ ...c })) : [],
+        destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses.map(c => ({ ...c })) : [],
+      }));
+      renderEquivalences();
+
+      setStatus(`Final process #${pid} loaded.`, "ok");
+      setTimeout(() => setStatus(""), 2500);
+    }
+
+    function collectPayload() {
+      const prefix = safeText(document.getElementById("p_phone_prefix").value);
+      const phoneDigits = safeText(document.getElementById("p_phone").value).replace(/\D+/g, "");
+      const phone_e164 = (prefix && phoneDigits) ? `${prefix}${phoneDigits}` : "";
+
+      const personal = {
+        full_name: safeText(document.getElementById("p_full_name").value),
+        ist_id: safeText(document.getElementById("p_ist_id").value),
+        institutional_email: safeText(document.getElementById("p_inst_email").value),
+        sex: safeText(document.getElementById("p_sex").value),
+        home_degree: safeText(document.getElementById("p_home_degree").value),
+        home_degree_acronym: safeText(document.getElementById("p_home_degree_acronym").value),
+        first_names: safeText(document.getElementById("p_first_names").value),
+        last_names: safeText(document.getElementById("p_last_names").value),
+        nationality: safeText(document.getElementById("p_nationality").value),
+        birth_date: safeText(document.getElementById("p_birth_date").value),
+        phone_e164,
+        mobility_type: safeText(document.getElementById("p_mobility_type").value),
+        is_double_degree: document.getElementById("p_is_double_degree").checked,
+        mobility_academic_year: safeText(document.getElementById("p_academic_year").value),
+        study_cycle: safeText(document.getElementById("p_study_cycle").value),
+        semester: safeText(document.getElementById("p_semester").value),
+        from_month: safeText(document.getElementById("p_from_month").value),
+        to_month: safeText(document.getElementById("p_to_month").value),
+        // preserve signature if it exists in the original payload
+        signature_png_base64: currentProc?.payload?.personal?.signature_png_base64 || "",
+        signature_consent: currentProc?.payload?.personal?.signature_consent || false,
+      };
+
+      const host = {
+        host_country: safeText(document.getElementById("h_country").value),
+        host_university: safeText(document.getElementById("h_university").value),
+        faculty_department: safeText(document.getElementById("h_faculty").value),
+        host_address: safeText(document.getElementById("h_address").value),
+        host_contact: safeText(document.getElementById("h_contact").value),
+        erasmus_code: safeText(document.getElementById("h_erasmus_code").value),
+        main_language: safeText(document.getElementById("h_main_language").value),
+        language_level: safeText(document.getElementById("h_language_level").value),
+      };
+
+      const equivalences = equivalencesState.map(eq => ({
+        id: eq.id,
+        status: safeText(eq.status) || "A",
+        comment: safeText(eq.comment),
+        homeCourses: eq.homeCourses.map(c => ({
+          courseId: safeText(c.courseId),
+          name: safeText(c.name),
+          credits: safeText(c.credits),
+          link: safeText(c.link),
+          semester: safeText(c.semester),
+        })),
+        destinationCourses: eq.destinationCourses.map(c => ({
+          name: safeText(c.name),
+          code: safeText(c.code),
+          credits: safeText(c.credits),
+          credits_equivalent: safeText(c.credits_equivalent),
+          grade: safeText(c.grade),
+          link: safeText(c.link),
+          semester: safeText(c.semester),
+        })),
+      }));
+
+      // Merge with any existing payload keys we don't touch (e.g. staff/coordinator decisions)
+      const existing = currentProc?.payload || {};
+      return {
+        ...existing,
+        personal,
+        host,
+        equivalences,
+        mobility_type: currentMobilityCategory,
+      };
+    }
+
+    async function saveCurrent() {
+      if (!selectedPid) { setStatus("Select a final process first.", "err"); return; }
+      setStatus("Saving…", "neutral");
+
+      const status = document.getElementById("statusSelect").value;
+      const mobilityType = document.getElementById("mobilityTypeSelect").value;
+      const payload = collectPayload();
+
+      await api({ action: "admin_update_process", pid: selectedPid, status, mobility_type: mobilityType, payload });
+
+      setStatus("Changes saved successfully.", "ok");
+      await loadAll();
+      // re-select without fetching fresh (we just saved)
+      const proc = allProcesses.find(p => p.id === selectedPid);
+      if (proc) {
+        currentProc = { ...currentProc, status, mobilityType, payload };
+        document.getElementById("procTitle").textContent = `Final process #${selectedPid} · ${safeText(payload.personal?.full_name) || "-"}`;
+      }
+    }
+
+    async function deleteCurrent() {
+      if (!selectedPid) return;
+      const ok = window.confirm(`Are you sure you want to delete final process #${selectedPid}? This cannot be undone.`);
+      if (!ok) return;
+
+      setStatus("Deleting…", "neutral");
+      await api({ action: "admin_delete_process", pid: selectedPid });
+
+      const deletedPid = selectedPid;
+      selectedPid = null;
+      currentProc = null;
+
+      document.getElementById("placeholder").style.display = "";
+      document.getElementById("editContent").style.display = "none";
+
+      await loadAll();
+      setStatus(`Final process #${deletedPid} deleted.`, "ok");
+      setTimeout(() => setStatus(""), 3000);
+    }
+
+    function renderEquivalences() {
+      const wrap = document.getElementById("equivalencesList");
+      wrap.innerHTML = "";
+      equivalencesState.forEach((eq, i) => wrap.appendChild(buildEqCard(eq, i)));
+    }
+
+    function buildEqCard(eq, idx) {
+      const div = document.createElement("div");
+      div.className = "eqCard";
+      div.dataset.eqId = eq.id;
+
+      const head = document.createElement("div");
+      head.className = "eqCardHead";
+      head.innerHTML = `<div class="eqCardTitle">Equivalence ${idx + 1}</div>`;
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn danger";
+      removeBtn.style.fontSize = "12px";
+      removeBtn.style.padding = "5px 10px";
+      removeBtn.textContent = "Remove";
+      removeBtn.addEventListener("click", () => {
+        equivalencesState = equivalencesState.filter(e => e.id !== eq.id);
+        renderEquivalences();
+      });
+      head.appendChild(removeBtn);
+      div.appendChild(head);
+
+      const grid = document.createElement("div");
+      grid.className = "eqGrid";
+
+      const homeCol = document.createElement("div");
+      const homeHead = document.createElement("div");
+      homeHead.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+      homeHead.innerHTML = `<div style="font-weight:700;font-size:13px;">Home courses</div>`;
+      const addHomeBtn = document.createElement("button");
+      addHomeBtn.type = "button"; addHomeBtn.className = "btn secondary";
+      addHomeBtn.style.cssText = "font-size:11px;padding:4px 8px;";
+      addHomeBtn.textContent = "+ Course";
+      addHomeBtn.addEventListener("click", () => {
+        eq.homeCourses.push({ courseId: "", name: "", credits: "", link: "", semester: "" });
+        renderEquivalences();
+      });
+      homeHead.appendChild(addHomeBtn);
+      homeCol.appendChild(homeHead);
+
+      const homeList = document.createElement("div");
+      eq.homeCourses.forEach((c, ci) => homeList.appendChild(buildHomeCourseCard(eq, c, ci)));
+      homeCol.appendChild(homeList);
+
+      const hostCol = document.createElement("div");
+      const hostHead = document.createElement("div");
+      hostHead.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+      hostHead.innerHTML = `<div style="font-weight:700;font-size:13px;">Host courses</div>`;
+      const addHostBtn = document.createElement("button");
+      addHostBtn.type = "button"; addHostBtn.className = "btn secondary";
+      addHostBtn.style.cssText = "font-size:11px;padding:4px 8px;";
+      addHostBtn.textContent = "+ Course";
+      addHostBtn.addEventListener("click", () => {
+        eq.destinationCourses.push({ name: "", code: "", credits: "", credits_equivalent: "", grade: "", link: "", semester: "" });
+        renderEquivalences();
+      });
+      hostHead.appendChild(addHostBtn);
+      hostCol.appendChild(hostHead);
+
+      const hostList = document.createElement("div");
+      eq.destinationCourses.forEach((c, ci) => hostList.appendChild(buildHostCourseCard(eq, c, ci)));
+      hostCol.appendChild(hostList);
+
+      grid.appendChild(homeCol);
+      grid.appendChild(hostCol);
+      div.appendChild(grid);
+
+      const obs = document.createElement("div");
+      obs.style.marginTop = "10px";
+      obs.innerHTML = `<div class="label">Observations</div>`;
+      const ta = document.createElement("textarea");
+      ta.className = "textarea input";
+      ta.rows = 2;
+      ta.placeholder = "Notes or observations about this equivalence";
+      ta.value = eq.comment || "";
+      ta.addEventListener("input", () => { eq.comment = ta.value; });
+      obs.appendChild(ta);
+      div.appendChild(obs);
+
+      return div;
+    }
+
+    function buildHomeCourseCard(eq, course, ci) {
+      const div = document.createElement("div");
+      div.className = "courseCard";
+
+      const head = document.createElement("div");
+      head.className = "courseCardHead";
+      head.innerHTML = `<div class="courseCardTitle">Course ${ci + 1}</div>`;
+      const rm = document.createElement("button");
+      rm.type = "button"; rm.className = "btn danger";
+      rm.style.cssText = "font-size:11px;padding:3px 8px;";
+      rm.textContent = "Remove";
+      rm.addEventListener("click", () => {
+        eq.homeCourses.splice(ci, 1);
+        renderEquivalences();
+      });
+      head.appendChild(rm);
+      div.appendChild(head);
+
+      const selField = document.createElement("div");
+      selField.className = "field";
+      selField.innerHTML = `<div class="label">Course</div>`;
+      const sel = document.createElement("select");
+      sel.className = "select";
+      sel.style.marginBottom = "6px";
+
+      populateHomeCourseSelect(sel, course.courseId, course.name);
+      sel.addEventListener("change", () => {
+        const opt = sel.options[sel.selectedIndex];
+        course.courseId = opt.value;
+        course.name = opt.dataset.name || opt.textContent;
+        // auto-fill credits/semester if known
+        if (opt.dataset.credits) {
+          creditsInput.value = opt.dataset.credits;
+          course.credits = opt.dataset.credits;
+        }
+        if (opt.dataset.semester) {
+          course.semester = opt.dataset.semester;
+        }
+      });
+      selField.appendChild(sel);
+      div.appendChild(selField);
+
+      const creditsInput = document.createElement("input");
+      creditsInput.className = "input";
+      creditsInput.type = "text";
+      creditsInput.placeholder = "ECTS";
+      creditsInput.value = course.credits || "";
+      creditsInput.addEventListener("input", () => { course.credits = creditsInput.value; });
+      const cf = document.createElement("div");
+      cf.className = "field";
+      cf.innerHTML = `<div class="label">Credits</div>`;
+      cf.appendChild(creditsInput);
+      div.appendChild(cf);
+
+      return div;
+    }
+
+    function buildHostCourseCard(eq, course, ci) {
+      const div = document.createElement("div");
+      div.className = "courseCard";
+
+      const head = document.createElement("div");
+      head.className = "courseCardHead";
+      head.innerHTML = `<div class="courseCardTitle">Course ${ci + 1}</div>`;
+      const rm = document.createElement("button");
+      rm.type = "button"; rm.className = "btn danger";
+      rm.style.cssText = "font-size:11px;padding:3px 8px;";
+      rm.textContent = "Remove";
+      rm.addEventListener("click", () => {
+        eq.destinationCourses.splice(ci, 1);
+        renderEquivalences();
+      });
+      head.appendChild(rm);
+      div.appendChild(head);
+
+      function addField(labelText, value, onInput, placeholder = "") {
+        const f = document.createElement("div");
+        f.className = "field";
+        f.innerHTML = `<div class="label">${labelText}</div>`;
+        const inp = document.createElement("input");
+        inp.className = "input";
+        inp.type = "text";
+        inp.value = value || "";
+        inp.placeholder = placeholder;
+        inp.addEventListener("input", () => onInput(inp.value));
+        f.appendChild(inp);
+        div.appendChild(f);
+        return inp;
+      }
+
+      addField("Name", course.name, v => course.name = v, "e.g. Ethics of New Technologies");
+      addField("Code", course.code, v => course.code = v);
+      addField("Credits", course.credits, v => course.credits = v, "ECTS");
+      addField("Grade", course.grade, v => course.grade = v, "e.g. 14.5");
+
+      // Credits equivalent (outside europe)
+      const ceWrap = document.createElement("div");
+      ceWrap.className = "field outside-only";
+      ceWrap.innerHTML = `<div class="label">Credits equivalent</div>`;
+      const ceInp = document.createElement("input");
+      ceInp.className = "input"; ceInp.type = "text";
+      ceInp.value = course.credits_equivalent || "";
+      ceInp.addEventListener("input", () => { course.credits_equivalent = ceInp.value; });
+      ceWrap.appendChild(ceInp);
+      div.appendChild(ceWrap);
+
+      const sf = document.createElement("div");
+      sf.className = "field";
+      sf.innerHTML = `<div class="label">Semester</div>`;
+      const ssel = document.createElement("select");
+      ssel.className = "select";
+      ssel.innerHTML = `<option value="">Select</option><option value="1">1</option><option value="2">2</option>`;
+      ssel.value = course.semester || "";
+      ssel.addEventListener("change", () => { course.semester = ssel.value; });
+      sf.appendChild(ssel);
+      div.appendChild(sf);
+
+      addField("Link", course.link, v => course.link = v, "https://…");
+
+      return div;
+    }
+
+    function populateHomeCourseSelect(sel, currentId, currentName) {
+      sel.innerHTML = `<option value="">Select course</option>`;
+
+      homeCoursesCatalog.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = safeText(item.id || item.name);
+        opt.textContent = safeText(item.name) + (item.credits ? ` (${item.credits} ECTS)` : "");
+        opt.dataset.name = safeText(item.name);
+        opt.dataset.credits = safeText(item.credits || item.ects || "");
+        opt.dataset.semester = safeText(item.semester || "");
+        sel.appendChild(opt);
+      });
+
+      const customOpt = document.createElement("option");
+      customOpt.value = "__custom__";
+      customOpt.textContent = "Free option / other";
+      sel.appendChild(customOpt);
+
+      if (currentId) {
+        sel.value = currentId;
+        if (!sel.value) {
+          // Not in catalog, add it
+          const opt = document.createElement("option");
+          opt.value = currentId;
+          opt.textContent = currentName || currentId;
+          opt.dataset.name = currentName || currentId;
+          sel.insertBefore(opt, sel.options[1]);
+          sel.value = currentId;
+        }
+      }
+    }
+
+    function rebuildAllHomeCourseSelects() {
+      // Re-render equivalences to pick up new catalog
+      renderEquivalences();
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const t = tab.dataset.tab;
+        document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.tab === t));
+        document.querySelectorAll(".tabPanel").forEach(x => x.classList.toggle("active", x.dataset.tab === t));
+      });
+    });
+
+    document.getElementById("mobilityTypeSelect").addEventListener("change", function () {
+      applyMobilityCategory(this.value);
+    });
+
+    document.getElementById("p_home_degree_acronym").addEventListener("change", async function () {
+      const acronym = this.value;
+      const nameInput = document.getElementById("p_home_degree");
+      if (!acronym) { nameInput.value = ""; return; }
+      const knownName = acronymToDegreeName[acronym] || "";
+      nameInput.value = knownName;
+      if (!knownName) {
+        nameInput.disabled = false;
+        nameInput.style.opacity = "1";
+        nameInput.style.cursor = "";
+        nameInput.placeholder = "Not found - type manually";
+        nameInput.focus();
+      }
+      setStatus("Loading home courses…", "neutral");
+      await loadHomeCourses(acronym);
+      setStatus(`${homeCoursesCatalog.length} home courses loaded for ${acronym}.`, "ok");
+      setTimeout(() => setStatus(""), 2500);
+    });
+
+    document.getElementById("addEqBtn").addEventListener("click", () => {
+      equivalencesState.push({
+        id: crypto.randomUUID(),
+        status: "A",
+        comment: "",
+        homeCourses: [],
+        destinationCourses: [],
+      });
+      renderEquivalences();
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      try { await saveCurrent(); }
+      catch (e) { setStatus(`Failed to save: ${e.message}`, "err"); }
+    });
+
+    document.getElementById("reloadBtn").addEventListener("click", async () => {
+      try { await loadAll(); }
+      catch (e) { setStatus(`Failed to load: ${e.message}`, "err"); }
+    });
+
+    document.getElementById("reloadCurrentBtn").addEventListener("click", async () => {
+      if (!selectedPid) { setStatus("Select a final process first.", "err"); return; }
+      try { await selectProcess(selectedPid); }
+      catch (e) { setStatus(`Failed to reload: ${e.message}`, "err"); }
+    });
+
+    document.getElementById("deleteBtn").addEventListener("click", async () => {
+      try { await deleteCurrent(); }
+      catch (e) { setStatus(`Failed to delete: ${e.message}`, "err"); }
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderList);
+
+    /* ── JSON editor modal ── */
+    function openJsonModal() {
+      if (!selectedPid) { setStatus("Select a final process first.", "err"); return; }
+      const payload = collectPayload();
+      document.getElementById("jsonModalTitle").textContent = `Edit Payload JSON - Final process #${selectedPid}`;
+      document.getElementById("jsonTextarea").value = JSON.stringify(payload, null, 2);
+      document.getElementById("jsonError").textContent = "";
+      document.getElementById("jsonModal").classList.add("open");
+    }
+
+    function closeJsonModal() {
+      document.getElementById("jsonModal").classList.remove("open");
+    }
+
+    function applyJsonModal() {
+      const raw = document.getElementById("jsonTextarea").value;
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        document.getElementById("jsonError").textContent = `Invalid JSON: ${e.message}`;
+        return;
+      }
+      document.getElementById("jsonError").textContent = "";
+
+      // Push parsed payload back into currentProc and re-select to populate fields
+      currentProc = { ...currentProc, payload: parsed };
+      (async () => {
+        await selectProcess(selectedPid, false);
+        currentProc = { ...currentProc, payload: parsed };
+        const per = parsed.personal || {};
+        const host = parsed.host || {};
+        const fieldMap = {
+          p_full_name: per.full_name, p_ist_id: per.ist_id,
+          p_inst_email: per.institutional_email, p_sex: per.sex,
+          p_home_degree: per.home_degree, p_first_names: per.first_names,
+          p_last_names: per.last_names, p_nationality: per.nationality,
+          p_birth_date: per.birth_date, p_academic_year: per.mobility_academic_year,
+          p_from_month: per.from_month, p_to_month: per.to_month,
+          h_country: host.host_country, h_university: host.host_university,
+          h_faculty: host.faculty_department, h_address: host.host_address,
+          h_contact: host.host_contact, h_erasmus_code: host.erasmus_code,
+          h_main_language: host.main_language,
+        };
+        Object.entries(fieldMap).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (el) el.value = safeText(val);
+        });
+        buildAcronymSelect(safeText(per.home_degree_acronym));
+        document.getElementById("p_is_double_degree").checked = !!per.is_double_degree;
+        if (per.study_cycle) document.getElementById("p_study_cycle").value = safeText(per.study_cycle);
+        if (per.semester) document.getElementById("p_semester").value = safeText(per.semester);
+        if (host.language_level) document.getElementById("h_language_level").value = safeText(host.language_level);
+        const rawEqs = Array.isArray(parsed.equivalences) ? parsed.equivalences : [];
+        equivalencesState = rawEqs.map(eq => ({
+          id: safeText(eq.id) || crypto.randomUUID(),
+          status: safeText(eq.status) || "A",
+          comment: safeText(eq.comment),
+          homeCourses: Array.isArray(eq.homeCourses) ? eq.homeCourses.map(c => ({ ...c })) : [],
+          destinationCourses: Array.isArray(eq.destinationCourses) ? eq.destinationCourses.map(c => ({ ...c })) : [],
+        }));
+        renderEquivalences();
+        closeJsonModal();
+        setStatus("Payload applied from JSON editor. Don't forget to Save.", "ok");
+        setTimeout(() => setStatus(""), 4000);
+      })();
+    }
+
+    document.getElementById("editJsonBtn").addEventListener("click", openJsonModal);
+    document.getElementById("jsonModalCloseBtn").addEventListener("click", closeJsonModal);
+    document.getElementById("jsonCancelBtn").addEventListener("click", closeJsonModal);
+    document.getElementById("jsonApplyBtn").addEventListener("click", applyJsonModal);
+    document.getElementById("jsonModal").addEventListener("click", e => {
+      if (e.target === document.getElementById("jsonModal")) closeJsonModal();
+    });
+
+    loadAcronyms();
+    loadAll().catch(e => setStatus(`Failed to load final processes: ${e.message}`, "err"));
+  </script>
+</body>
+</html>

@@ -457,6 +457,39 @@
       color: var(--info-text);
     }
 
+    .phone {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .prefix {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 11px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .signature-note {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--info-text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+    }
+
+    .file-input-hidden { display: none; }
+
     .europe-only { display: none; }
     .outside-only { display: none; }
 
@@ -581,9 +614,10 @@
 
     .upload-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 14px;
       margin-top: 10px;
+      max-width: 480px;
     }
 
     .upload-card {
@@ -708,6 +742,7 @@
       .grid { grid-template-columns: 1fr; }
       .upload-grid { grid-template-columns: 1fr; }
       .overlay { margin: 12px; }
+      .phone { grid-template-columns: 72px 1fr; }
     }
   </style>
 </head>
@@ -733,6 +768,253 @@
         <div id="msgsep" class="sep" style="display:none;"></div>
 
         <form id="form">
+          <section id="standaloneInfoSection" style="display:none;">
+            <h3 style="margin:0 0 4px 0; font-size:15px; font-weight:700;">Personal information</h3>
+            <p style="margin:0 0 14px 0; font-size:13px; opacity:0.80; line-height:1.55;">
+              You are starting the final recognition process without a prior mobility process on file.
+              Please fill in your personal and host university information below.
+            </p>
+
+            <div class="grid">
+              <div class="field">
+                <label>Full name</label>
+                <input id="personal_full_name" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>First name(s)</label>
+                <input id="personal_first_names" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Last name(s)</label>
+                <input id="personal_last_names" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Nationality</label>
+                <input id="personal_nationality" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Date of birth</label>
+                <input id="personal_birth_date" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>istId</label>
+                <input id="personal_ist_id" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>Institutional email</label>
+                <input id="personal_inst_email" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>Sex</label>
+                <input id="personal_sex" required disabled />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Home degree</label>
+                <input id="personal_home_degree" required disabled />
+                <input type="hidden" id="personal_home_degree_acronym" />
+                <div class="hint">From Fénix</div>
+              </div>
+
+              <div class="field">
+                <label>Phone number</label>
+
+                <div class="phone">
+                  <input id="phone_prefix" class="prefix" value="+351" inputmode="numeric" placeholder="+351" required />
+                  <input id="personal_phone" inputmode="numeric" placeholder="912345678" pattern="[0-9]{6,12}" required />
+                </div>
+
+                <div class="hint">Prefix must start with +. Number only digits.</div>
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Mobility program</label>
+                <select id="personal_mobility_type" required>
+                  <option value="">Select</option>
+                  <option value="ERASMUS">Erasmus</option>
+                  <option value="Almeida Garrett">Almeida Garrett</option>
+                  <option value="Acordos - África do Sul">Acordos - África do Sul</option>
+                  <option value="Acordos - Argentina">Acordos - Argentina</option>
+                  <option value="Acordos - Arménia">Acordos - Arménia</option>
+                  <option value="Acordos - Austrália">Acordos - Austrália</option>
+                  <option value="Acordos - Azerbeijão">Acordos - Azerbeijão</option>
+                  <option value="Acordos - Bielorrússia">Acordos - Bielorrússia</option>
+                  <option value="Acordos - Brasil">Acordos - Brasil</option>
+                  <option value="Acordos - Canadá">Acordos - Canadá</option>
+                  <option value="Acordos - Cazaquistão">Acordos - Cazaquistão</option>
+                  <option value="Acordos - Chile">Acordos - Chile</option>
+                  <option value="Acordos - China">Acordos - China</option>
+                  <option value="Acordos - Colômbia">Acordos - Colômbia</option>
+                  <option value="Acordos - Coreia do Sul">Acordos - Coreia do Sul</option>
+                  <option value="Acordos - Costa Rica">Acordos - Costa Rica</option>
+                  <option value="Acordos - França">Acordos - França</option>
+                  <option value="Acordos - Índia">Acordos - Índia</option>
+                  <option value="Acordos - Irão">Acordos - Irão</option>
+                  <option value="Acordos - Iraque">Acordos - Iraque</option>
+                  <option value="Acordos - Israel">Acordos - Israel</option>
+                  <option value="Acordos - Japão">Acordos - Japão</option>
+                  <option value="Acordos - Jordânia">Acordos - Jordânia</option>
+                  <option value="Acordos - Malásia">Acordos - Malásia</option>
+                  <option value="Acordos - México">Acordos - México</option>
+                  <option value="Acordos - Palestina">Acordos - Palestina</option>
+                  <option value="Acordos - Rússia">Acordos - Rússia</option>
+                  <option value="Acordos - SMILE">Acordos - SMILE</option>
+                  <option value="Acordos - Tailândia">Acordos - Tailândia</option>
+                  <option value="Acordos - Taiwan">Acordos - Taiwan</option>
+                  <option value="Acordos - Timor Leste">Acordos - Timor Leste</option>
+                  <option value="Acordos - Tunísia">Acordos - Tunísia</option>
+                  <option value="Acordos - Uruguai">Acordos - Uruguai</option>
+                  <option value="T.I.M.E">T.I.M.E</option>
+                  <option value="T.I.M.E Double Degree">T.I.M.E Double Degree (França)</option>
+                </select>
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label style="display:flex; gap:8px; align-items:center; cursor:pointer; font-weight:normal;">
+                  <input type="checkbox" id="personal_is_double_degree" style="width:16px; height:16px; cursor:pointer;">
+                  Double Degree
+                </label>
+              </div>
+
+              <div class="field">
+                <label>Mobility academic year</label>
+                <input id="personal_academic_year" placeholder="2026/2027" required />
+                <div class="hint">Format: YYYY/YYYY</div>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Mobility study cycle</label>
+                <select id="personal_study_cycle" required>
+                  <option value="">Select</option>
+                  <option value="1st">1st</option>
+                  <option value="2nd">2nd</option>
+                  <option value="3rd">3rd</option>
+                </select>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Semester</label>
+                <select id="personal_semester" required>
+                  <option value="">Select</option>
+                  <option value="1st Semester">1st Semester</option>
+                  <option value="2nd Semester">2nd Semester</option>
+                  <option value="1st and 2nd Semester">1st and 2nd Semester</option>
+                </select>
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label class="label-with-help">
+                  <span>Period of the mobility</span>
+                  <button type="button" class="help-icon" aria-label="Help about period" data-help="Please respect the format: DAY/MONTH/YEAR. For example: 01/09/2026.">i</button>
+                </label>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                  <input id="personal_from_month" required />
+                  <span style="opacity:0.85;">to</span>
+                  <input id="personal_to_month" required />
+                </div>
+              </div>
+
+              <div class="field grid-item" style="grid-column: 1 / -1;">
+                <label>Signature (PNG)</label>
+
+                <div id="signature_status" style="margin-bottom:8px;"></div>
+                <img id="signature_preview" style="display:none; max-height:80px; max-width:120px; margin-bottom:8px;" />
+
+                <input type="file" id="personal_signature_png" accept="image/png" class="file-input-hidden" />
+
+                <button type="button" class="btn secondary" id="signature_pick_btn">Choose signature</button>
+
+                <div class="signature-note">
+                  The uploaded signature will be used exclusively for related documents generated within this platform.
+                  After the documents are finalized, the signature file will be permanently deleted from our system.
+                </div>
+
+                <div style="margin-top:10px;">
+                  <label style="display:flex; gap:8px; align-items:flex-start; font-weight:normal;">
+                    <input type="checkbox" id="signature_consent" required>
+                    I declare that I have read and consent to the use of my signature as described above.
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+
+            <h3 style="margin:0 0 4px 0; font-size:15px; font-weight:700;">Host university</h3>
+            <p style="margin:0 0 14px 0; font-size:13px; opacity:0.80; line-height:1.55;">
+              Please fill in the host university details.
+            </p>
+
+            <div class="grid">
+              <div class="field">
+                <label>Host country</label>
+                <input id="host_country" placeholder="e.g. Germany" required />
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Host university name</label>
+                <input id="host_university_name" placeholder="e.g. Technische Universität München" required />
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label>Faculty or Department</label>
+                <input id="host_faculty_department" required />
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label>Host university address</label>
+                <input id="host_address" required />
+              </div>
+
+              <div class="field europe-only grid-item" style="grid-column: 1 / -1;">
+                <label>Host contact</label>
+                <input id="host_contact" required />
+                <div class="hint">Email or phone number</div>
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label class="label-with-help">
+                  <span>Erasmus code</span>
+                  <button type="button" class="help-icon" aria-label="Help about Erasmus code" data-help="Enter the official Erasmus code of the host university if available.">i</button>
+                </label>
+                <input id="host_erasmus_code" />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Main language</label>
+                <input id="host_main_language" required />
+              </div>
+
+              <div class="field europe-only grid-item">
+                <label>Language proficiency level</label>
+                <select id="host_language_level" required>
+                  <option value="">Select</option>
+                  <option value="A1">A1</option>
+                  <option value="A2">A2</option>
+                  <option value="B1">B1</option>
+                  <option value="B2">B2</option>
+                  <option value="C1">C1</option>
+                  <option value="C2">C2</option>
+                  <option value="native">Native Speaker</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+          </section>
+
           <section>
             <div id="equivalencesList" style="display:flex; flex-direction:column; gap:12px;"></div>
 
@@ -884,47 +1166,13 @@
           <div class="sep"></div>
 
           <section class="upload-section">
-            <h3 style="margin:0 0 4px 0; font-size:15px; font-weight:700;">Transcripts of Records</h3>
+            <h3 style="margin:0 0 4px 0; font-size:15px; font-weight:700;">Transcript of Records</h3>
             <p style="margin:0 0 2px 0; font-size:13px; opacity:0.80; line-height:1.55;">
-              Upload both Transcripts of Records to confirm the courses you completed during your mobility period.
-              Both documents are required before submission.
+              Upload the Host University Transcript of Records to confirm the courses you completed during your mobility period.
+              This document is required before submission.
             </p>
 
             <div class="upload-grid">
-              <!-- IST TOR -->
-              <div class="upload-card" id="uploadCardIST">
-                <div class="upload-card-title">TOR IST (Home University)</div>
-                <div class="upload-card-hint">Official Transcript of Records issued by IST, this document should be up to date, listing the equivalences granted.</div>
-
-                <div class="upload-drop-zone" id="dropZoneIST" role="button" tabindex="0" aria-label="Upload IST Transcript of Records">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="12" y1="18" x2="12" y2="12"/>
-                    <line x1="9" y1="15" x2="15" y2="15"/>
-                  </svg>
-                  <span class="upload-drop-zone-label">Click or drag & drop PDF</span>
-                  <span class="upload-drop-zone-sub">PDF only · max 10 MB</span>
-                </div>
-
-                <div class="upload-file-info" id="fileInfoIST">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                  </svg>
-                  <span class="upload-file-name" id="fileNameIST">-</span>
-                  <span class="upload-file-size" id="fileSizeIST"></span>
-                  <button class="upload-remove-btn" type="button" id="removeIST" aria-label="Remove IST TOR">✕</button>
-                </div>
-
-                <input type="file" class="upload-input" id="inputIST" accept="application/pdf" />
-
-                <div class="upload-status-row">
-                  <div class="upload-status-dot"></div>
-                  <span class="upload-status-text" id="statusIST">No file uploaded</span>
-                </div>
-              </div>
-
               <!-- Host TOR -->
               <div class="upload-card" id="uploadCardHost">
                 <div class="upload-card-title">TOR Host University</div>
@@ -985,8 +1233,9 @@
     let homeCoursesCatalog = [];
     let homeCoursesById = {};
 
-    let torFiles = { ist: null, host: null };
-
+    let torFiles = { host: null };
+    let isStandalone = false;
+    let signaturePngBase64 = "";
 
     const MAX_PDF_MB = 10;
 
@@ -1011,10 +1260,10 @@
 
       torFiles[slot] = file;
 
-      const card   = document.getElementById(slot === "ist" ? "uploadCardIST"  : "uploadCardHost");
-      const name   = document.getElementById(slot === "ist" ? "fileNameIST"    : "fileNameHost");
-      const size   = document.getElementById(slot === "ist" ? "fileSizeIST"    : "fileSizeHost");
-      const status = document.getElementById(slot === "ist" ? "statusIST"      : "statusHost");
+      const card   = document.getElementById("uploadCardHost");
+      const name   = document.getElementById("fileNameHost");
+      const size   = document.getElementById("fileSizeHost");
+      const status = document.getElementById("statusHost");
 
       if (card)   card.classList.add("has-file");
       if (name)   name.textContent = file.name;
@@ -1027,11 +1276,11 @@
     function removeFileFromSlot(slot) {
       torFiles[slot] = null;
 
-      const card   = document.getElementById(slot === "ist" ? "uploadCardIST"  : "uploadCardHost");
-      const name   = document.getElementById(slot === "ist" ? "fileNameIST"    : "fileNameHost");
-      const size   = document.getElementById(slot === "ist" ? "fileSizeIST"    : "fileSizeHost");
-      const status = document.getElementById(slot === "ist" ? "statusIST"      : "statusHost");
-      const input  = document.getElementById(slot === "ist" ? "inputIST"       : "inputHost");
+      const card   = document.getElementById("uploadCardHost");
+      const name   = document.getElementById("fileNameHost");
+      const size   = document.getElementById("fileSizeHost");
+      const status = document.getElementById("statusHost");
+      const input  = document.getElementById("inputHost");
 
       if (card)   card.classList.remove("has-file");
       if (name)   name.textContent = "-";
@@ -1083,30 +1332,24 @@
     }
 
     function initUploadUI() {
-      initUploadZone("dropZoneIST",  "inputIST",  "ist");
       initUploadZone("dropZoneHost", "inputHost", "host");
 
-      document.getElementById("removeIST").addEventListener("click",  () => removeFileFromSlot("ist"));
       document.getElementById("removeHost").addEventListener("click", () => removeFileFromSlot("host"));
     }
 
     function setUploadDisabled(disabled) {
-      ["dropZoneIST", "dropZoneHost"].forEach((id) => {
+      ["dropZoneHost"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.style.cursor = disabled ? "not-allowed" : "pointer";
       });
 
-      ["removeIST", "removeHost"].forEach((id) => {
+      ["removeHost"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.disabled = disabled;
       });
     }
 
     function validateTORs() {
-      if (!torFiles.ist) {
-        return { ok: false, msg: "Please upload the IST Transcript of Records (TOR)." };
-      }
-
       if (!torFiles.host) {
         return { ok: false, msg: "Please upload the Host University Transcript of Records (TOR)." };
       }
@@ -1131,12 +1374,314 @@
       }
 
       const results = await Promise.all([
-        torFiles.ist  ? uploadOne("origin",  torFiles.ist)  : Promise.resolve({ ok: true, skipped: true }),
         torFiles.host ? uploadOne("destination", torFiles.host) : Promise.resolve({ ok: true, skipped: true }),
       ]);
 
       const failed = results.find(r => !r.ok);
       return { ok: !failed, data: results };
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function pickHomeDegreeFromPerson(person, curriculum) {
+      const items = Array.isArray(curriculum) ? curriculum : [];
+      if (!items.length) return { name: "", acronym: "" };
+
+      function getDegreeType(entry) {
+        const name = safeText(entry?.degree?.name).toLowerCase();
+        const acronym = safeText(entry?.degree?.acronym).toLowerCase();
+
+        if (name.includes("master") || name.includes("mestrado") || acronym.startsWith("m")) return "master";
+        if (name.includes("bologna degree") || name.includes("licenciatura") || acronym.startsWith("l")) return "bachelor";
+        return "unknown";
+      }
+
+      function isConcluded(entry) {
+        if (!entry) return true;
+        if (entry.isFinished === true) return true;
+
+        const credits = Number(entry.credits || 0);
+        const degreeType = getDegreeType(entry);
+
+        if (degreeType === "bachelor" && credits >= 180) return true;
+        if (degreeType === "master" && credits >= 120) return true;
+
+        return false;
+      }
+
+      const activeDegrees = items.filter(entry => !isConcluded(entry));
+      if (!activeDegrees.length) return { name: "", acronym: "" };
+
+      activeDegrees.sort((a, b) => {
+        const startA = safeText(a?.start).split("/").reverse().join("");
+        const startB = safeText(b?.start).split("/").reverse().join("");
+        return startB.localeCompare(startA);
+      });
+
+      const current = activeDegrees[0];
+      let n = safeText(current?.degree?.name);
+      n = n.replace(/^Bologna Degree in\s*/i, "");
+      n = n.replace(/^Bologna Master Degree in\s*/i, "");
+
+      return { name: n || "", acronym: safeText(current?.degree?.acronym) };
+    }
+
+    function fillStandalonePersonalFromFenix(person, curriculum) {
+      document.getElementById("personal_full_name").value = safeText(person.name || person.displayName);
+      document.getElementById("personal_ist_id").value = safeText(person.username);
+      document.getElementById("personal_inst_email").value = safeText(person.institutionalEmail || person.email);
+      document.getElementById("personal_sex").value = safeText(person.gender);
+
+      const degreeInfo = pickHomeDegreeFromPerson(person, curriculum);
+      document.getElementById("personal_home_degree").value = degreeInfo.name;
+      document.getElementById("personal_home_degree_acronym").value = degreeInfo.acronym;
+
+      document.getElementById("personal_birth_date").value = safeText(person.birthday);
+    }
+
+    function readStandalonePersonalPayload() {
+      const prefix = safeText(document.getElementById("phone_prefix").value);
+      const phoneRaw = safeText(document.getElementById("personal_phone").value);
+      const phoneDigits = phoneRaw.replace(/\D+/g, "");
+
+      return {
+        full_name: safeText(document.getElementById("personal_full_name").value),
+        ist_id: safeText(document.getElementById("personal_ist_id").value),
+        institutional_email: safeText(document.getElementById("personal_inst_email").value),
+        sex: safeText(document.getElementById("personal_sex").value),
+        home_degree: safeText(document.getElementById("personal_home_degree").value),
+        home_degree_acronym: safeText(document.getElementById("personal_home_degree_acronym").value),
+        phone_e164: (prefix && phoneDigits) ? `${prefix}${phoneDigits}` : "",
+        mobility_type: safeText(document.getElementById("personal_mobility_type").value),
+        is_double_degree: document.getElementById("personal_is_double_degree")?.checked ? true : false,
+        mobility_academic_year: safeText(document.getElementById("personal_academic_year").value),
+        signature_png_base64: safeText(signaturePngBase64),
+        signature_consent: document.getElementById("signature_consent")?.checked ? true : false,
+        first_names: safeText(document.getElementById("personal_first_names")?.value),
+        last_names: safeText(document.getElementById("personal_last_names")?.value),
+        birth_date: safeText(document.getElementById("personal_birth_date")?.value),
+        nationality: safeText(document.getElementById("personal_nationality")?.value),
+        study_cycle: safeText(document.getElementById("personal_study_cycle")?.value),
+        semester: safeText(document.getElementById("personal_semester")?.value),
+        from_month: safeText(document.getElementById("personal_from_month")?.value),
+        to_month: safeText(document.getElementById("personal_to_month")?.value)
+      };
+    }
+
+    function readStandaloneHostPayload() {
+      return {
+        host_university: safeText(document.getElementById("host_university_name").value),
+        host_country: safeText(document.getElementById("host_country").value),
+        faculty_department: safeText(document.getElementById("host_faculty_department")?.value),
+        host_address: safeText(document.getElementById("host_address")?.value),
+        host_contact: safeText(document.getElementById("host_contact")?.value),
+        erasmus_code: safeText(document.getElementById("host_erasmus_code")?.value),
+        main_language: safeText(document.getElementById("host_main_language")?.value),
+        language_level: safeText(document.getElementById("host_language_level")?.value)
+      };
+    }
+
+    function validDateFormat(v) {
+      return /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(v);
+    }
+
+    function parsePtDate(v) {
+      if (!validDateFormat(v)) return null;
+
+      const [dd, mm, yyyy] = v.split("/").map(Number);
+      const d = new Date(yyyy, mm - 1, dd);
+
+      if (d.getFullYear() !== yyyy || d.getMonth() !== mm - 1 || d.getDate() !== dd) return null;
+
+      return d;
+    }
+
+    function getAcademicYearBounds(academicYear) {
+      const m = academicYear.match(/^(\d{4})\/(\d{4})$/);
+      if (!m) return null;
+
+      const startYear = Number(m[1]);
+      const endYear = Number(m[2]);
+      if (endYear !== startYear + 1) return null;
+
+      return { start: new Date(startYear, 7, 1), end: new Date(endYear, 8, 31) };
+    }
+
+    function validateStandaloneInfo() {
+      if (!isStandalone) return { ok: true, msg: "" };
+
+      const phoneRaw = safeText(document.getElementById("personal_phone").value).replace(/\D+/g, "");
+      if (phoneRaw.length !== 9) return { ok: false, msg: "Phone number must have 9 digits." };
+
+      const prefix = safeText(document.getElementById("phone_prefix").value);
+      if (!/^\+\d{1,4}$/.test(prefix)) return { ok: false, msg: "Invalid international prefix." };
+
+      const year = safeText(document.getElementById("personal_academic_year").value);
+      if (!/^\d{4}\/\d{4}$/.test(year)) return { ok: false, msg: "Academic year must be like 2025/2026." };
+
+      const mt = safeText(document.getElementById("personal_mobility_type").value);
+      if (!mt) return { ok: false, msg: "Please select the mobility program." };
+
+      if (!safeText(signaturePngBase64)) return { ok: false, msg: "Please upload your signature PNG." };
+      if (!document.getElementById("signature_consent")?.checked) {
+        return { ok: false, msg: "You must consent to the use of your signature for the related documents." };
+      }
+
+      const uni = safeText(document.getElementById("host_university_name").value);
+      if (!uni) return { ok: false, msg: "Please enter the host university name." };
+
+      const country = safeText(document.getElementById("host_country").value);
+      if (!country) return { ok: false, msg: "Please enter the host country." };
+
+      if (mobilityType === "EUROPE") {
+        const need = (id, msg) => {
+          const v = safeText(document.getElementById(id)?.value);
+          return v ? null : { ok: false, msg };
+        };
+
+        const basicValidation =
+          need("personal_first_names", "Please fill first name(s).") ||
+          need("personal_last_names", "Please fill last name(s).") ||
+          need("personal_birth_date", "Please fill date of birth.") ||
+          need("personal_nationality", "Please fill nationality.") ||
+          need("personal_study_cycle", "Please select study cycle.") ||
+          need("personal_semester", "Please select semester.") ||
+          need("personal_from_month", "Please fill the start date.") ||
+          need("personal_to_month", "Please fill the end date.") ||
+          need("host_faculty_department", "Please fill the faculty or department.") ||
+          need("host_address", "Please fill the host university address.") ||
+          need("host_contact", "Please fill the host contact.") ||
+          need("host_main_language", "Please fill the main language.") ||
+          need("host_language_level", "Please select the language proficiency level.");
+
+        if (basicValidation) return basicValidation;
+
+        const fromRaw = safeText(document.getElementById("personal_from_month")?.value);
+        const toRaw = safeText(document.getElementById("personal_to_month")?.value);
+
+        if (!validDateFormat(fromRaw)) return { ok: false, msg: "Start date must be in format DD/MM/YYYY." };
+        if (!validDateFormat(toRaw)) return { ok: false, msg: "End date must be in format DD/MM/YYYY." };
+
+        const fromDate = parsePtDate(fromRaw);
+        const toDate = parsePtDate(toRaw);
+
+        if (!fromDate) return { ok: false, msg: "Start date is invalid." };
+        if (!toDate) return { ok: false, msg: "End date is invalid." };
+        if (toDate < fromDate) return { ok: false, msg: "End date must be after or equal to start date." };
+
+        const bounds = getAcademicYearBounds(year);
+        if (!bounds) return { ok: false, msg: "Academic year is invalid." };
+
+        if (fromDate < bounds.start || fromDate > bounds.end) {
+          return { ok: false, msg: "Start date must be within the selected academic year." };
+        }
+
+        if (toDate < bounds.start || toDate > bounds.end) {
+          return { ok: false, msg: "End date must be within the selected academic year." };
+        }
+      }
+
+      return { ok: true, msg: "" };
+    }
+
+    function updateSignatureUI(hasSignature) {
+      const preview = document.getElementById("signature_preview");
+      const status = document.getElementById("signature_status");
+      const pickBtn = document.getElementById("signature_pick_btn");
+
+      if (!preview || !status || !pickBtn) return;
+
+      if (hasSignature) {
+        preview.style.display = "block";
+        status.textContent = "Signature loaded";
+        pickBtn.textContent = "Replace signature";
+      } else {
+        preview.style.display = "none";
+        preview.removeAttribute("src");
+        status.textContent = "";
+        pickBtn.textContent = "Choose signature";
+      }
+    }
+
+    const MAX_SIGNATURE_FILE_SIZE = 100 * 1024; // 100KB
+
+    function isValidPngBase64(base64) {
+      return base64.startsWith("data:image/png;base64,") && base64.includes("iVBORw0KGgo");
+    }
+
+    function initStandaloneUI() {
+      const editable = isEditable();
+
+      const pickBtn = document.getElementById("signature_pick_btn");
+      const sigInput = document.getElementById("personal_signature_png");
+
+      if (pickBtn && sigInput && !pickBtn.dataset.bound) {
+        pickBtn.addEventListener("click", () => sigInput.click());
+
+        sigInput.addEventListener("change", async (e) => {
+          const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+          if (!file) return;
+
+          if (file.size > MAX_SIGNATURE_FILE_SIZE) {
+            e.target.value = "";
+            signaturePngBase64 = "";
+            updateSignatureUI(false);
+            setMsg("Signature file is too large. Max size is 100KB.");
+            return;
+          }
+
+          if (file.type !== "image/png") {
+            e.target.value = "";
+            signaturePngBase64 = "";
+            updateSignatureUI(false);
+            setMsg("Signature must be a PNG file.");
+            return;
+          }
+
+          const b64 = await fileToBase64(file);
+
+          if (!isValidPngBase64(b64)) {
+            e.target.value = "";
+            signaturePngBase64 = "";
+            updateSignatureUI(false);
+            setMsg("Invalid PNG file content.");
+            return;
+          }
+
+          signaturePngBase64 = b64;
+          const preview = document.getElementById("signature_preview");
+          if (preview) preview.src = b64;
+          updateSignatureUI(true);
+          setMsg("");
+        });
+
+        pickBtn.dataset.bound = "1";
+      }
+
+      const prefixInput = document.getElementById("phone_prefix");
+      if (prefixInput && !prefixInput.dataset.bound) {
+        prefixInput.addEventListener("input", (e) => {
+          let v = e.target.value.replace(/[^\d+]/g, "");
+          if (!v.startsWith("+")) v = "+" + v.replace(/\+/g, "");
+          e.target.value = v.slice(0, 5);
+        });
+        prefixInput.dataset.bound = "1";
+      }
+
+      document.querySelectorAll("#standaloneInfoSection input, #standaloneInfoSection select").forEach((el) => {
+        if (el.hasAttribute("disabled")) return;
+        el.disabled = !editable;
+      });
+
+      const signatureConsent = document.getElementById("signature_consent");
+      if (signatureConsent) signatureConsent.disabled = !editable;
     }
 
     function newEquivalenceId() {
@@ -1535,6 +2080,11 @@
       base.equivalences = readSection3Payload();
       base.mobility_type = mobilityType;
 
+      if (isStandalone) {
+        base.personal = readStandalonePersonalPayload();
+        base.host_university = readStandaloneHostPayload();
+      }
+
       return base;
     }
 
@@ -1549,6 +2099,11 @@
 
       base.equivalences = computed;
       base.mobility_type = mobilityType;
+
+      if (isStandalone) {
+        base.personal = readStandalonePersonalPayload();
+        base.host_university = readStandaloneHostPayload();
+      }
 
       return base;
     }
@@ -1566,17 +2121,16 @@
         processPayloadSnapshot = latest.data.process.payload || {};
       }
 
-      // Upload any TORs already picked before saving
-      if (torFiles.ist || torFiles.host) {
+      // Upload any TOR already picked before saving
+      if (torFiles.host) {
         const resUpload = await uploadTORs();
         if (!resUpload.ok) {
-          setMsg("Failed to upload the Transcripts of Records. Please try again.");
+          setMsg("Failed to upload the Transcript of Records. Please try again.");
           return false;
         }
       }
 
       const payload = buildPayloadForSave();
-      if (torFiles.ist)  payload.tor_ist_filename  = torFiles.ist.name;
       if (torFiles.host) payload.tor_host_filename = torFiles.host.name;
 
       const res = await savePayload(payload);
@@ -1602,14 +2156,21 @@
         return;
       }
 
-      // 1. Validate equivalences
+      // 1. Validate personal & host university info (standalone only)
+      const vInfo = validateStandaloneInfo();
+      if (!vInfo.ok) {
+        setMsg(vInfo.msg);
+        return;
+      }
+
+      // 2. Validate equivalences
       const v = validateSection3();
       if (!v.ok) {
         setMsg(v.msg);
         return;
       }
 
-      // 2. Validate TORs
+      // 3. Validate TOR
       const vTOR = validateTORs();
       if (!vTOR.ok) {
         setMsg(vTOR.msg);
@@ -1642,17 +2203,16 @@
 
       processPayloadSnapshot = payload;
 
-      // 3. Upload TORs
-      setMsg("Uploading Transcripts of Records…");
+      // 4. Upload TOR
+      setMsg("Uploading Transcript of Records…");
       const resUpload = await uploadTORs();
       if (!resUpload.ok) {
-        setMsg("Failed to upload the Transcripts of Records. Please try again.");
+        setMsg("Failed to upload the Transcript of Records. Please try again.");
         return;
       }
 
-      // 4. Persist TOR filenames in payload so they show on reload
+      // 5. Persist TOR filename in payload so it shows on reload
       const torPayload = { ...(processPayloadSnapshot || {}) };
-      if (torFiles.ist)  torPayload.tor_ist_filename  = torFiles.ist.name;
       if (torFiles.host) torPayload.tor_host_filename = torFiles.host.name;
       await savePayload(torPayload);
       processPayloadSnapshot = torPayload;
@@ -1681,8 +2241,53 @@
       }, 900);
     }
 
+    function fillStandaloneInfoFromPayload(payload) {
+      const p = (payload && typeof payload.personal === "object" && payload.personal) || {};
+      const h = (payload && typeof payload.host_university === "object" && payload.host_university) || {};
+
+      if (safeText(p.first_names))  document.getElementById("personal_first_names").value = p.first_names;
+      if (safeText(p.last_names))   document.getElementById("personal_last_names").value = p.last_names;
+      if (safeText(p.nationality))  document.getElementById("personal_nationality").value = p.nationality;
+      if (safeText(p.mobility_type)) document.getElementById("personal_mobility_type").value = p.mobility_type;
+      if (p.is_double_degree) document.getElementById("personal_is_double_degree").checked = true;
+      if (safeText(p.mobility_academic_year)) document.getElementById("personal_academic_year").value = p.mobility_academic_year;
+      if (safeText(p.study_cycle))  document.getElementById("personal_study_cycle").value = p.study_cycle;
+      if (safeText(p.semester))     document.getElementById("personal_semester").value = p.semester;
+      if (safeText(p.from_month))   document.getElementById("personal_from_month").value = p.from_month;
+      if (safeText(p.to_month))     document.getElementById("personal_to_month").value = p.to_month;
+
+      const phone = safeText(p.phone_e164);
+      if (phone) {
+        const m = phone.match(/^(\+\d{1,4})(\d+)$/);
+        if (m) {
+          document.getElementById("phone_prefix").value = m[1];
+          document.getElementById("personal_phone").value = m[2];
+        }
+      }
+
+      if (safeText(p.signature_png_base64)) {
+        signaturePngBase64 = p.signature_png_base64;
+        const preview = document.getElementById("signature_preview");
+        if (preview) preview.src = signaturePngBase64;
+        updateSignatureUI(true);
+        const consent = document.getElementById("signature_consent");
+        if (consent) consent.checked = !!p.signature_consent;
+      }
+
+      if (safeText(h.host_university)) document.getElementById("host_university_name").value = h.host_university;
+      if (safeText(h.host_country))     document.getElementById("host_country").value = h.host_country;
+      if (safeText(h.faculty_department)) document.getElementById("host_faculty_department").value = h.faculty_department;
+      if (safeText(h.host_address))     document.getElementById("host_address").value = h.host_address;
+      if (safeText(h.host_contact))     document.getElementById("host_contact").value = h.host_contact;
+      if (safeText(h.erasmus_code))     document.getElementById("host_erasmus_code").value = h.erasmus_code;
+      if (safeText(h.main_language))    document.getElementById("host_main_language").value = h.main_language;
+      if (safeText(h.language_level))   document.getElementById("host_language_level").value = h.language_level;
+    }
+
     function fillFromProcessPayload(payload) {
       if (!payload || typeof payload !== "object") return;
+
+      if (isStandalone) fillStandaloneInfoFromPayload(payload);
 
       const eq = Array.isArray(payload.equivalences) && payload.equivalences.length > 0
         ? payload.equivalences
@@ -1702,14 +2307,13 @@
 
       // Restore previously uploaded TOR info
       function showSavedTOR(slot, filename) {
-        const isIST  = slot === "ist";
-        const card   = document.getElementById(isIST ? "uploadCardIST" : "uploadCardHost");
-        const name   = document.getElementById(isIST ? "fileNameIST"   : "fileNameHost");
-        const size   = document.getElementById(isIST ? "fileSizeIST"   : "fileSizeHost");
-        const status = document.getElementById(isIST ? "statusIST"     : "statusHost");
-        const rmBtn  = document.getElementById(isIST ? "removeIST"     : "removeHost");
-        const fileInfo = document.getElementById(isIST ? "fileInfoIST" : "fileInfoHost");
-        const torType  = isIST ? "origin" : "destination";
+        const card   = document.getElementById("uploadCardHost");
+        const name   = document.getElementById("fileNameHost");
+        const size   = document.getElementById("fileSizeHost");
+        const status = document.getElementById("statusHost");
+        const rmBtn  = document.getElementById("removeHost");
+        const fileInfo = document.getElementById("fileInfoHost");
+        const torType  = "destination";
 
         if (card)   card.classList.add("has-file");
         if (name)   name.textContent = filename;
@@ -1734,7 +2338,6 @@
         }
       }
 
-      if (payload.tor_ist_filename)  showSavedTOR("ist",  safeText(payload.tor_ist_filename));
       if (payload.tor_host_filename) showSavedTOR("host", safeText(payload.tor_host_filename));
 
       renderEquivalences();
@@ -2227,6 +2830,15 @@
 
       processPayloadSnapshot = proc.payload || {};
 
+      isStandalone = !safeText(processPayloadSnapshot?.personal?.ist_id);
+
+      const standaloneSection = document.getElementById("standaloneInfoSection");
+      if (standaloneSection) standaloneSection.style.display = isStandalone ? "block" : "none";
+
+      if (isStandalone) {
+        fillStandalonePersonalFromFenix(me.person || {}, me.curriculum || {});
+      }
+
       await fetchHomeCoursesCatalog();
 
       eqDecisions = {};
@@ -2235,6 +2847,7 @@
       setButtonsForStatus();
       initEquivalencesUI();
       initUploadUI();
+      if (isStandalone) initStandaloneUI();
       setMsg("");
     }
         
