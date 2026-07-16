@@ -20,7 +20,7 @@
     .tabs { flex-wrap: wrap; margin-bottom: 12px; display: flex; gap: 10px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
     main { padding: 10px 0 0; }
-    .three-col { display: grid; grid-template-columns: 1.6fr 0.9fr 1.6fr; gap: 16px; align-items: flex-start; }
+    .three-col { display: grid; grid-template-columns: 0.9fr 1.6fr; gap: 16px; align-items: flex-start; }
     .tor-col { position: sticky; top: 0; }
     .tor-embed { width: 100%; height: 85vh; border: none; border-radius: 12px; background: rgba(0,0,0,0.35); }
     .tor-placeholder {
@@ -78,21 +78,20 @@
 
         <div class="three-col" style="margin-top:10px;">
 
-          <!-- Coluna esquerda: TOR Origin -->
+          <!-- Coluna esquerda: TOR Destination -->
           <div class="tor-col">
-            <div style="font-weight:700; font-size:13px; opacity:0.75; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">TOR · Origin</div>
-            <div id="torOriginWrap">
-              <div class="tor-placeholder" id="torOriginPlaceholder">No TOR (origin) uploaded</div>
+            <div style="font-weight:700; font-size:13px; opacity:0.75; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">TOR · Destination</div>
+            <div id="torDestinationWrap">
+              <div class="tor-placeholder" id="torDestinationPlaceholder">No TOR (destination) uploaded</div>
             </div>
           </div>
 
-          <!-- Coluna central: equivalências -->
+          <!-- Coluna direita: equivalências -->
           <div>
             <div id="coordEqBar">
               <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
                 <div class="sub" id="coordEqInfo" style="opacity:0.9;"></div>
                 <div id="staffEditActions" style="display:none; gap:10px; flex-wrap:wrap; align-items:center; display:none;">
-                  <button class="btn secondary" id="addEquivalenceBtn" type="button">+ Add Equivalence</button>
                   <button class="btn" id="saveChangesBtn" type="button">Save Changes</button>
                 </div>
               </div>
@@ -114,7 +113,7 @@
                              resize:vertical; font-family:inherit;"></textarea>
                   </div>
                   <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                    <button class="btn" id="staffApproveBtn" type="button">Approve</button>
+                    <button class="btn" id="staffApproveBtn" type="button">Verified</button>
                     <button class="btn secondary" id="staffRejectBtn" type="button"
                       style="background:rgba(231,76,60,0.18); border-color:rgba(231,76,60,0.45); color:#e74c3c;">
                       Reject
@@ -127,14 +126,6 @@
                 </div>
               </div>
               <!-- ── End Staff Decision ─────────────────────────────────── -->
-            </div>
-          </div>
-
-          <!-- Coluna direita: TOR Destination -->
-          <div class="tor-col">
-            <div style="font-weight:700; font-size:13px; opacity:0.75; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">TOR · Destination</div>
-            <div id="torDestinationWrap">
-              <div class="tor-placeholder" id="torDestinationPlaceholder">No TOR (destination) uploaded</div>
             </div>
           </div>
 
@@ -152,6 +143,7 @@
     const FROM_QUEUE = params.get("fromQueue") === "1";
 
     let equivalencesState = [];
+    let rawEquivalencesForReview = [];
     let eqDecisions = {};
     let processPayload = null;
     let processId = null;
@@ -213,12 +205,65 @@
       return Array.from(document.querySelectorAll(".doc-checkbox:checked")).map((el) => el.value);
     }
 
-    function eqStatusMeta(code) {
-      const s = safeText(code).toUpperCase();
-      if (s === "R") return { label: "REMOVED", cls: "changes" };
-      if (s === "U") return { label: "UNCHANGED", cls: "not-reviewed" };
-      return { label: "ADDED", cls: "approved" };
-    }    
+    function sumCourseCredits(courses, useEquivalent) {
+      return (Array.isArray(courses) ? courses : []).reduce((acc, c) => {
+        const raw = useEquivalent ? safeText(c && c.credits_equivalent) : safeText(c && c.credits);
+        const n = Number(String(raw).replace(",", "."));
+        return acc + (Number.isFinite(n) ? n : 0);
+      }, 0);
+    }
+
+    function hasCreditsEquivalent(destinationCourses) {
+      return (Array.isArray(destinationCourses) ? destinationCourses : [])
+        .some(c => safeText(c && c.credits_equivalent) !== "");
+    }
+
+    function formatEcts(n) {
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    }
+
+    function buildEctsSummaryBar(homeCourses, destinationCourses) {
+      const showEquivalent = hasCreditsEquivalent(destinationCourses);
+
+      const bar = document.createElement("div");
+      bar.style.cssText = `display:grid; grid-template-columns:repeat(${showEquivalent ? 3 : 2}, 1fr); gap:12px; margin-bottom:12px;`;
+
+      const hostVal = document.createElement("div");
+      hostVal.style.cssText = "font-size:20px; font-weight:800;";
+
+      const hostEquivVal = showEquivalent ? document.createElement("div") : null;
+      if (hostEquivVal) hostEquivVal.style.cssText = "font-size:20px; font-weight:800;";
+
+      const homeVal = document.createElement("div");
+      homeVal.style.cssText = "font-size:20px; font-weight:800;";
+
+      const makeStat = (label, valueEl) => {
+        const box = document.createElement("div");
+        box.className = "card";
+        box.style.cssText = "padding:12px 14px; background:rgba(255,255,255,0.05); text-align:center;";
+
+        const lbl = document.createElement("div");
+        lbl.style.cssText = "font-size:11px; opacity:0.7; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;";
+        lbl.textContent = label;
+
+        box.appendChild(lbl);
+        box.appendChild(valueEl);
+        return box;
+      };
+
+      bar.appendChild(makeStat("Host ECTS total", hostVal));
+      if (hostEquivVal) bar.appendChild(makeStat("Host ECTS equivalent total", hostEquivVal));
+      bar.appendChild(makeStat("Home ECTS total", homeVal));
+
+      bar.refresh = (hc, dc) => {
+        hostVal.textContent = `${formatEcts(sumCourseCredits(dc, false))} ECTS`;
+        if (hostEquivVal) hostEquivVal.textContent = `${formatEcts(sumCourseCredits(dc, true))} ECTS`;
+        homeVal.textContent = `${formatEcts(sumCourseCredits(hc, false))} ECTS`;
+      };
+      bar.refresh(homeCourses, destinationCourses);
+
+      return bar;
+    }
 
     function getStudentSignatureDataUrl(process) {
       const p = process && process.payload ? process.payload : {};
@@ -352,17 +397,36 @@
         }
       }
 
-      if (Array.isArray(eq)) {
-        equivalencesState = eq.map(x => ({
-          id: safeText(x && x.id),
-          status: safeText(x && x.status) || "A",
-          comment: safeText(x && x.comment),
-          homeCourses: Array.isArray(x && x.homeCourses) ? x.homeCourses : [],
-          destinationCourses: Array.isArray(x && x.destinationCourses) ? x.destinationCourses : []
-        }));
-      } else {
-        equivalencesState = [];
-      }
+      const list = Array.isArray(eq) ? eq : [];
+
+      rawEquivalencesForReview = list.map(x => ({
+        id: safeText(x && x.id),
+        status: safeText(x && x.status) || "A",
+        comment: safeText(x && x.comment),
+        homeCourses: Array.isArray(x && x.homeCourses) ? x.homeCourses : [],
+        destinationCourses: Array.isArray(x && x.destinationCourses) ? x.destinationCourses : []
+      }));
+
+      const homeCourses = [];
+      const destinationCourses = [];
+      let comment = "";
+      let firstId = "";
+
+      rawEquivalencesForReview.forEach(x => {
+        if (safeText(x.status).toUpperCase() === "R") return;
+        if (!firstId) firstId = x.id;
+        homeCourses.push(...x.homeCourses);
+        destinationCourses.push(...x.destinationCourses);
+        if (!comment && x.comment) comment = x.comment;
+      });
+
+      equivalencesState = [{
+        id: firstId || newEquivalenceId(),
+        status: "A",
+        comment,
+        homeCourses,
+        destinationCourses
+      }];
     }
 
     function ensurePngDataUrl(v) {
@@ -533,23 +597,17 @@
 
       list.innerHTML = "";
 
-      const total = Array.isArray(equivalencesState) ? equivalencesState.length : 0;
+      const eq = equivalencesState[0] || { homeCourses: [], destinationCourses: [] };
+      const homeCourses = Array.isArray(eq.homeCourses) ? eq.homeCourses : [];
+      const destinationCourses = Array.isArray(eq.destinationCourses) ? eq.destinationCourses : [];
 
-      if (!total) {
+      if (!homeCourses.length && !destinationCourses.length) {
         info.textContent = "No equivalences.";
         updateFinalBox();
         return;
       }
 
-      info.textContent = `Total: ${total}`;
-
-      function sumCredits(courses) {
-        return (Array.isArray(courses) ? courses : []).reduce((acc, c) => {
-          const raw = safeText(c && c.credits);
-          const n = Number(String(raw).replace(",", "."));
-          return acc + (Number.isFinite(n) ? n : 0);
-        }, 0);
-      }
+      info.textContent = `Host courses: ${destinationCourses.length} · Home courses: ${homeCourses.length}`;
 
       function makeCourseCard(c, isHost) {
         const card = document.createElement("div");
@@ -576,7 +634,9 @@
         if (isHost) {
           const grade = safeText(c.grade);
           const gradeStr = grade ? ` | Grade: ${grade}` : "";
-          meta.textContent = `Credits ${safeText(c.credits)} | Semester ${safeText(c.semester)} | Code ${safeText(c.code)}${gradeStr}`;
+          const equivCredits = safeText(c.credits_equivalent);
+          const equivStr = equivCredits ? ` | Equivalent ECTS: ${equivCredits}` : "";
+          meta.textContent = `Credits ${safeText(c.credits)}${equivStr} | Semester ${safeText(c.semester)} | Code ${safeText(c.code)}${gradeStr}`;
         } else {
           meta.textContent = `Credits ${safeText(c.credits)}`;
         }
@@ -586,185 +646,113 @@
         return card;
       }
 
-      equivalencesState.forEach((eq, idx) => {
-        const d = eqDecisions[eq.id];
+      const wrap = document.createElement("div");
+      wrap.className = "card";
+      wrap.style.background = "rgba(0,0,0,0.18)";
 
-        const wrap = document.createElement("div");
-        wrap.className = "card";
-        wrap.style.background = "rgba(0,0,0,0.18)";
+      const grid = document.createElement("div");
+      grid.className = "grid";
 
-        const head = document.createElement("div");
-        head.style.display = "flex";
-        head.style.justifyContent = "space-between";
-        head.style.gap = "10px";
-        head.style.flexWrap = "wrap";
-        head.style.alignItems = "baseline";
+      const hostCol = document.createElement("div");
+      const homeCol = document.createElement("div");
 
-        const left = document.createElement("div");
-        left.style.display = "flex";
-        left.style.gap = "10px";
-        left.style.flexWrap = "wrap";
-        left.style.alignItems = "center";
+      const hostTitle = document.createElement("div");
+      hostTitle.style.fontWeight = "700";
+      hostTitle.textContent = "Host courses";
 
-        const title = document.createElement("div");
-        title.style.fontWeight = "800";
-        title.textContent = `Equivalence ${idx + 1}`;
+      const homeTitle = document.createElement("div");
+      homeTitle.style.fontWeight = "700";
+      homeTitle.textContent = "Home courses";
 
-        const st = eqStatusMeta(eq.status);
+      hostCol.appendChild(hostTitle);
+      homeCol.appendChild(homeTitle);
 
-        left.appendChild(title);
+      const hostList = document.createElement("div");
+      hostList.style.display = "flex";
+      hostList.style.flexDirection = "column";
+      hostList.style.gap = "10px";
+      hostList.style.marginTop = "10px";
 
-        head.appendChild(left);
+      const homeList = document.createElement("div");
+      homeList.style.display = "flex";
+      homeList.style.flexDirection = "column";
+      homeList.style.gap = "10px";
+      homeList.style.marginTop = "10px";
 
-        const sep = document.createElement("div");
-        sep.className = "sep";
+      destinationCourses.forEach(c => hostList.appendChild(makeCourseCard(c, true)));
+      homeCourses.forEach(c => homeList.appendChild(makeCourseCard(c, false)));
 
-        const grid = document.createElement("div");
-        grid.className = "grid";
+      hostCol.appendChild(hostList);
+      homeCol.appendChild(homeList);
 
-        const homeCol = document.createElement("div");
-        const hostCol = document.createElement("div");
+      grid.appendChild(hostCol);
+      grid.appendChild(homeCol);
 
-        const homeTitle = document.createElement("div");
-        homeTitle.style.fontWeight = "700";
-        homeTitle.textContent = "Home courses";
+      wrap.appendChild(grid);
+      list.appendChild(buildEctsSummaryBar(homeCourses, destinationCourses));
+      list.appendChild(wrap);
 
-        const hostTitle = document.createElement("div");
-        hostTitle.style.fontWeight = "700";
-        hostTitle.textContent = "Host courses";
-
-        const homeTotal = sumCredits(eq.homeCourses);
-        const hostTotal = sumCredits(eq.destinationCourses);
-
-        const homeTotalEl = document.createElement("div");
-        homeTotalEl.className = "sub";
-        homeTotalEl.style.opacity = "0.9";
-        homeTotalEl.style.fontSize = "13px";
-        homeTotalEl.style.marginTop = "6px";
-        homeTotalEl.textContent = `Total home credits ${homeTotal}`;
-
-        const hostTotalEl = document.createElement("div");
-        hostTotalEl.className = "sub";
-        hostTotalEl.style.opacity = "0.9";
-        hostTotalEl.style.fontSize = "13px";
-        hostTotalEl.style.marginTop = "6px";
-        hostTotalEl.textContent = `Total host credits ${hostTotal}`;
-
-        homeCol.appendChild(homeTitle);
-        homeCol.appendChild(homeTotalEl);
-
-        hostCol.appendChild(hostTitle);
-        hostCol.appendChild(hostTotalEl);
-
-        const homeList = document.createElement("div");
-        homeList.style.display = "flex";
-        homeList.style.flexDirection = "column";
-        homeList.style.gap = "10px";
-        homeList.style.marginTop = "10px";
-
-        const hostList = document.createElement("div");
-        hostList.style.display = "flex";
-        hostList.style.flexDirection = "column";
-        hostList.style.gap = "10px";
-        hostList.style.marginTop = "10px";
-
-        (Array.isArray(eq.homeCourses) ? eq.homeCourses : []).forEach(c => homeList.appendChild(makeCourseCard(c, false)));
-        (Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []).forEach(c => hostList.appendChild(makeCourseCard(c, true)));
-
-        homeCol.appendChild(homeList);
-        hostCol.appendChild(hostList);
-
-        grid.appendChild(homeCol);
-        grid.appendChild(hostCol);
-
-        const isRemoved = safeText(eq.status).toUpperCase() === "R";
-        
-        const body = document.createElement("div");
-        body.style.marginTop = "10px";
-        
+      // ── Review notes from prior per-equivalence coordinator decisions ──
+      const reviewItems = rawEquivalencesForReview.filter(x => {
+        if (safeText(x.status).toUpperCase() === "R") return false;
+        const d = eqDecisions[x.id];
         const hasDecision = d && (d.decision === "APPROVED" || d.decision === "CHANGES_REQUESTED");
-        
+        return hasDecision || safeText(x.comment);
+      });
 
-        if (!isRemoved && hasDecision && safeText(d.note)) {
-          const noteWrap = document.createElement("div");
-          noteWrap.style.marginTop = "10px";
-          noteWrap.style.maxWidth = "720px";
+      if (reviewItems.length) {
+        const reviewsWrap = document.createElement("div");
+        reviewsWrap.className = "card";
+        reviewsWrap.style.background = "rgba(0,0,0,0.18)";
 
-          const noteTitle = document.createElement("div");
-          noteTitle.style.fontSize = "13px";
-          noteTitle.style.opacity = "0.85";
-          noteTitle.style.marginBottom = "6px";
-          noteTitle.textContent = "Note to student";
+        const reviewsTitle = document.createElement("div");
+        reviewsTitle.style.fontWeight = "800";
+        reviewsTitle.textContent = "Review notes";
+        reviewsWrap.appendChild(reviewsTitle);
 
-          const noteText = document.createElement("div");
-          noteText.className = "card";
-          noteText.style.padding = "12px";
-          noteText.style.background = "rgba(255,255,255,0.05)";
-          noteText.style.whiteSpace = "pre-wrap";
-          noteText.textContent = safeText(d.note);
+        const reviewsSep = document.createElement("div");
+        reviewsSep.className = "sep";
+        reviewsWrap.appendChild(reviewsSep);
 
-          noteWrap.appendChild(noteTitle);
-          noteWrap.appendChild(noteText);
-          body.appendChild(noteWrap);
-        }
+        reviewItems.forEach((x, idx) => {
+          const d = eqDecisions[x.id];
+          const hasDecision = d && (d.decision === "APPROVED" || d.decision === "CHANGES_REQUESTED");
 
-        if (!isRemoved) {
-          const actions = document.createElement("div");
-          actions.style.marginTop = "12px";
-          actions.style.display = "flex";
-          actions.style.gap = "10px";
-          actions.style.flexWrap = "wrap";
-          actions.style.alignItems = "center";
+          const row = document.createElement("div");
+          row.style.marginTop = idx === 0 ? "0" : "14px";
 
           if (hasDecision) {
-            const decidedPill = document.createElement("div");
-            decidedPill.className = "pill";
+            const pill = document.createElement("div");
+            pill.className = "pill";
             if (d.decision === "APPROVED") {
-              decidedPill.textContent = "APPROVED";
-              decidedPill.classList.add("approved");
+              pill.textContent = "APPROVED";
+              pill.classList.add("approved");
             } else {
-              decidedPill.textContent = "CHANGES REQUESTED";
-              decidedPill.classList.add("changes");
+              pill.textContent = "CHANGES REQUESTED";
+              pill.classList.add("changes");
             }
-            actions.appendChild(decidedPill);
+            row.appendChild(pill);
+
+            if (safeText(d.note)) {
+              const noteText = document.createElement("div");
+              noteText.style.cssText = "margin-top:6px; white-space:pre-wrap; font-size:13px; opacity:0.9;";
+              noteText.textContent = safeText(d.note);
+              row.appendChild(noteText);
+            }
           }
 
-          const commentText = safeText(eq && eq.comment);
-
-          if (commentText) {
-            const commentWrap = document.createElement("div");
-            commentWrap.style.marginTop = "12px";
-            commentWrap.style.maxWidth = "720px";
-
-            const commentTitle = document.createElement("div");
-            commentTitle.style.fontSize = "13px";
-            commentTitle.style.opacity = "0.85";
-            commentTitle.style.marginBottom = "6px";
-            commentTitle.textContent = "Student comment";
-
-            const commentBox = document.createElement("div");
-            commentBox.className = "card";
-            commentBox.style.padding = "12px";
-            commentBox.style.background = "rgba(255,255,255,0.05)";
-            commentBox.style.whiteSpace = "pre-wrap";
-            commentBox.textContent = commentText;
-
-            commentWrap.appendChild(commentTitle);
-            commentWrap.appendChild(commentBox);
-
-            body.appendChild(commentWrap);
+          if (safeText(x.comment)) {
+            const commentText = document.createElement("div");
+            commentText.style.cssText = "margin-top:6px; white-space:pre-wrap; font-size:13px; opacity:0.85;";
+            commentText.textContent = `Student comment: ${safeText(x.comment)}`;
+            row.appendChild(commentText);
           }
 
-          body.appendChild(actions);
-        }
-                
-        wrap.appendChild(head);
-        wrap.appendChild(sep);
-        wrap.appendChild(grid);
-        wrap.appendChild(body);
+          reviewsWrap.appendChild(row);
+        });
 
-        list.appendChild(wrap);
-      });
+        list.appendChild(reviewsWrap);
+      }
 
       updateFinalBox();
     }
@@ -1466,12 +1454,12 @@
       return `eq_${Date.now()}_${rand()}${rand()}${rand()}`;
     }
 
-    async function fetchHomeCoursesCatalog() {
+    async function fetchHomeCoursesCatalog(acronym) {
       const r = await fetch(`${SERVER}/process.php`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "list_home_courses" })
+        body: JSON.stringify({ action: "list_home_courses", acronym: safeText(acronym) })
       });
       const data = await r.json();
       if (!r.ok || !data.ok) return;
@@ -1552,230 +1540,240 @@
       const info = document.getElementById("coordEqInfo");
       if (!list) return;
 
-      list.innerHTML = "";
-      if (info) info.textContent = `Total: ${equivalencesState.length}`;
-
       if (!equivalencesState.length) {
-        const el = document.createElement("div");
-        el.className   = "sub";
-        el.style.opacity = "0.85";
-        el.textContent = 'No equivalences. Click "+ Add Equivalence" to add one.';
-        list.appendChild(el);
-        return;
+        equivalencesState = [{ id: newEquivalenceId(), status: "A", comment: "", homeCourses: [], destinationCourses: [] }];
       }
+      const eq = equivalencesState[0];
+      if (!Array.isArray(eq.homeCourses)) eq.homeCourses = [];
+      if (!Array.isArray(eq.destinationCourses)) eq.destinationCourses = [];
 
-      equivalencesState.forEach((eq, eqIdx) => {
-        const wrap = document.createElement("div");
-        wrap.className   = "card";
-        wrap.style.background = "rgba(0,0,0,0.18)";
+      list.innerHTML = "";
+      if (info) info.textContent = `Host courses: ${eq.destinationCourses.length} · Home courses: ${eq.homeCourses.length}`;
 
-        const head = document.createElement("div");
-        head.style.cssText = "display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;";
+      const ectsBar = buildEctsSummaryBar(eq.homeCourses, eq.destinationCourses);
+      list.appendChild(ectsBar);
+      const showEquivalent = hasCreditsEquivalent(eq.destinationCourses);
 
-        const title = document.createElement("div");
-        title.style.fontWeight = "800";
-        title.textContent      = `Equivalence ${eqIdx + 1}`;
-        head.appendChild(title);
+      const wrap = document.createElement("div");
+      wrap.className   = "card";
+      wrap.style.background = "rgba(0,0,0,0.18)";
 
-        const rmEqBtn = removeBtn("Remove equivalence");
-        rmEqBtn.addEventListener("click", () => {
-          equivalencesState.splice(eqIdx, 1);
-          renderEquivalencesEditable();
-        });
-        head.appendChild(rmEqBtn);
-        wrap.appendChild(head);
+      const grid = document.createElement("div"); grid.className = "grid";
 
-        const sep = document.createElement("div"); sep.className = "sep";
-        wrap.appendChild(sep);
+      const hostCol = document.createElement("div");
 
-        const grid = document.createElement("div"); grid.className = "grid";
-
-        const homeCol = document.createElement("div");
-
-        const homeTitleRow = document.createElement("div");
-        homeTitleRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;";
-        const homeTitle = document.createElement("div");
-        homeTitle.style.fontWeight = "700"; homeTitle.textContent = "Home courses";
-        const addHomeBtn = document.createElement("button");
-        addHomeBtn.type = "button"; addHomeBtn.textContent = "+ Add"; addHomeBtn.className = "btn secondary";
-        addHomeBtn.style.cssText = "font-size:12px; padding:5px 10px;";
-        addHomeBtn.addEventListener("click", () => {
-          if (!Array.isArray(eq.homeCourses)) eq.homeCourses = [];
-          eq.homeCourses.push({ courseId:"", name:"", credits:"", link:"", semester:"" });
-          renderEquivalencesEditable();
-        });
-        homeTitleRow.appendChild(homeTitle);
-        homeTitleRow.appendChild(addHomeBtn);
-        homeCol.appendChild(homeTitleRow);
-
-        const homeList = document.createElement("div");
-        homeList.style.cssText = "display:flex; flex-direction:column; gap:10px;";
-
-        (Array.isArray(eq.homeCourses) ? eq.homeCourses : []).forEach((c, cIdx) => {
-          const card = document.createElement("div");
-          card.className   = "card";
-          card.style.cssText = "padding:10px; background:rgba(255,255,255,0.05);";
-
-          const cardHead = document.createElement("div");
-          cardHead.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;";
-          const cardTitle = document.createElement("div");
-          cardTitle.style.cssText = "font-size:12px; font-weight:700; opacity:0.85;";
-          cardTitle.textContent   = `Home course ${cIdx + 1}`;
-          const rmBtn = removeBtn("✕");
-          rmBtn.style.cssText = "padding:3px 8px; font-size:12px; background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.35); color:#e74c3c;";
-          rmBtn.addEventListener("click", () => {
-            eq.homeCourses.splice(cIdx, 1);
-            renderEquivalencesEditable();
-          });
-          cardHead.appendChild(cardTitle);
-          cardHead.appendChild(rmBtn);
-          card.appendChild(cardHead);
-
-          const selectWrap = document.createElement("div");
-          selectWrap.style.cssText = "display:flex; flex-direction:column; gap:3px; margin-bottom:6px;";
-          selectWrap.appendChild(smallLabel("Course"));
-
-          const sel = document.createElement("select");
-          sel.style.cssText =
-            "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
-            "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;";
-          const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "Select from catalog";
-          sel.appendChild(opt0);
-          homeCoursesCatalog.forEach(it => {
-            const opt = document.createElement("option");
-            opt.value       = safeText(it.name);
-            opt.textContent = safeText(it.name);
-            sel.appendChild(opt);
-          });
-          sel.value = safeText(c.courseId || c.name);
-
-          const creditsInput = input(c.credits, "ECTS");
-          const applyPick = (nameKey) => {
-            const picked = homeCoursesById[safeText(nameKey)];
-            if (!picked) return;
-            eq.homeCourses[cIdx].courseId = safeText(picked.name);
-            eq.homeCourses[cIdx].name     = safeText(picked.name);
-            eq.homeCourses[cIdx].link     = safeText(picked.link);
-            eq.homeCourses[cIdx].semester = safeText(picked.semester);
-            const pc = picked.credits != null ? String(picked.credits) : String(picked.ects ?? "");
-            const isSpecial = /free option|extracurricular activities/i.test(safeText(picked.name));
-            if (!isSpecial) { eq.homeCourses[cIdx].credits = pc; creditsInput.value = pc; }
-            creditsInput.disabled = !isSpecial;
-          };
-          sel.addEventListener("change", e => {
-            eq.homeCourses[cIdx].courseId = e.target.value;
-            eq.homeCourses[cIdx].credits  = "";
-            creditsInput.value = "";
-            applyPick(e.target.value);
-          });
-          if (sel.value) applyPick(sel.value);
-          selectWrap.appendChild(sel);
-          card.appendChild(selectWrap);
-          card.appendChild(fieldWrap("Credits (ECTS)", creditsInput));
-          creditsInput.addEventListener("input", e => { eq.homeCourses[cIdx].credits = e.target.value; });
-          homeList.appendChild(card);
-        });
-
-        homeCol.appendChild(homeList);
-
-        const hostCol = document.createElement("div");
-
-        const hostTitleRow = document.createElement("div");
-        hostTitleRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;";
-        const hostTitle = document.createElement("div");
-        hostTitle.style.fontWeight = "700"; hostTitle.textContent = "Host courses";
-        const addHostBtn = document.createElement("button");
-        addHostBtn.type = "button"; addHostBtn.textContent = "+ Add"; addHostBtn.className = "btn secondary";
-        addHostBtn.style.cssText = "font-size:12px; padding:5px 10px;";
-        addHostBtn.addEventListener("click", () => {
-          if (!Array.isArray(eq.destinationCourses)) eq.destinationCourses = [];
-          eq.destinationCourses.push({ name:"", credits:"", grade:"", credits_equivalent:"", link:"", semester:"", code:"" });
-          renderEquivalencesEditable();
-        });
-        hostTitleRow.appendChild(hostTitle);
-        hostTitleRow.appendChild(addHostBtn);
-        hostCol.appendChild(hostTitleRow);
-
-        const hostList = document.createElement("div");
-        hostList.style.cssText = "display:flex; flex-direction:column; gap:10px;";
-
-        (Array.isArray(eq.destinationCourses) ? eq.destinationCourses : []).forEach((c, cIdx) => {
-          const card = document.createElement("div");
-          card.className   = "card";
-          card.style.cssText = "padding:10px; background:rgba(255,255,255,0.05);";
-
-          const cardHead = document.createElement("div");
-          cardHead.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;";
-          const cardTitle = document.createElement("div");
-          cardTitle.style.cssText = "font-size:12px; font-weight:700; opacity:0.85;";
-          cardTitle.textContent   = `Host course ${cIdx + 1}`;
-          const rmBtn = removeBtn("✕");
-          rmBtn.style.cssText = "padding:3px 8px; font-size:12px; background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.35); color:#e74c3c;";
-          rmBtn.addEventListener("click", () => {
-            eq.destinationCourses.splice(cIdx, 1);
-            renderEquivalencesEditable();
-          });
-          cardHead.appendChild(cardTitle);
-          cardHead.appendChild(rmBtn);
-          card.appendChild(cardHead);
-
-          const nameInp = input(c.name, "Course name");
-          nameInp.addEventListener("input", e => { eq.destinationCourses[cIdx].name = e.target.value; });
-          card.appendChild(fieldWrap("Course name", nameInp, "margin-bottom:6px;"));
-
-          const codeInp = input(c.code, "Code (optional)");
-          codeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].code = e.target.value; });
-          card.appendChild(fieldWrap("Code", codeInp, "margin-bottom:6px;"));
-
-          const credInp = input(c.credits, "Credits");
-          credInp.addEventListener("input", e => { eq.destinationCourses[cIdx].credits = e.target.value; });
-          card.appendChild(fieldWrap("Credits (ECTS)", credInp, "margin-bottom:6px;"));
-
-          // Grades row: student grade (locked) + staff equivalent grade (editable)
-          const gradesRow = document.createElement("div");
-          gradesRow.style.cssText = "display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;";
-
-          const studentGradeInp = input(c.grade, "-");
-          studentGradeInp.disabled = true;
-          studentGradeInp.title    = "Grade submitted by the student - read only";
-          studentGradeInp.style.cssText +=
-            "opacity:0.6; cursor:not-allowed;";
-          gradesRow.appendChild(fieldWrap("Host grade (student)", studentGradeInp));
-
-          const staffGradeInp = input(c.grade_equivalent, "e.g. 14");
-          staffGradeInp.style.cssText +=
-            "background:rgba(52,152,219,0.12); border-color:rgba(52,152,219,0.40);";
-          staffGradeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].grade_equivalent = e.target.value; });
-          gradesRow.appendChild(fieldWrap("Equivalent grade (IST scale) ★", staffGradeInp));
-
-          card.appendChild(gradesRow);
-
-          const semSel = document.createElement("select");
-          semSel.style.cssText =
-            "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
-            "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;";
-          [["","Select semester"],["1","Semester 1"],["2","Semester 2"]].forEach(([v,t]) => {
-            const opt = document.createElement("option"); opt.value = v; opt.textContent = t;
-            semSel.appendChild(opt);
-          });
-          semSel.value = safeText(c.semester);
-          semSel.addEventListener("change", e => { eq.destinationCourses[cIdx].semester = e.target.value; });
-          card.appendChild(fieldWrap("Semester", semSel, "margin-bottom:6px;"));
-
-          const linkInp = input(c.link, "https://...");
-          linkInp.addEventListener("input", e => { eq.destinationCourses[cIdx].link = e.target.value; });
-          card.appendChild(fieldWrap("Link (optional)", linkInp));
-
-          hostList.appendChild(card);
-        });
-
-        hostCol.appendChild(hostList);
-
-        grid.appendChild(homeCol);
-        grid.appendChild(hostCol);
-        wrap.appendChild(grid);
-        list.appendChild(wrap);
+      const hostTitleRow = document.createElement("div");
+      hostTitleRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;";
+      const hostTitle = document.createElement("div");
+      hostTitle.style.fontWeight = "700"; hostTitle.textContent = "Host courses";
+      const addHostBtn = document.createElement("button");
+      addHostBtn.type = "button"; addHostBtn.textContent = "+ Add"; addHostBtn.className = "btn secondary";
+      addHostBtn.style.cssText = "font-size:12px; padding:5px 10px;";
+      addHostBtn.addEventListener("click", () => {
+        eq.destinationCourses.push({ name:"", credits:"", grade:"", grade_equivalent:"", link:"", semester:"", code:"" });
+        renderEquivalencesEditable();
       });
+      hostTitleRow.appendChild(hostTitle);
+      hostTitleRow.appendChild(addHostBtn);
+      hostCol.appendChild(hostTitleRow);
+
+      const hostList = document.createElement("div");
+      hostList.style.cssText = "display:flex; flex-direction:column; gap:10px;";
+
+      eq.destinationCourses.forEach((c, cIdx) => {
+        const card = document.createElement("div");
+        card.className   = "card";
+        card.style.cssText = "padding:10px; background:rgba(255,255,255,0.05);";
+
+        const cardHead = document.createElement("div");
+        cardHead.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;";
+        const cardTitle = document.createElement("div");
+        cardTitle.style.cssText = "font-size:12px; font-weight:700; opacity:0.85;";
+        cardTitle.textContent   = `Host course ${cIdx + 1}`;
+        const rmBtn = removeBtn("✕");
+        rmBtn.style.cssText = "padding:3px 8px; font-size:12px; background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.35); color:#e74c3c;";
+        rmBtn.addEventListener("click", () => {
+          eq.destinationCourses.splice(cIdx, 1);
+          renderEquivalencesEditable();
+        });
+        cardHead.appendChild(cardTitle);
+        cardHead.appendChild(rmBtn);
+        card.appendChild(cardHead);
+
+        const nameInp = input(c.name, "Course name");
+        nameInp.addEventListener("input", e => { eq.destinationCourses[cIdx].name = e.target.value; });
+        card.appendChild(fieldWrap("Course name", nameInp, "margin-bottom:6px;"));
+
+        const codeInp = input(c.code, "Code (optional)");
+        codeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].code = e.target.value; });
+        card.appendChild(fieldWrap("Code", codeInp, "margin-bottom:6px;"));
+
+        const credInp = input(c.credits, "Credits");
+        credInp.addEventListener("input", e => {
+          eq.destinationCourses[cIdx].credits = e.target.value;
+          ectsBar.refresh(eq.homeCourses, eq.destinationCourses);
+        });
+
+        if (showEquivalent) {
+          const creditsRow = document.createElement("div");
+          creditsRow.style.cssText = "display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;";
+          creditsRow.appendChild(fieldWrap("Credits (ECTS)", credInp));
+
+          const credEquivInp = input(c.credits_equivalent, "Equivalent ECTS");
+          credEquivInp.addEventListener("input", e => {
+            eq.destinationCourses[cIdx].credits_equivalent = e.target.value;
+            ectsBar.refresh(eq.homeCourses, eq.destinationCourses);
+          });
+          creditsRow.appendChild(fieldWrap("Credits Equivalent (ECTS)", credEquivInp));
+
+          card.appendChild(creditsRow);
+        } else {
+          card.appendChild(fieldWrap("Credits (ECTS)", credInp, "margin-bottom:6px;"));
+        }
+
+        // Grades row: host grade (editable) + staff equivalent grade (editable)
+        const gradesRow = document.createElement("div");
+        gradesRow.style.cssText = "display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;";
+
+        const studentGradeInp = input(c.grade, "-");
+        studentGradeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].grade = e.target.value; });
+        gradesRow.appendChild(fieldWrap("Host grade", studentGradeInp));
+
+        const staffGradeInp = input(c.grade_equivalent, "e.g. 14");
+        staffGradeInp.style.cssText +=
+          "background:rgba(52,152,219,0.12); border-color:rgba(52,152,219,0.40);";
+        staffGradeInp.addEventListener("input", e => { eq.destinationCourses[cIdx].grade_equivalent = e.target.value; });
+        gradesRow.appendChild(fieldWrap("Equivalent grade (IST scale)", staffGradeInp));
+
+        card.appendChild(gradesRow);
+
+        const semSel = document.createElement("select");
+        semSel.style.cssText =
+          "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
+          "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;";
+        [["","Select semester"],["1","Semester 1"],["2","Semester 2"]].forEach(([v,t]) => {
+          const opt = document.createElement("option"); opt.value = v; opt.textContent = t;
+          semSel.appendChild(opt);
+        });
+        semSel.value = safeText(c.semester);
+        semSel.addEventListener("change", e => { eq.destinationCourses[cIdx].semester = e.target.value; });
+        card.appendChild(fieldWrap("Semester", semSel, "margin-bottom:6px;"));
+
+        const linkBtn = document.createElement("button");
+        linkBtn.type = "button";
+        linkBtn.className = "btn secondary";
+        linkBtn.textContent = "Página da UC";
+        linkBtn.style.cssText = "font-size:12px; padding:7px 12px; width:100%;";
+        const courseLink = safeText(c.link);
+        if (courseLink) {
+          linkBtn.addEventListener("click", () => window.open(courseLink, "_blank", "noopener,noreferrer"));
+        } else {
+          linkBtn.disabled = true;
+          linkBtn.style.opacity = "0.5";
+          linkBtn.style.cursor = "not-allowed";
+        }
+        card.appendChild(linkBtn);
+
+        hostList.appendChild(card);
+      });
+
+      hostCol.appendChild(hostList);
+
+      const homeCol = document.createElement("div");
+
+      const homeTitleRow = document.createElement("div");
+      homeTitleRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;";
+      const homeTitle = document.createElement("div");
+      homeTitle.style.fontWeight = "700"; homeTitle.textContent = "Home courses";
+      const addHomeBtn = document.createElement("button");
+      addHomeBtn.type = "button"; addHomeBtn.textContent = "+ Add"; addHomeBtn.className = "btn secondary";
+      addHomeBtn.style.cssText = "font-size:12px; padding:5px 10px;";
+      addHomeBtn.addEventListener("click", () => {
+        eq.homeCourses.push({ courseId:"", name:"", credits:"", link:"", semester:"" });
+        renderEquivalencesEditable();
+      });
+      homeTitleRow.appendChild(homeTitle);
+      homeTitleRow.appendChild(addHomeBtn);
+      homeCol.appendChild(homeTitleRow);
+
+      const homeList = document.createElement("div");
+      homeList.style.cssText = "display:flex; flex-direction:column; gap:10px;";
+
+      eq.homeCourses.forEach((c, cIdx) => {
+        const card = document.createElement("div");
+        card.className   = "card";
+        card.style.cssText = "padding:10px; background:rgba(255,255,255,0.05);";
+
+        const cardHead = document.createElement("div");
+        cardHead.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;";
+        const cardTitle = document.createElement("div");
+        cardTitle.style.cssText = "font-size:12px; font-weight:700; opacity:0.85;";
+        cardTitle.textContent   = `Home course ${cIdx + 1}`;
+        const rmBtn = removeBtn("✕");
+        rmBtn.style.cssText = "padding:3px 8px; font-size:12px; background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.35); color:#e74c3c;";
+        rmBtn.addEventListener("click", () => {
+          eq.homeCourses.splice(cIdx, 1);
+          renderEquivalencesEditable();
+        });
+        cardHead.appendChild(cardTitle);
+        cardHead.appendChild(rmBtn);
+        card.appendChild(cardHead);
+
+        const selectWrap = document.createElement("div");
+        selectWrap.style.cssText = "display:flex; flex-direction:column; gap:3px; margin-bottom:6px;";
+        selectWrap.appendChild(smallLabel("Course"));
+
+        const sel = document.createElement("select");
+        sel.style.cssText =
+          "padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.14);" +
+          "background:rgba(0,0,0,0.28); color:#fff; outline:none; font-size:13px; width:100%;";
+        const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "Select from catalog";
+        sel.appendChild(opt0);
+        homeCoursesCatalog.forEach(it => {
+          const opt = document.createElement("option");
+          opt.value       = safeText(it.name);
+          opt.textContent = safeText(it.name);
+          sel.appendChild(opt);
+        });
+        sel.value = safeText(c.courseId || c.name);
+
+        const creditsInput = input(c.credits, "ECTS");
+        const applyPick = (nameKey) => {
+          const picked = homeCoursesById[safeText(nameKey)];
+          if (!picked) return;
+          eq.homeCourses[cIdx].courseId = safeText(picked.name);
+          eq.homeCourses[cIdx].name     = safeText(picked.name);
+          eq.homeCourses[cIdx].link     = safeText(picked.link);
+          eq.homeCourses[cIdx].semester = safeText(picked.semester);
+          const pc = picked.credits != null ? String(picked.credits) : String(picked.ects ?? "");
+          const isSpecial = /free option|extracurricular activities/i.test(safeText(picked.name));
+          if (!isSpecial) { eq.homeCourses[cIdx].credits = pc; creditsInput.value = pc; }
+          creditsInput.disabled = !isSpecial;
+          ectsBar.refresh(eq.homeCourses, eq.destinationCourses);
+        };
+        sel.addEventListener("change", e => {
+          eq.homeCourses[cIdx].courseId = e.target.value;
+          eq.homeCourses[cIdx].credits  = "";
+          creditsInput.value = "";
+          applyPick(e.target.value);
+        });
+        if (sel.value) applyPick(sel.value);
+        selectWrap.appendChild(sel);
+        card.appendChild(selectWrap);
+        card.appendChild(fieldWrap("Credits (ECTS)", creditsInput));
+        creditsInput.addEventListener("input", e => {
+          eq.homeCourses[cIdx].credits = e.target.value;
+          ectsBar.refresh(eq.homeCourses, eq.destinationCourses);
+        });
+        homeList.appendChild(card);
+      });
+
+      homeCol.appendChild(homeList);
+
+      grid.appendChild(hostCol);
+      grid.appendChild(homeCol);
+      wrap.appendChild(grid);
+      list.appendChild(wrap);
     }
 
 
@@ -1951,7 +1949,7 @@
 
       try {
         const check = await fetch(url, { method: "HEAD", credentials: "include" });
-        const wrapId = torType === "origin" ? "torOriginWrap" : "torDestinationWrap";
+        const wrapId = "torDestinationWrap";
         const wrap = document.getElementById(wrapId);
         if (!wrap) return;
 
@@ -1987,7 +1985,6 @@
 
       const istId = safeText(proc?.payload?.personal?.ist_id || proc?.payload?.personal?.username || "");
       if (istId) {
-        loadTor("origin",      istId);
         loadTor("destination", istId);
       }
 
@@ -2011,24 +2008,11 @@
       processStatus = safeText(proc.status);
 
       if (isStaffEditable()) {
-        await fetchHomeCoursesCatalog();
+        const submitterAcronym = safeText(proc?.payload?.personal?.home_degree_acronym || "");
+        await fetchHomeCoursesCatalog(submitterAcronym);
 
         const editActions = document.getElementById("staffEditActions");
         if (editActions) editActions.style.display = "flex";
-
-        const addBtn = document.getElementById("addEquivalenceBtn");
-        if (addBtn) {
-          addBtn.addEventListener("click", () => {
-            equivalencesState.push({
-              id: newEquivalenceId(),
-              status: "A",
-              comment: "",
-              homeCourses: [{ courseId:"", name:"", credits:"", link:"", semester:"" }],
-              destinationCourses: [{ name:"", credits:"", grade:"", credits_equivalent:"", link:"", semester:"", code:"" }]
-            });
-            renderEquivalencesEditable();
-          });
-        }
 
         const saveBtn = document.getElementById("saveChangesBtn");
         if (saveBtn) {
