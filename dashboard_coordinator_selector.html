@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose dashboard</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles/dark.css">
+</head>
+
+<body class="page-bg" style="display:flex; align-items:center; justify-content:center;">
+
+  <div class="card" style="max-width:640px; width:90%; padding:28px; text-align:center; background:rgba(0,0,0,0.72);">
+    <h2 style="margin-top:0;">Choose dashboard</h2>
+    <div class="sub" id="subtitle" style="margin-bottom:20px;">Loading</div>
+
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+
+      <div class="panel" style="flex:1; min-width:240px; text-align:left; background:rgba(0,0,0,0.55);">
+        <div class="panelHead" style="font-weight:800;">Staff view</div>
+        <div class="panelBody">
+          <p class="sub" style="margin:0 0 14px;">Final Processes (PEFs): review, verify and approve students' final mobility processes.</p>
+          <button class="btn" id="goStaffBtn" type="button" style="width:100%;">Open Staff view</button>
+        </div>
+      </div>
+
+      <div class="panel" style="flex:1; min-width:240px; text-align:left; background:rgba(0,0,0,0.55);">
+        <div class="panelHead" style="font-weight:800;">Coordinator view</div>
+        <div class="panelBody">
+          <p class="sub" style="margin:0 0 14px;">Initial Processes (LA &amp; PEI): approve equivalences, plus the final approval of PEFs.</p>
+          <button class="btn" id="goCoordinatorBtn" type="button" style="width:100%;">Open Coordinator view</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;">
+      <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
+    </div>
+  </div>
+
+  <script src="scripts/utils.js"></script>
+  <script>
+    document.getElementById("goStaffBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/dashboard_staff.html`;
+    });
+
+    document.getElementById("goCoordinatorBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/dashboard_coordinator.html`;
+    });
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/confirmation_page.html`;
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = `${SERVER}/logout.php`;
+    });
+
+    async function load() {
+      const me = await whoami();
+      if (!me) {
+        window.location.href = `${BASE_PATH}/index.html`;
+        return;
+      }
+
+      const role = await getRole();
+      if (role !== "COORDINATOR" && role !== "ADMIN") {
+        window.location.href = `${BASE_PATH}/dashboard.html`;
+        return;
+      }
+
+      const name =
+        me.person && (me.person.displayName || me.person.name)
+          ? (me.person.displayName || me.person.name)
+          : "Coordinator";
+
+      document.getElementById("subtitle").textContent = `Welcome ${name}. Pick which workspace to open.`;
+    }
+
+    load();
+  </script>
+</body>
+</html>

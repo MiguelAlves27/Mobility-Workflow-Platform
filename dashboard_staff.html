@@ -20,6 +20,7 @@
 
     <div class="actions">
       <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="coordinatorViewBtn" type="button" style="display:none;">Coordinator view</button>
       <button class="btn secondary" id="adminBtn" type="button" style="display:none;">Admin Panel</button>
       <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
       <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
@@ -315,6 +316,10 @@
       window.location.href = `${BASE_PATH}/admin_panel.html`;
     });
 
+    document.getElementById("coordinatorViewBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/dashboard_coordinator.html`;
+    });
+
     document.getElementById("refreshBtn").addEventListener("click", async () => {
       await refreshQueues();
     });
@@ -359,6 +364,11 @@
       if (role === "ADMIN" || role === "STAFF") {
         const adminBtn = document.getElementById("adminBtn");
         if (adminBtn) adminBtn.style.display = "inline-flex";
+      }
+
+      if (role === "COORDINATOR") {
+        const coordinatorViewBtn = document.getElementById("coordinatorViewBtn");
+        if (coordinatorViewBtn) coordinatorViewBtn.style.display = "inline-flex";
       }
 
       const name =

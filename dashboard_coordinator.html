@@ -20,6 +20,7 @@
 
     <div class="actions">
       <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="staffViewBtn" type="button" style="display:none;">Staff view</button>
       <button class="btn secondary" id="signatureBtn" type="button">Signature</button>
       <button class="btn secondary" id="adminBtn" type="button" style="display:none;">Admin Panel</button>
       <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
@@ -361,6 +362,10 @@
       window.location.href = `${BASE_PATH}/admin_panel.html`;
     });
 
+    document.getElementById("staffViewBtn").addEventListener("click", () => {
+      window.location.href = `${BASE_PATH}/dashboard_staff.html`;
+    });
+
     document.getElementById("refreshBtn").addEventListener("click", async () => {
       await refreshQueues();
     });
@@ -408,6 +413,11 @@
       if (role === "ADMIN" || role === "COORDINATOR") {
         const adminBtn = document.getElementById("adminBtn");
         if (adminBtn) adminBtn.style.display = "inline-flex";
+      }
+
+      if (role === "COORDINATOR") {
+        const staffViewBtn = document.getElementById("staffViewBtn");
+        if (staffViewBtn) staffViewBtn.style.display = "inline-flex";
       }
 
       const name =
