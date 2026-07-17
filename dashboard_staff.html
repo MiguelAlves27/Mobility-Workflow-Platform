@@ -154,6 +154,17 @@
       return { ok: r.ok, data };
     }
 
+    async function archiveProcess(pid) {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "archive", pid })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
     function renderQueue() {
       setTabs();
 
@@ -218,6 +229,20 @@
             window.open(url, "_blank");
           });
           el.appendChild(downloadBtn);
+
+          const archiveBtn = document.createElement("button");
+          archiveBtn.type = "button";
+          archiveBtn.className = "btn secondary";
+          archiveBtn.textContent = "Archive";
+          archiveBtn.style.cssText = "margin-top:6px; width:100%; font-size:12px; padding:6px 10px;";
+          archiveBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            if (!confirm("Archive this process? It will no longer appear in Approved.")) return;
+            await archiveProcess(p.id);
+            clearSelectionUI();
+            await refreshQueues();
+          });
+          el.appendChild(archiveBtn);
         }
 
         el.addEventListener("click", () => openProcessAtIndex(i));

@@ -988,6 +988,31 @@ try {
     respond(200, ["ok" => true, "status" => "APPROVED"]);
   }
 
+  if ($action === "archive") {
+    if ($role !== "COORDINATOR" && $role !== "STAFF" && $role !== "ADMIN") {
+      respond(403, ["ok" => false, "error" => "forbidden"]);
+    }
+
+    $pid = isset($body["pid"]) ? (int)$body["pid"] : 0;
+    if (isset($body["id"])) $pid = (int)$body["id"];
+    if ($pid <= 0) respond(400, ["ok" => false, "error" => "invalid_id"]);
+
+    $upd = $pdo->prepare("
+      UPDATE final_processes
+      SET status = 'ARCHIVED',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = :pid AND status = 'APPROVED'
+      LIMIT 1
+    ");
+    $upd->execute([":pid" => $pid]);
+
+    if ($upd->rowCount() === 0) {
+      respond(409, ["ok" => false, "error" => "not_approved"]);
+    }
+
+    respond(200, ["ok" => true, "status" => "ARCHIVED"]);
+  }
+
   if ($action === "finalize_request_changes") {
     if ($role !== "COORDINATOR" && $role !== "STAFF" && $role !== "ADMIN") {
       respond(403, ["ok" => false, "error" => "forbidden"]);
