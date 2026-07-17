@@ -34,7 +34,7 @@
       <button class="tabBtn active" id="tabPending" type="button" data-view="pending">Pending</button>
       <button class="tabBtn" id="tabApproved" type="button" data-view="approved">Approved</button>
       <button class="tabBtn" id="tabChanges" type="button" data-view="changes">Changes Requested</button>
-      <button class="tabBtn" id="tabPefs" type="button" data-view="pefs">PEFs</button>
+      <button class="tabBtn" id="tabPefs" type="button" data-view="pefs">PEFs<span class="tabBadge" id="pefsBadge" style="display:none;"></span></button>
     </div>
 
     <div class="queueInfo" id="queueInfo">Loading</div>
@@ -309,9 +309,18 @@
       if (!pefsRes.ok || !pefsRes.data || !pefsRes.data.ok) pefsQueue = [];
       else pefsQueue = sortOldestFirst(Array.isArray(pefsRes.data.processes) ? pefsRes.data.processes : []);
 
+      updatePefsBadge();
       syncSelectionToBounds();
       renderQueue();
       setMsg("");
+    }
+
+    function updatePefsBadge() {
+      const badge = document.getElementById("pefsBadge");
+      if (!badge) return;
+      const count = pefsQueue.length;
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.style.display = count > 0 ? "inline-block" : "none";
     }
 
     function showFrame() {
