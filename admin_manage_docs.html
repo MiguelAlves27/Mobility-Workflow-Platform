@@ -185,6 +185,7 @@
       <option value="yes">PEF: Yes</option>
       <option value="no">PEF: No</option>
     </select>
+    <input id="fDateFrom" class="filterInput" type="date" title="Show updates from this date onward" style="min-width:auto;" />
     <button class="btn" id="reloadBtn" type="button">Reload</button>
     <button class="btn btn-dl-all" id="dlAllBtn" type="button" disabled>⬇ Download All</button>
     <span id="dlAllProgress"></span>
@@ -261,6 +262,7 @@
       const mob  = safeText(document.getElementById("fMobility").value);
       const cty  = safeText(document.getElementById("fCountry").value);
       const pef  = safeText(document.getElementById("fPef").value);
+      const dateFrom = safeText(document.getElementById("fDateFrom").value);
 
       const filtered = cache.filter(it => {
         if (!it.hasGeneratedZip) return false;
@@ -269,6 +271,10 @@
         if (cty && safeText(it.country)      !== cty) return false;
         if (pef === "yes" && !it.hasPef)  return false;
         if (pef === "no"  &&  it.hasPef)  return false;
+        if (dateFrom) {
+          const updated = safeText(it.updatedAt).slice(0, 10);
+          if (!updated || updated < dateFrom) return false;
+        }
         if (q) {
           const hay = [
             String(it.pid || ""),
@@ -444,13 +450,13 @@
     document.getElementById("reloadBtn").addEventListener("click", load);
     document.getElementById("dlAllBtn").addEventListener("click", downloadAll);
 
-    ["q", "fStatus", "fMobility", "fCountry", "fPef"].forEach(id => {
+    ["q", "fStatus", "fMobility", "fCountry", "fPef", "fDateFrom"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", applyFilters);
     });
 
     document.getElementById("clearBtn").addEventListener("click", () => {
-      ["q", "fStatus", "fMobility", "fCountry", "fPef"].forEach(id => {
+      ["q", "fStatus", "fMobility", "fCountry", "fPef", "fDateFrom"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = "";
       });
