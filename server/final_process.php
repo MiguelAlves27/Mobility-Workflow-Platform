@@ -563,7 +563,7 @@ try {
   }
   
   if ($action === "list_approved") {
-    if ($role !== "COORDINATOR" && $role !== "ADMIN") {
+    if ($role !== "COORDINATOR" && $role !== "STAFF" && $role !== "ADMIN") {
       respond(403, ["ok" => false, "error" => "forbidden"]);
     }
 
@@ -577,7 +577,7 @@ try {
 
     $params = [];
 
-    if ($role === "COORDINATOR") {
+    if ($role === "COORDINATOR" || $role === "STAFF") {
       $stmt2 = $pdo->prepare("SELECT course_id FROM coordinator_courses WHERE coordinator_id = ?");
       $stmt2->execute([$userId]);
       $allowedCourses = $stmt2->fetchAll(PDO::FETCH_COLUMN);

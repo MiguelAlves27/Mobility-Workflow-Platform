@@ -1746,9 +1746,8 @@
           eq.homeCourses[cIdx].link     = safeText(picked.link);
           eq.homeCourses[cIdx].semester = safeText(picked.semester);
           const pc = picked.credits != null ? String(picked.credits) : String(picked.ects ?? "");
-          const isSpecial = /free option|extracurricular activities/i.test(safeText(picked.name));
-          if (!isSpecial) { eq.homeCourses[cIdx].credits = pc; creditsInput.value = pc; }
-          creditsInput.disabled = !isSpecial;
+          eq.homeCourses[cIdx].credits = pc;
+          creditsInput.value = pc;
           ectsBar.refresh(eq.homeCourses, eq.destinationCourses);
         };
         sel.addEventListener("change", e => {

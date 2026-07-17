@@ -31,6 +31,7 @@
 
     <div class="tabs">
       <button class="tabBtn active" id="tabPending" type="button" data-view="pending">Pending</button>
+      <button class="tabBtn" id="tabVerified" type="button" data-view="verified">Verified</button>
       <button class="tabBtn" id="tabApproved" type="button" data-view="approved">Approved</button>
       <button class="tabBtn" id="tabChanges" type="button" data-view="changes">Changes Requested</button>
     </div>
@@ -57,12 +58,14 @@
     let view = "pending";
 
     let pendingQueue = [];
+    let verifiedQueue = [];
     let approvedQueue = [];
     let changesQueue = [];
     let archivedQueue = [];
 
     const stateByView = {
       pending: { queueRef: () => pendingQueue, selectedIndex: -1 },
+      verified: { queueRef: () => verifiedQueue, selectedIndex: -1 },
       approved: { queueRef: () => approvedQueue, selectedIndex: -1 },
       changes: { queueRef: () => changesQueue, selectedIndex: -1 },
       archived: { queueRef: () => archivedQueue, selectedIndex: -1 }
@@ -70,6 +73,7 @@
 
     const emptyTextByView = {
       pending: "No pending processes.",
+      verified: "No verified processes.",
       approved: "No approved processes.",
       changes: "No processes with changes.",
       archived: "No archived processes."
@@ -77,7 +81,8 @@
 
     const defaultStatusByView = {
       pending: "SUBMITTED",
-      approved: "STAFF_APPROVED",
+      verified: "STAFF_APPROVED",
+      approved: "APPROVED",
       changes: "CHANGES_REQUESTED",
       archived: "ARCHIVED"
     };
@@ -115,12 +120,23 @@
       return { ok: r.ok, data };
     }
 
-    async function listApprovedProcesses() {
+    async function listVerifiedProcesses() {
       const r = await fetch(`${SERVER}/final_process.php`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "list_approved_staff" })
+      });
+      const data = await r.json();
+      return { ok: r.ok, data };
+    }
+
+    async function listApprovedProcesses() {
+      const r = await fetch(`${SERVER}/final_process.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list_approved" })
       });
       const data = await r.json();
       return { ok: r.ok, data };
@@ -189,6 +205,20 @@
         el.appendChild(top);
         el.appendChild(meta);
 
+        if (view === "approved") {
+          const downloadBtn = document.createElement("button");
+          downloadBtn.type = "button";
+          downloadBtn.className = "btn secondary";
+          downloadBtn.textContent = "Download ZIP";
+          downloadBtn.style.cssText = "margin-top:8px; width:100%; font-size:12px; padding:6px 10px;";
+          downloadBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const url = `${SERVER}/final_generated_docs.php?action=download&pid=${encodeURIComponent(String(p.id))}`;
+            window.open(url, "_blank");
+          });
+          el.appendChild(downloadBtn);
+        }
+
         el.addEventListener("click", () => openProcessAtIndex(i));
         list.appendChild(el);
       });
@@ -225,12 +255,16 @@
       setMsg("Loading");
 
       const pendingRes = await listPendingProcesses();
+      const verifiedRes = await listVerifiedProcesses();
       const approvedRes = await listApprovedProcesses();
 
       const changesRes = await listChangesProcesses();
 
       if (!pendingRes.ok || !pendingRes.data || !pendingRes.data.ok) pendingQueue = [];
       else pendingQueue = sortOldestFirst(Array.isArray(pendingRes.data.processes) ? pendingRes.data.processes : []);
+
+      if (!verifiedRes.ok || !verifiedRes.data || !verifiedRes.data.ok) verifiedQueue = [];
+      else verifiedQueue = sortOldestFirst(Array.isArray(verifiedRes.data.processes) ? verifiedRes.data.processes : []);
 
       if (!approvedRes.ok || !approvedRes.data || !approvedRes.data.ok) approvedQueue = [];
       else approvedQueue = sortOldestFirst(Array.isArray(approvedRes.data.processes) ? approvedRes.data.processes : []);
